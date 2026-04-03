@@ -54,6 +54,9 @@ SHARPEN
   terra sharpen             run self-sharpening engine
   terra sharpen --dry-run   preview what would change
 
+APP
+  terra app                 launch the Qt container app
+
 TUNING
   terra tune                show active profile + axes + knobs
   terra tune list           list available universe profiles
@@ -80,4 +83,5 @@ TUNING
 - **math** evaluates expressions and navigates math primitives.
 - **sharpen** prunes stale entries, promotes hot ones, learns from usage.
 - **tune** loads universe profiles and generates behavioral instructions from thematic axes.
+- **app** launches the Qt container — the graphical shell for Terragraf.
 - **hook** runs at the right time. Enter, commit, generate, spawn.

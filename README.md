@@ -22,6 +22,12 @@ instead of scanning every file or relying on summarization.
 git clone https://github.com/curbthepain/Terragraf.git
 cd Terragraf
 
+# Install dependencies
+pip install -r requirements.txt          # core (numpy, scipy)
+pip install -r requirements-dev.txt      # + pytest
+pip install -r requirements-ml.txt       # + torch
+pip install -r requirements-app.txt      # + PySide6 (Qt GUI)
+
 # Initialize in your project
 ./terra init
 
@@ -31,6 +37,9 @@ cd Terragraf
 # Route an intent
 ./terra route bug        # -> routes/bugs.route
 ./terra route feature    # -> headers/project.h
+
+# Launch the Qt container app
+./terra app
 ```
 
 The `terra` CLI wires hooks, checks your environment, and gives the AI
@@ -54,10 +63,11 @@ Terragraf gives an AI session nine interlocking systems:
 ├── routes/           .route — intent → location ("fix bug" → bugs.route)
 ├── tables/           .table — pre-made decisions (error fixes, dep graphs)
 ├── generators/             — scripts that read structure and produce output
-├── instances/              — peer AI instances sharing one scaffold
+├── instances/              — peer AI instances sharing one scaffold (socket + filesystem IPC)
 ├── git/                    — branch/commit/PR workflows baked in
 ├── sharpen/                — self-sharpening engine (prunes stale, promotes hot)
 ├── tuning/                 — thematic tension calibration (profiles, knobs, zones)
+├── app/                    — Qt container application (PySide6)
 ├── compute/
 │   ├── fft/                — FFT / spectral analysis (numpy + C++ FFTW)
 │   ├── math/               — linalg, algebra, stats, transforms
@@ -65,10 +75,10 @@ Terragraf gives an AI session nine interlocking systems:
 │   ├── vulkan/             — Vulkan instance, pipeline, memory
 │   └── render/             — OpenGL mesh + volume renderers
 ├── viz/                    — spectrograms, heatmaps, 3D nodes, volumes
-├── imgui/                  — real-time ImGui math modeling app
+├── imgui/                  — real-time ImGui math modeling app (TCP bridge to Python)
 ├── ml/                     — PyTorch models, datasets, training
 ├── hooks/                  — lifecycle hooks (enter, commit, generate)
-└── tests/                  — pytest suite
+└── tests/                  — pytest suite (195 tests)
 ```
 
 ### Headers
@@ -105,8 +115,8 @@ shaders.
 
 Multiple AI instances running as peers instead of a parent/child agent
 hierarchy. They share the same scaffolding, pull tasks from a shared
-queue, and write results back. No context window tax. No summarization
-loss.
+queue, and write results back via socket or filesystem IPC. No context
+window tax. No summarization loss.
 
 This is the architectural thesis of Terragraf — see
 [INSTANCES.md](INSTANCES.md) for the full design.
@@ -148,9 +158,8 @@ terra tune instructions    # full behavioral output
 
 ## What's next
 
-- **Instance coordination over sockets and pipes** — replacing
-  filesystem IPC with real-time socket dispatch for sub-millisecond task
-  handoff between instances.
+- **Qt container app** — expanding the PySide6 shell with panels,
+  embedded ImGui viewer, and terra command integration.
 
 - **Language-aware output** — generators adapt conventions and tooling
   per project language without separate configurations.
