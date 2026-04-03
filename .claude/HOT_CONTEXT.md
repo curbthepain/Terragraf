@@ -1,8 +1,8 @@
 # Hot Context — Thematic Tension Calibration Framework
 
-## Status: Phase 2 Complete — Tests Passing
+## Status: Phase 2 Complete + Goals 3 & 4 Done — Tests Passing
 
-All Phase 1 and Phase 2 work is done and verified. 154 tests pass (95 existing + 59 tuning).
+All Phase 1 and Phase 2 work is done and verified. 177 tests pass (95 existing + 82 tuning).
 
 ## What's Been Done
 
@@ -18,7 +18,7 @@ All Phase 1 and Phase 2 work is done and verified. 154 tests pass (95 existing +
 - Build integration (CMakeLists.txt, main.cpp)
 - Commands card updated + SVG regenerated (11 categories, TUNING added)
 - README + COMMANDS.md updated
-- `test_tuning.py` — 59 tests covering schema, loader, engine, axes, zones, knobs, instructions, behavior parsing, state export/import, JSON persistence
+- `test_tuning.py` — 82 tests covering schema, loader, engine, axes, zones, knobs, instructions, behavior parsing, state export/import, JSON persistence, CLI state round-trip, and end-to-end CLI integration (subprocess)
 
 ## Next Goals
 
@@ -26,15 +26,17 @@ All Phase 1 and Phase 2 work is done and verified. 154 tests pass (95 existing +
 
 2. **TCP bridge connection** — wire the C++ side of the bridge protocol. ImGui panels need a TCP client that connects to bridge.py on localhost:9876, sends/receives length-prefixed JSON. Start with tuning panel as the first live-connected panel.
 
-3. **CLI integration test** — end-to-end test that spawns `terra tune list`, `terra tune load`, `terra tune set`, etc. as subprocesses and validates stdout output. Not just engine unit tests — test the actual CLI dispatch path.
+## Completed Goals
 
-4. **Tuning state JSON persistence test** — test the `.tuning_state.json` round-trip through the CLI (load profile via CLI, set knob, verify state file written, load fresh engine from state file, verify restored state matches).
+3. **CLI integration test** — 14 subprocess tests covering all `terra tune` subcommands + error paths. `TestCLIIntegration` in `test_tuning.py`.
+
+4. **Tuning state JSON persistence test** — 9 tests for `.tuning_state.json` round-trip through CLI `_load_engine`/`_save_state`. `TestCLIStatePersistence` in `test_tuning.py`. Added `TUNING_STATE_FILE` env var override in `cli.py` for test isolation.
 
 ## Key Files
 
 ```
 .scaffold/tuning/           — Python engine package
 .scaffold/imgui/             — ImGui app (panels, bridge, build)
-.scaffold/tests/test_tuning.py — 59 tuning tests
+.scaffold/tests/test_tuning.py — 82 tuning tests
 terra                        — CLI entry point
 ```
