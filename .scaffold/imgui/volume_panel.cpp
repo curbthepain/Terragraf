@@ -6,8 +6,8 @@
  * Pairs with viz/3d/volume.py and compute/shaders/volume.comp.
  */
 
-// #include "imgui.h"
-// #include "implot.h"
+#include "imgui.h"
+#include "implot.h"
 
 #include <vector>
 #include <cmath>
@@ -117,65 +117,68 @@ void extract_slices() {
  * Call this every frame from main loop.
  */
 void render_volume_panel() {
-    // if (!state.has_data) generate_test_volume();
-    //
-    // ImGui::Begin("Volume Slicer");
-    //
-    // // Slice controls
-    // bool changed = false;
-    // changed |= ImGui::SliderInt("X (Sagittal)", &state.slice_x, 0, state.size_x - 1);
-    // changed |= ImGui::SliderInt("Y (Coronal)", &state.slice_y, 0, state.size_y - 1);
-    // changed |= ImGui::SliderInt("Z (Axial)", &state.slice_z, 0, state.size_z - 1);
-    //
-    // ImGui::Separator();
-    //
-    // // Window/Level controls
-    // ImGui::SliderFloat("Window Center", &state.window_center, 0.0f, 1.0f);
-    // ImGui::SliderFloat("Window Width", &state.window_width, 0.01f, 2.0f);
-    //
-    // if (ImGui::Button("Reset View")) {
-    //     state.slice_x = state.size_x / 2;
-    //     state.slice_y = state.size_y / 2;
-    //     state.slice_z = state.size_z / 2;
-    //     state.window_center = 0.5f;
-    //     state.window_width = 1.0f;
-    //     changed = true;
-    // }
-    //
-    // if (changed) extract_slices();
-    //
-    // ImGui::Separator();
-    //
-    // // Render three slice views side by side
-    // float wl_min = state.window_center - state.window_width / 2;
-    // float wl_max = state.window_center + state.window_width / 2;
-    //
-    // ImGui::Text("Axial (Z=%d)", state.slice_z);
-    // if (ImPlot::BeginPlot("##axial", ImVec2(250, 250))) {
-    //     ImPlot::PlotHeatmap("##ax", state.slice_xy.data(),
-    //         state.size_y, state.size_x, wl_min, wl_max);
-    //     ImPlot::EndPlot();
-    // }
-    // ImGui::SameLine();
-    //
-    // ImGui::BeginGroup();
-    // ImGui::Text("Coronal (Y=%d)", state.slice_y);
-    // if (ImPlot::BeginPlot("##coronal", ImVec2(250, 250))) {
-    //     ImPlot::PlotHeatmap("##cor", state.slice_xz.data(),
-    //         state.size_z, state.size_x, wl_min, wl_max);
-    //     ImPlot::EndPlot();
-    // }
-    // ImGui::EndGroup();
-    // ImGui::SameLine();
-    //
-    // ImGui::BeginGroup();
-    // ImGui::Text("Sagittal (X=%d)", state.slice_x);
-    // if (ImPlot::BeginPlot("##sagittal", ImVec2(250, 250))) {
-    //     ImPlot::PlotHeatmap("##sag", state.slice_yz.data(),
-    //         state.size_z, state.size_y, wl_min, wl_max);
-    //     ImPlot::EndPlot();
-    // }
-    // ImGui::EndGroup();
-    //
-    // ImGui::End();
+    if (!state.has_data) {
+        generate_test_volume();
+        extract_slices();
+    }
+
+    ImGui::Begin("Volume Slicer");
+
+    // Slice controls
+    bool changed = false;
+    changed |= ImGui::SliderInt("X (Sagittal)", &state.slice_x, 0, state.size_x - 1);
+    changed |= ImGui::SliderInt("Y (Coronal)", &state.slice_y, 0, state.size_y - 1);
+    changed |= ImGui::SliderInt("Z (Axial)", &state.slice_z, 0, state.size_z - 1);
+
+    ImGui::Separator();
+
+    // Window/Level controls
+    ImGui::SliderFloat("Window Center", &state.window_center, 0.0f, 1.0f);
+    ImGui::SliderFloat("Window Width", &state.window_width, 0.01f, 2.0f);
+
+    if (ImGui::Button("Reset View")) {
+        state.slice_x = state.size_x / 2;
+        state.slice_y = state.size_y / 2;
+        state.slice_z = state.size_z / 2;
+        state.window_center = 0.5f;
+        state.window_width = 1.0f;
+        changed = true;
+    }
+
+    if (changed) extract_slices();
+
+    ImGui::Separator();
+
+    // Render three slice views side by side
+    float wl_min = state.window_center - state.window_width / 2;
+    float wl_max = state.window_center + state.window_width / 2;
+
+    ImGui::Text("Axial (Z=%d)", state.slice_z);
+    if (ImPlot::BeginPlot("##axial", ImVec2(250, 250))) {
+        ImPlot::PlotHeatmap("##ax", state.slice_xy.data(),
+            state.size_y, state.size_x, wl_min, wl_max);
+        ImPlot::EndPlot();
+    }
+    ImGui::SameLine();
+
+    ImGui::BeginGroup();
+    ImGui::Text("Coronal (Y=%d)", state.slice_y);
+    if (ImPlot::BeginPlot("##coronal", ImVec2(250, 250))) {
+        ImPlot::PlotHeatmap("##cor", state.slice_xz.data(),
+            state.size_z, state.size_x, wl_min, wl_max);
+        ImPlot::EndPlot();
+    }
+    ImGui::EndGroup();
+    ImGui::SameLine();
+
+    ImGui::BeginGroup();
+    ImGui::Text("Sagittal (X=%d)", state.slice_x);
+    if (ImPlot::BeginPlot("##sagittal", ImVec2(250, 250))) {
+        ImPlot::PlotHeatmap("##sag", state.slice_yz.data(),
+            state.size_z, state.size_y, wl_min, wl_max);
+        ImPlot::EndPlot();
+    }
+    ImGui::EndGroup();
+
+    ImGui::End();
 }

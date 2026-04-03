@@ -395,16 +395,42 @@ cmd_imgui() {
             echo -e "${BOLD}Building ImGui app...${RESET}"
             local build_dir="$SCAFFOLD/imgui/build"
             mkdir -p "$build_dir"
-            if command -v cmake &>/dev/null; then
-                cmake -B "$build_dir" -S "$SCAFFOLD/imgui" && cmake --build "$build_dir"
+
+            # Locate cmake: VS2022 bundled, then PATH
+            local vs_cmake="/c/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe"
+            local cmake_cmd=""
+            if [ -f "$vs_cmake" ]; then
+                cmake_cmd="$vs_cmake"
+            elif command -v cmake &>/dev/null; then
+                cmake_cmd="cmake"
             else
                 echo -e "  ${RED}cmake required to build ImGui app${RESET}"
-                echo -e "  ${DIM}install: sudo apt install cmake (Linux) or winget install cmake (Windows)${RESET}"
+                echo -e "  ${DIM}install: winget install cmake (Windows) or sudo apt install cmake (Linux)${RESET}"
+                return 1
+            fi
+
+            # Configure + build (VS generator avoids vcvars requirement on Windows)
+            if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* || "$OSTYPE" == "win32"* ]]; then
+                "$cmake_cmd" -G "Visual Studio 17 2022" -A x64 \
+                    -B "$build_dir" -S "$SCAFFOLD/imgui" \
+                && "$cmake_cmd" --build "$build_dir" --config Release
+            else
+                "$cmake_cmd" -DCMAKE_BUILD_TYPE=Release \
+                    -B "$build_dir" -S "$SCAFFOLD/imgui" \
+                && "$cmake_cmd" --build "$build_dir"
             fi
             ;;
         run)
-            local binary="$SCAFFOLD/imgui/build/terragraf_imgui"
-            if [ -x "$binary" ]; then
+            local binary=""
+            # VS generator puts binary in Release/ subdirectory
+            if [ -f "$SCAFFOLD/imgui/build/Release/terragraf_imgui.exe" ]; then
+                binary="$SCAFFOLD/imgui/build/Release/terragraf_imgui.exe"
+            elif [ -f "$SCAFFOLD/imgui/build/terragraf_imgui.exe" ]; then
+                binary="$SCAFFOLD/imgui/build/terragraf_imgui.exe"
+            elif [ -f "$SCAFFOLD/imgui/build/terragraf_imgui" ]; then
+                binary="$SCAFFOLD/imgui/build/terragraf_imgui"
+            fi
+            if [ -n "$binary" ]; then
                 "$binary"
             else
                 echo -e "  ${YELLOW}not built yet${RESET}"
