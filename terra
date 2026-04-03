@@ -560,6 +560,70 @@ cmd_tune() {
     $(python_cmd) "$SCAFFOLD/tuning/cli.py" "$action" "${@:2}"
 }
 
+# ── mode ─────────────────────────────────────────────────────────────
+
+cmd_mode() {
+    local action="${1:-show}"
+
+    if ! has_python; then
+        echo -e "  ${RED}python required for mode detection${RESET}"
+        return 1
+    fi
+
+    case "$action" in
+        show)
+            $(python_cmd) -c "
+import sys; sys.path.insert(0, '$SCAFFOLD')
+from modes.detector import detect
+info = detect()
+print(f'  mode     \033[1m{info.mode.value}\033[0m')
+print(f'  source   {info.source}')
+print()
+if info.is_ci:
+    print('  \033[33mCI mode — headless, tests/lint only\033[0m')
+    print('  Blocked systems:')
+    for s in sorted(info.blocked):
+        print(f'    \033[31m✗\033[0m {s}')
+else:
+    print('  \033[32mApp mode — full interactive access\033[0m')
+print()
+print('  Capabilities:')
+for c in sorted(info.capabilities):
+    print(f'    \033[32m✓\033[0m {c}')
+"
+            ;;
+        check)
+            # Exit 0 if app mode, exit 1 if CI mode
+            $(python_cmd) -c "
+import sys; sys.path.insert(0, '$SCAFFOLD')
+from modes.detector import detect
+info = detect()
+sys.exit(0 if info.is_app else 1)
+"
+            ;;
+        can)
+            local cap="${2:?Usage: terra mode can <capability>}"
+            $(python_cmd) -c "
+import sys; sys.path.insert(0, '$SCAFFOLD')
+from modes.detector import detect
+info = detect()
+if info.can('$cap'):
+    print('  \033[32m✓\033[0m $cap is available in ' + info.mode.value + ' mode')
+    sys.exit(0)
+else:
+    print('  \033[31m✗\033[0m $cap is not available in ' + info.mode.value + ' mode')
+    sys.exit(1)
+"
+            ;;
+        *)
+            echo -e "  ${BOLD}terra mode${RESET}"
+            echo -e "    ${CYAN}show${RESET}           display current mode and capabilities"
+            echo -e "    ${CYAN}check${RESET}          exit 0 if app mode, exit 1 if CI"
+            echo -e "    ${CYAN}can${RESET} <cap>      check if a capability is available"
+            ;;
+    esac
+}
+
 # ── app ──────────────────────────────────────────────────────────────
 
 cmd_app() {
@@ -601,6 +665,7 @@ cmd_help() {
     echo -e "  ${CYAN}terra math${RESET} <action>      math operations"
     echo -e "  ${CYAN}terra sharpen${RESET} [action]   self-sharpening analytics"
     echo -e "  ${CYAN}terra tune${RESET} [action]      thematic calibration"
+    echo -e "  ${CYAN}terra mode${RESET} [action]     detect CI vs App mode"
     echo -e "  ${CYAN}terra app${RESET}                Qt container app"
     echo -e "  ${CYAN}terra help${RESET}               this"
     echo ""
@@ -626,6 +691,7 @@ case "${1:-}" in
     math)     shift; cmd_math "$@" ;;
     sharpen)  shift; cmd_sharpen "$@" ;;
     tune)     shift; cmd_tune "$@" ;;
+    mode)     shift; cmd_mode "$@" ;;
     app)      shift; cmd_app "$@" ;;
     help|-h|--help) cmd_help ;;
     *)        cmd_help ;;

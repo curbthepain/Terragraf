@@ -45,5 +45,18 @@ else
     echo "  No GPU tools found (vulkaninfo, nvidia-smi)"
 fi
 
+# Mode detection
+echo ""
+echo "Mode:"
+if [ -n "${TERRAGRAF_MODE:-}" ]; then
+    echo "  Explicit: $TERRAGRAF_MODE (TERRAGRAF_MODE env var)"
+elif [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ]; then
+    echo "  Detected: ci (CI environment variables present)"
+elif [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]; then
+    echo "  Detected: app (display server available)"
+else
+    echo "  Detected: ci (no display server)"
+fi
+
 echo ""
 echo "Read .scaffold/ENTRY.md to begin."
