@@ -1,6 +1,6 @@
 # Hot Context — Terragraf
 
-## Status: Qt Container App Wired — 203 Tests Passing
+## Status: Qt Container App Wired — 302 Tests Passing
 
 Full Qt container shell with sidebar navigation, debug page, tuning page, viewer page, and settings page. ImGui app updated with debug panel and settings window.
 
@@ -50,12 +50,14 @@ Full Qt container shell with sidebar navigation, debug page, tuning page, viewer
 - `requirements-app.txt` — core + PySide6
 - CI updated to use `requirements-dev.txt`
 
-### Tests — 203 Total (7 skipped)
+### Tests — 302 Total
 - `test_algebra.py` — 10 | `test_fft.py` — 15 | `test_generators.py` — 10
 - `test_linalg.py` — 13 | `test_spectral.py` — 10 | `test_stats.py` — 15
 - `test_transforms.py` — 10 | `test_tuning.py` — 82
-- `test_transport.py` — 16 | `test_app.py` — 17 (10 pass, 7 skip without PySide6)
-- Dependencies: numpy, scipy, pytest (via requirements-dev.txt)
+- `test_transport.py` — 16 | `test_app.py` — 17
+- `test_sharpen.py` — 30 | `test_viz.py` — 17 | `test_viz3d.py` — 45
+- See TESTS.md for full reference
+- Dependencies: numpy, scipy, pytest, matplotlib, PySide6 (via requirements-dev.txt + requirements-app.txt)
 
 ## Next Goals
 

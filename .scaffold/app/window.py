@@ -210,7 +210,7 @@ class MainWindow(QMainWindow):
         sep.setFrameShape(QFrame.Shape.HLine)
         sep.setFixedWidth(200)
 
-        status_line = QLabel("195 tests passing")
+        status_line = QLabel("302 tests passing")
         status_line.setObjectName("subtitle")
         status_line.setAlignment(Qt.AlignmentFlag.AlignCenter)
         status_line.setStyleSheet(f"color: {theme.GREEN};")
