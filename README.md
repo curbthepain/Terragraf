@@ -41,7 +41,7 @@ command reference.
 
 ## What it does
 
-Terragraf gives an AI session seven interlocking systems:
+Terragraf gives an AI session eight interlocking systems:
 
 ```
 .scaffold/
@@ -52,7 +52,7 @@ Terragraf gives an AI session seven interlocking systems:
 ├── generators/             — scripts that read structure and produce output
 ├── instances/              — peer AI instances sharing one scaffold
 ├── git/                    — branch/commit/PR workflows baked in
-│
+├── sharpen/                — self-sharpening engine (prunes stale, promotes hot)
 ├── compute/
 │   ├── fft/                — FFT / spectral analysis (numpy + C++ FFTW)
 │   ├── math/               — linalg, algebra, stats, transforms
@@ -111,15 +111,22 @@ This is the architectural thesis of Terragraf — see
 Branching, commit, and PR workflows baked into the structure so the AI
 follows project conventions without being told each time.
 
+### Self-Sharpening
+
+The scaffold updates itself from usage. The sharpening engine runs four
+passes: stale entries with no hits get pruned, hot entries with
+disproportionate traffic get annotated, recurring unmatched errors get
+added to `errors.table` automatically, and low-confidence routes get
+flagged. The scaffold becomes a learning surface, not a frozen config.
+
+```bash
+terra sharpen --dry-run    # preview what would change
+terra sharpen              # apply sharpening
+```
+
 ---
 
 ## What's next
-
-- **Self-sharpening routes and tables** — the scaffolding updates itself
-  from encountered errors and completed tasks instead of staying static.
-  Routes that never fire get pruned. Error patterns that keep appearing
-  get added to tables automatically. The scaffold becomes a learning
-  surface, not a frozen config.
 
 - **Instance coordination over sockets and pipes** — replacing
   filesystem IPC with real-time socket dispatch for sub-millisecond task
