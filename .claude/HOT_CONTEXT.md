@@ -1,42 +1,67 @@
-# Hot Context — Thematic Tension Calibration Framework
+# Hot Context — Terragraf
 
-## Status: Phase 2 Complete + Goals 3 & 4 Done — Tests Passing
+## Status: TCP Bridge + Socket IPC Done — 193 Tests Passing
 
-All Phase 1 and Phase 2 work is done and verified. 177 tests pass (95 existing + 82 tuning).
+All work through socket IPC is complete and tested. 193 tests pass across 9 suites.
 
-## What's Been Done
+## What's Done
 
-### Phase 1 — Python Engine
-- `.scaffold/tuning/` package — schema, loader, engine, config, tracker, CLI
-- 7 starter universe profiles at `.scaffold/tuning/profiles/`
-- 6 reaction signature `.inc` fragments at `.scaffold/includes/reactions/`
-- Scaffold integration — headers, manifest, routes, deps, terra CLI
+### Python Tuning Engine — Complete
+- `.scaffold/tuning/` — schema, loader, engine, config, tracker, CLI
+- 8 universe profiles, 6 reaction signatures
+- 82 tests passing
 
-### Phase 2 — ImGui Integration & Docs
-- `tuning_panel.cpp` — data-driven ImGui panel (profile selector, axes, zones, knobs by domain, behavioral instructions)
-- `bridge.py` — 7 tune_* message handlers with ThematicEngine integration
-- Build integration (CMakeLists.txt, main.cpp)
-- Commands card updated + SVG regenerated (11 categories, TUNING added)
-- README + COMMANDS.md updated
-- `test_tuning.py` — 82 tests covering schema, loader, engine, axes, zones, knobs, instructions, behavior parsing, state export/import, JSON persistence, CLI state round-trip, and end-to-end CLI integration (subprocess)
+### ImGui App — Complete (TCP Bridge Wired)
+- 5 panels: math, spectrogram, node editor, volume slicer, tuning
+- `bridge_client.h/cpp` — C++ TCP client, background recv thread, main-thread dispatch
+- `tuning_panel.cpp` — all bridge_send calls wired (tune_list, tune_load, tune_zone, tune_set_knob, etc.)
+- `main.cpp` — bridge connect on startup, poll each frame, disconnect on cleanup
+- `CMakeLists.txt` — bridge_client.cpp added, Threads + ws2_32 linked
+- **Needs debug at home**: compile + run the ImGui app with bridge.py to verify end-to-end
 
-## Next Goals
+### Python Bridge Server — Complete
+- `bridge.py` — TCP server, 7 tune_* handlers, length-prefixed JSON protocol
 
-1. **Construct the ImGui app** — uncomment scaffold code in main.cpp and all panels, vendor ImGui/ImPlot/ImNodes/GLFW/glad as submodules, get the app compiling and rendering on Windows 11. Target: all 5 panels render in a docked layout.
+### Socket IPC for Instances — Complete
+- `transport.py` — TransportServer + TransportClient, same wire protocol as imgui bridge
+- `manager.py` — upgraded to support "auto"/"socket"/"filesystem" IPC modes
+- `instance.py` — upgraded with socket transport, wait_for_task(), cleanup()
+- `MANIFEST.toml` — ipc mode changed from "filesystem" to "auto"
+- 16 transport tests passing (protocol, server/client, manager integration)
 
-2. **TCP bridge connection** — wire the C++ side of the bridge protocol. ImGui panels need a TCP client that connects to bridge.py on localhost:9876, sends/receives length-prefixed JSON. Start with tuning panel as the first live-connected panel.
+### Tests — 193 Total
+- `test_algebra.py` — 10 | `test_fft.py` — 15 | `test_generators.py` — 10
+- `test_linalg.py` — 13 | `test_spectral.py` — 10 | `test_stats.py` — 15
+- `test_transforms.py` — 10 | `test_tuning.py` — 82
+- `test_transport.py` — 16 (protocol, server/client, manager integration)
+- Dependencies: numpy, scipy, pytest, pytest-timeout
 
-## Completed Goals
+## Next Goal
 
-3. **CLI integration test** — 14 subprocess tests covering all `terra tune` subcommands + error paths. `TestCLIIntegration` in `test_tuning.py`.
-
-4. **Tuning state JSON persistence test** — 9 tests for `.tuning_state.json` round-trip through CLI `_load_engine`/`_save_state`. `TestCLIStatePersistence` in `test_tuning.py`. Added `TUNING_STATE_FILE` env var override in `cli.py` for test isolation.
+**Qt container app** — build the CLI entry point as a Qt application. Replaces the `terra` bash script as the primary interface. Start in a new session.
 
 ## Key Files
 
 ```
-.scaffold/tuning/           — Python engine package
-.scaffold/imgui/             — ImGui app (panels, bridge, build)
-.scaffold/tests/test_tuning.py — 82 tuning tests
-terra                        — CLI entry point
+.scaffold/imgui/bridge_client.h    — C++ TCP client header
+.scaffold/imgui/bridge_client.cpp  — C++ TCP client impl
+.scaffold/imgui/bridge.py          — Python TCP server
+.scaffold/imgui/main.cpp           — ImGui app entry (bridge wired)
+.scaffold/imgui/tuning_panel.cpp   — tuning panel (bridge calls live)
+.scaffold/imgui/CMakeLists.txt     — build config (bridge + threads)
+.scaffold/instances/transport.py   — socket IPC transport layer
+.scaffold/instances/manager.py     — instance manager (socket + filesystem)
+.scaffold/instances/instance.py    — instance lifecycle (socket + filesystem)
+.scaffold/tests/test_transport.py  — 16 transport tests
+.scaffold/tests/test_tuning.py     — 82 tuning tests
 ```
+
+## Debug Notes (for home session)
+
+The C++ TCP bridge client is written but not compiled yet (no GLFW/ImGui on this machine). To test end-to-end:
+
+1. `cd .scaffold/imgui && mkdir build && cd build && cmake .. && make`
+2. In one terminal: `python .scaffold/imgui/bridge.py` (or run via terra)
+3. In another: `./build/terragraf_imgui`
+4. Tuning panel should show "Waiting for profile list..." then populate after bridge responds
+5. Check: profile load, zone switching, knob adjustment, behavioral instructions refresh

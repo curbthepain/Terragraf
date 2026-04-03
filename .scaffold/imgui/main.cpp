@@ -20,12 +20,21 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include "bridge_client.h"
+
+// Global bridge client — panels use this to send/receive
+BridgeClient g_bridge;
+
 // Forward declarations for panel render functions
 void render_math_panel();
 void render_spectrogram_panel();
 void render_node_editor();
 void render_volume_panel();
 void render_tuning_panel();
+
+// Bridge handler registration (defined in tuning_panel.cpp, etc.)
+void register_tuning_bridge_handlers(BridgeClient& bridge);
+
 
 /**
  * GLFW error callback.
@@ -75,6 +84,12 @@ int main(int argc, char** argv) {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 450");
 
+    // ── Bridge connection ───────────────────────────────────────────
+    register_tuning_bridge_handlers(g_bridge);
+    if (!g_bridge.connect()) {
+        fprintf(stderr, "[main] bridge not available — running offline\n");
+    }
+
     // ── Main loop ──────────────────────────────────────────────────
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -86,6 +101,9 @@ int main(int argc, char** argv) {
 
         // Dockspace
         ImGui::DockSpaceOverViewport();
+
+        // Poll bridge messages (dispatches to handlers on main thread)
+        g_bridge.poll();
 
         // ── Panels ─────────────────────────────────────────────
         render_math_panel();
@@ -107,6 +125,7 @@ int main(int argc, char** argv) {
     }
 
     // ── Cleanup ────────────────────────────────────────────────────
+    g_bridge.disconnect();
     ImNodes::DestroyContext();
     ImPlot::DestroyContext();
     ImGui_ImplOpenGL3_Shutdown();

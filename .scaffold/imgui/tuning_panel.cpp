@@ -9,12 +9,16 @@
 
 #include "imgui.h"
 #include "implot.h"
+#include "bridge_client.h"
 
 #include <cmath>
 #include <vector>
 #include <array>
 #include <string>
 #include <algorithm>
+#include <cstring>
+
+extern BridgeClient g_bridge;
 
 namespace {
 
@@ -63,6 +67,7 @@ struct TuningPanelState {
     std::vector<std::string> profile_names;
     int selected_profile = 0;
     bool profiles_loaded = false;
+    bool list_requested = false;
 
     // Active profile
     bool profile_active = false;
@@ -110,7 +115,84 @@ std::vector<KnobState> knobs_for_domain(const std::string& domain) {
     return result;
 }
 
+// Format a JSON object string from key-value pairs
+std::string json_obj(std::initializer_list<std::pair<std::string, std::string>> pairs) {
+    std::string out = "{";
+    bool first = true;
+    for (auto& [k, v] : pairs) {
+        if (!first) out += ", ";
+        out += "\"" + k + "\": " + v;
+        first = false;
+    }
+    out += "}";
+    return out;
+}
+
+std::string json_str(const std::string& s) {
+    return "\"" + s + "\"";
+}
+
 } // anonymous namespace
+
+// ── Bridge handler registration ───────────────────────────────────
+
+void register_tuning_bridge_handlers(BridgeClient& bridge) {
+    // tune_profiles — list of profile names
+    bridge.on("tune_profiles", [](const BridgeMsg& msg) {
+        // Parse profile names from JSON array in data.profiles
+        // Raw JSON: {"type":"tune_profiles","data":{"profiles":["name1","name2",...]}}
+        std::string profiles_str = msg.data_string("profiles");
+        // profiles_str is a JSON array like ["a","b","c"]
+        state.profile_names.clear();
+        size_t pos = 0;
+        while ((pos = profiles_str.find('"', pos)) != std::string::npos) {
+            pos++; // skip opening quote
+            auto end = profiles_str.find('"', pos);
+            if (end == std::string::npos) break;
+            state.profile_names.push_back(profiles_str.substr(pos, end - pos));
+            pos = end + 1;
+        }
+        state.profiles_loaded = true;
+    });
+
+    // tune_profile_data — full profile loaded
+    bridge.on("tune_profile_data", [](const BridgeMsg& msg) {
+        state.profile_active = true;
+        state.name = msg.get_string("name");
+        state.genre = msg.get_string("genre");
+        state.description = msg.get_string("description");
+        state.thematic_promise = msg.get_string("thematic_promise");
+        state.register_text = msg.get_string("register");
+        state.mortality_weight = msg.get_string("mortality_weight");
+        state.power_fantasy = msg.get_string("power_fantasy");
+        state.shitpost_tolerance = msg.get_string("shitpost_tolerance");
+        state.reaction_template = msg.get_string("reaction_template");
+        state.reaction_description = msg.get_string("reaction_description");
+        state.directive = msg.get_string("bot_directive");
+        state.behavioral_instructions = msg.get_string("instructions");
+    });
+
+    // tune_state_update — axes/zone/knobs changed
+    bridge.on("tune_state_update", [](const BridgeMsg& msg) {
+        std::string zone = msg.get_string("zone");
+        if (zone.empty() || zone == "null") {
+            state.active_zone = -1;
+        } else {
+            for (int i = 0; i < (int)state.zones.size(); ++i) {
+                if (state.zones[i].name == zone) {
+                    state.active_zone = i;
+                    break;
+                }
+            }
+        }
+        state.behavioral_instructions = msg.get_string("instructions");
+    });
+
+    // tune_instructions — behavioral text update
+    bridge.on("tune_instructions", [](const BridgeMsg& msg) {
+        state.behavioral_instructions = msg.data_string("text");
+    });
+}
 
 /**
  * Render the thematic tension calibration panel.
@@ -122,13 +204,26 @@ std::vector<KnobState> knobs_for_domain(const std::string& domain) {
 void render_tuning_panel() {
     ImGui::Begin("Thematic Calibration");
 
+    // Connection status
+    if (!g_bridge.is_connected()) {
+        ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f),
+            "Bridge disconnected");
+        if (ImGui::Button("Reconnect")) {
+            g_bridge.connect();
+        }
+        ImGui::End();
+        return;
+    }
+
     // ── Profile Selector ──────────────────────────────────────────
 
     if (!state.profiles_loaded) {
         ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f),
             "Waiting for profile list from bridge...");
-        // On first frame, send tune_list request via bridge
-        // bridge_send("tune_list", {});
+        if (!state.list_requested) {
+            g_bridge.send("tune_list");
+            state.list_requested = true;
+        }
         ImGui::End();
         return;
     }
@@ -146,8 +241,8 @@ void render_tuning_panel() {
                      combo_items.c_str());
         ImGui::SameLine();
         if (ImGui::Button("Load")) {
-            // bridge_send("tune_load",
-            //     {{"name", state.profile_names[state.selected_profile]}});
+            g_bridge.send("tune_load",
+                json_obj({{"name", json_str(state.profile_names[state.selected_profile])}}));
         }
     }
 
@@ -219,10 +314,10 @@ void render_tuning_panel() {
             }
             if (ImGui::Button(state.zones[i].name.c_str())) {
                 if (is_active) {
-                    // bridge_send("tune_zone_exit", {});
+                    g_bridge.send("tune_zone_exit");
                 } else {
-                    // bridge_send("tune_zone",
-                    //     {{"zone", state.zones[i].name}});
+                    g_bridge.send("tune_zone",
+                        json_obj({{"zone", json_str(state.zones[i].name)}}));
                 }
             }
             if (is_active) {
@@ -236,7 +331,7 @@ void render_tuning_panel() {
         if (state.active_zone >= 0) {
             ImGui::SameLine();
             if (ImGui::SmallButton("Exit Zone")) {
-                // bridge_send("tune_zone_exit", {});
+                g_bridge.send("tune_zone_exit");
             }
         }
 
@@ -262,17 +357,17 @@ void render_tuning_panel() {
                         if (ImGui::SliderFloat(knob.label.c_str(),
                                 &knob.slider_value,
                                 knob.min_val, knob.max_val)) {
-                            // bridge_send("tune_set_knob",
-                            //     {{"id", knob.id},
-                            //      {"value", knob.slider_value}});
+                            g_bridge.send("tune_set_knob",
+                                json_obj({{"id", json_str(knob.id)},
+                                          {"value", std::to_string(knob.slider_value)}}));
                         }
                     }
                     else if (knob.knob_type == "toggle") {
                         if (ImGui::Checkbox(knob.label.c_str(),
                                 &knob.toggle_value)) {
-                            // bridge_send("tune_set_knob",
-                            //     {{"id", knob.id},
-                            //      {"value", knob.toggle_value}});
+                            g_bridge.send("tune_set_knob",
+                                json_obj({{"id", json_str(knob.id)},
+                                          {"value", knob.toggle_value ? "true" : "false"}}));
                         }
                     }
                     else if (knob.knob_type == "dropdown") {
@@ -285,10 +380,9 @@ void render_tuning_panel() {
                         if (ImGui::Combo(knob.label.c_str(),
                                 &knob.dropdown_index,
                                 opts.c_str())) {
-                            // bridge_send("tune_set_knob",
-                            //     {{"id", knob.id},
-                            //      {"value",
-                            //       knob.options[knob.dropdown_index]}});
+                            g_bridge.send("tune_set_knob",
+                                json_obj({{"id", json_str(knob.id)},
+                                          {"value", json_str(knob.options[knob.dropdown_index])}}));
                         }
                     }
                     else if (knob.knob_type == "curve") {
@@ -315,9 +409,9 @@ void render_tuning_panel() {
                         if (ImGui::InputText(knob.label.c_str(),
                                 buf, sizeof(buf))) {
                             knob.text_value = buf;
-                            // bridge_send("tune_set_knob",
-                            //     {{"id", knob.id},
-                            //      {"value", knob.text_value}});
+                            g_bridge.send("tune_set_knob",
+                                json_obj({{"id", json_str(knob.id)},
+                                          {"value", json_str(knob.text_value)}}));
                         }
                     }
 
@@ -338,7 +432,7 @@ void render_tuning_panel() {
         }
 
         if (ImGui::Button("Reset All Knobs")) {
-            // bridge_send("tune_reset_knobs", {});
+            g_bridge.send("tune_reset_knobs");
         }
 
         ImGui::Separator();
@@ -349,7 +443,7 @@ void render_tuning_panel() {
     if (ImGui::CollapsingHeader("Behavioral Instructions",
             ImGuiTreeNodeFlags_DefaultOpen)) {
         if (ImGui::Button("Refresh")) {
-            // bridge_send("tune_get_instructions", {});
+            g_bridge.send("tune_get_instructions");
         }
         ImGui::BeginChild("InstructionsScroll", ImVec2(0, 300),
             ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar);

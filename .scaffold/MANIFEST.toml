@@ -87,7 +87,7 @@ shader_lang = "glsl"        # "glsl", "hlsl", "wgsl"
 max_concurrent = 4          # Max parallel AI instances
 shared_state = ".scaffold/instances/shared/"
 instance_dir = ".scaffold/instances/"
-ipc = "filesystem"          # "filesystem", "socket", "pipe"
+ipc = "auto"                # "auto", "socket", "filesystem"
 # Each instance gets its own working context but shares
 # the scaffolding structure, headers, routes, and tables.
 # Instances communicate via the shared state directory.

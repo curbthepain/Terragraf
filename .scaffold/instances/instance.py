@@ -5,13 +5,17 @@ Single AI instance lifecycle.
 Each instance is a peer — not a child agent. It reads the same scaffolding
 as every other instance but has its own context window and task.
 
+Supports two IPC modes:
+  - "filesystem" — reads queue.json, writes results.json
+  - "socket" — connects to manager via TransportClient
+
 Lifecycle:
     1. Init — read ENTRY.md, MANIFEST.toml, task from queue
     2. Orient — read relevant headers for the task
     3. Route — consult .route files to find where to work
     4. Execute — do the work (generate, fix, build, train, etc.)
-    5. Report — write result to shared/results.json
-    6. Cleanup — release locks, update status
+    5. Report — send result via socket or write to results.json
+    6. Cleanup — release locks, disconnect, update status
 """
 
 import json
@@ -51,7 +55,13 @@ class Instance:
     """
 
     def __init__(self, task_id: str, task_description: str,
-                 task_context: dict = None, instance_id: str = ""):
+                 task_context: dict = None, instance_id: str = "",
+                 ipc: str = "auto"):
+        """
+        Args:
+            ipc: IPC mode — "auto", "socket", or "filesystem".
+                 "auto" tries socket first, falls back to filesystem.
+        """
         self.ctx = InstanceContext(
             instance_id=instance_id or f"inst-{int(time.time()) % 10000}",
             task_id=task_id,
@@ -60,6 +70,25 @@ class Instance:
             started_at=time.time(),
         )
         self._detect_platform()
+        self._transport = None
+        self._ipc_mode = ipc
+        self._pending_task = None
+
+        if ipc in ("auto", "socket"):
+            try:
+                from .transport import TransportClient
+                self._transport = TransportClient()
+                if self._transport.connect(instance_id=self.ctx.instance_id):
+                    self._ipc_mode = "socket"
+                    self._transport.on("task_assign", self._handle_task_assign)
+                    self.log("connected to manager via socket")
+                else:
+                    self._transport = None
+                    self._ipc_mode = "filesystem"
+                    self.log("socket unavailable, using filesystem IPC")
+            except Exception:
+                self._transport = None
+                self._ipc_mode = "filesystem"
 
     def orient(self):
         """
@@ -108,20 +137,73 @@ class Instance:
             "completed_at": time.time(),
         }
 
-        results_file = SHARED_DIR / "results.json"
-        results = []
-        if results_file.exists():
-            with open(results_file) as f:
-                results = json.load(f)
-        results.append(report)
-        with open(results_file, "w") as f:
-            json.dump(results, f, indent=2)
+        if self._transport and self._ipc_mode == "socket":
+            # Send result via socket
+            self._transport.send({
+                "type": "task_result",
+                "data": {
+                    "task_id": self.ctx.task_id,
+                    "status": status,
+                    "result": result,
+                    "files_modified": self.ctx.files_modified,
+                    "duration": time.time() - self.ctx.started_at,
+                }
+            })
+            self.log(f"reported via socket: {status}")
+        else:
+            # Filesystem fallback
+            results_file = SHARED_DIR / "results.json"
+            results = []
+            if results_file.exists():
+                with open(results_file) as f:
+                    results = json.load(f)
+            results.append(report)
+            with open(results_file, "w") as f:
+                json.dump(results, f, indent=2)
+            self.log(f"reported via filesystem: {status}")
 
-        print(f"[{self.ctx.instance_id}] reported: {status}")
+    def poll(self):
+        """Poll for messages from the manager (socket mode)."""
+        if self._transport:
+            self._transport.poll()
+
+    def wait_for_task(self, timeout: float = 30.0) -> Optional[dict]:
+        """
+        Wait for a task assignment from the manager (socket mode).
+        Returns the task data dict, or None on timeout.
+        """
+        if not self._transport:
+            return None
+
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            self._transport.poll()
+            if self._pending_task:
+                task = self._pending_task
+                self._pending_task = None
+                self.ctx.task_id = task.get("task_id", self.ctx.task_id)
+                self.ctx.task_description = task.get("description", "")
+                self.ctx.task_context = task.get("context", {})
+                return task
+            time.sleep(0.05)
+        return None
+
+    def cleanup(self):
+        """Disconnect transport and release resources."""
+        if self._transport:
+            self._transport.disconnect()
+            self._transport = None
 
     def log(self, message: str):
         """Instance-scoped logging."""
         print(f"[{self.ctx.instance_id}] {message}")
+
+    # ─── Socket Handlers ─────────────────────────────────────────
+
+    def _handle_task_assign(self, msg: dict):
+        """Handle a task assignment from the manager."""
+        self._pending_task = msg.get("data", {})
+        self.log(f"received task: {self._pending_task.get('description', '?')}")
 
     # ─── Internal ─────────────────────────────────────────────────
 

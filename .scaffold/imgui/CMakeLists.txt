@@ -96,6 +96,7 @@ find_package(OpenGL REQUIRED)
 
 set(SOURCES
     main.cpp
+    bridge_client.cpp
     math_panel.cpp
     spectrogram_panel.cpp
     node_editor.cpp
@@ -109,6 +110,8 @@ target_include_directories(terragraf_imgui PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+find_package(Threads REQUIRED)
+
 target_link_libraries(terragraf_imgui PRIVATE
     imgui_lib
     implot_lib
@@ -117,12 +120,17 @@ target_link_libraries(terragraf_imgui PRIVATE
     glad_gl
     glm::glm
     OpenGL::GL
+    Threads::Threads
 )
 
 # ── Platform ───────────────────────────────────────────────────────
 
 if(UNIX AND NOT APPLE)
     target_link_libraries(terragraf_imgui PRIVATE dl)
+endif()
+
+if(WIN32)
+    target_link_libraries(terragraf_imgui PRIVATE ws2_32)
 endif()
 
 # ── Install ────────────────────────────────────────────────────────

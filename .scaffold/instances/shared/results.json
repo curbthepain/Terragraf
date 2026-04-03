@@ -1,1 +1,30 @@
-[]
+[
+  {
+    "instance_id": "reporter",
+    "task_id": "5e5750fe",
+    "status": "completed",
+    "result": "all good",
+    "completed_at": 1775239591.702487
+  },
+  {
+    "instance_id": "reporter",
+    "task_id": "0a1231cb",
+    "status": "completed",
+    "result": "all good",
+    "completed_at": 1775239665.3173127
+  },
+  {
+    "instance_id": "reporter",
+    "task_id": "233b05a3",
+    "status": "completed",
+    "result": "all good",
+    "completed_at": 1775239792.2768252
+  },
+  {
+    "instance_id": "reporter",
+    "task_id": "f4075531",
+    "status": "completed",
+    "result": "all good",
+    "completed_at": 1775239832.1558006
+  }
+]
