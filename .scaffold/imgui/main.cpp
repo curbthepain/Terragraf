@@ -23,7 +23,8 @@
 #include "bridge_client.h"
 
 // Global bridge client — panels use this to send/receive
-BridgeClient g_bridge;
+BridgeClient* g_bridge = nullptr;
+static BridgeClient g_bridge_instance;
 
 // Forward declarations for panel render functions
 void render_math_panel();
@@ -31,9 +32,25 @@ void render_spectrogram_panel();
 void render_node_editor();
 void render_volume_panel();
 void render_tuning_panel();
+void render_debug_panel();
+void render_settings_panel();
 
-// Bridge handler registration (defined in tuning_panel.cpp, etc.)
+// Bridge handler registration
 void register_tuning_bridge_handlers(BridgeClient& bridge);
+void register_debug_bridge_handlers();
+
+// Settings accessors
+bool settings_show_fps_overlay();
+bool settings_show_debug_panel();
+bool settings_show_math();
+bool settings_show_spectrogram();
+bool settings_show_node_editor();
+bool settings_show_volume();
+bool settings_show_tuning();
+bool settings_vsync();
+float settings_ui_scale();
+bool settings_is_open();
+void settings_set_open(bool open);
 
 
 /**
@@ -54,7 +71,7 @@ int main(int argc, char** argv) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow* window = glfwCreateWindow(1600, 900,
-        "Terragraf — Math Modeling", nullptr, nullptr);
+        "Terragraf", nullptr, nullptr);
     if (!window) {
         glfwTerminate();
         return 1;
@@ -85,8 +102,10 @@ int main(int argc, char** argv) {
     ImGui_ImplOpenGL3_Init("#version 450");
 
     // ── Bridge connection ───────────────────────────────────────────
-    register_tuning_bridge_handlers(g_bridge);
-    if (!g_bridge.connect()) {
+    g_bridge = &g_bridge_instance;
+    register_tuning_bridge_handlers(g_bridge_instance);
+    register_debug_bridge_handlers();
+    if (!g_bridge_instance.connect()) {
         fprintf(stderr, "[main] bridge not available — running offline\n");
     }
 
@@ -103,14 +122,29 @@ int main(int argc, char** argv) {
         ImGui::DockSpaceOverViewport();
 
         // Poll bridge messages (dispatches to handlers on main thread)
-        g_bridge.poll();
+        g_bridge_instance.poll();
 
-        // ── Panels ─────────────────────────────────────────────
-        render_math_panel();
-        render_spectrogram_panel();
-        render_node_editor();
-        render_volume_panel();
-        render_tuning_panel();
+        // ── Panels (visibility controlled by settings) ─────────
+        if (settings_show_math())         render_math_panel();
+        if (settings_show_spectrogram())  render_spectrogram_panel();
+        if (settings_show_node_editor())  render_node_editor();
+        if (settings_show_volume())       render_volume_panel();
+        if (settings_show_tuning())       render_tuning_panel();
+        if (settings_show_debug_panel())  render_debug_panel();
+        if (settings_is_open())           render_settings_panel();
+
+        // FPS overlay
+        if (settings_show_fps_overlay()) {
+            ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.4f);
+            if (ImGui::Begin("##fps_overlay", nullptr,
+                    ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+                    ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
+                    ImGuiWindowFlags_NoNav)) {
+                ImGui::Text("%.1f FPS (%.2f ms)", io.Framerate, 1000.0f / io.Framerate);
+            }
+            ImGui::End();
+        }
 
         // Render
         ImGui::Render();
@@ -125,7 +159,7 @@ int main(int argc, char** argv) {
     }
 
     // ── Cleanup ────────────────────────────────────────────────────
-    g_bridge.disconnect();
+    g_bridge_instance.disconnect();
     ImNodes::DestroyContext();
     ImPlot::DestroyContext();
     ImGui_ImplOpenGL3_Shutdown();

@@ -102,6 +102,8 @@ set(SOURCES
     node_editor.cpp
     volume_panel.cpp
     tuning_panel.cpp
+    debug_panel.cpp
+    settings_panel.cpp
 )
 
 add_executable(terragraf_imgui ${SOURCES})
