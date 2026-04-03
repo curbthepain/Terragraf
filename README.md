@@ -3,7 +3,7 @@
 A scaffolting system for AI.
 
 Terraformer is the working directory any AI reads on entry. It provides
-structure, navigation, composition, and execution — everything an AI
+structure, navigation, composition, and execution everything an AI
 needs to orient itself in a codebase and start producing immediately.
 
 This is not a code generator. This is the environment the AI operates
@@ -15,33 +15,33 @@ inside of.
 
 Terraformer gives an AI session seven interlocking systems:
 
-- **Headers** — `.h` files that declare what exists in a project, its
+- **Headers** `.h` files that declare what exists in a project, its
   modules, conventions, dependencies, and platform targets. The AI reads
   these to understand the shape of things without scanning every file.
 
-- **Includes** — `.inc` fragments that compose together like C includes.
-  License blocks, file headers, test skeletons, shader skeletons — small
+- **Includes** `.inc` fragments that compose together like C includes.
+  License blocks, file headers, test skeletons, shader skeletons, small
   reusable pieces that snap into generated output.
 
-- **Routes** — `.route` tables that map intent to location. "I need to
+- **Routes** `.route` tables that map intent to location. "I need to
   fix a bug" routes to one place. "I need to add a feature" routes to
   another. The AI stops guessing and starts navigating.
 
-- **Tables** — `.table` lookups for decisions that have already been
+- **Tables** `.table` lookups for decisions that have already been
   made. Known error patterns, design patterns in use, internal dependency
   graphs. Compressed knowledge the AI consults instead of re-deriving.
 
-- **Generators** — JS, Python, and shell scripts that read the structure
+- **Generators** JS, Python, and shell scripts that read the structure
   above and produce output. Resolve includes, generate modules, scaffold
   models, emit shaders.
 
-- **Instances** — Multi-instancing that replaces the traditional agent
+- **Instances** Multi-instancing that replaces the traditional agent
   model. Instead of one AI spawning sub-agents in a hierarchy, Terraformer
   runs multiple AI instances as peers. They share the same scaffolting,
   pull tasks from a shared queue, and write results back. No context
   window tax. No summarization loss.
 
-- **Git** — Branching, commit, and PR workflows baked into the structure
+- **Git** Branching, commit, and PR workflows baked into the structure
   so the AI follows project conventions without being told each time.
 
 ## What it does tomorrow
@@ -50,7 +50,7 @@ Terraformer gives an AI session seven interlocking systems:
   filesystem IPC.
 
 - A training loop where the scaffolting learns from the AI's own
-  sessions — routes that sharpen over time, tables that grow from
+  sessions, routes that sharpen over time, tables that grow from
   encountered errors, headers that stay current as the codebase evolves.
 
 - Native Vulkan compute integration for AI workloads that need GPU
@@ -68,7 +68,7 @@ Terraformer gives an AI session seven interlocking systems:
 
 - Language-aware scaffolting that adapts its output, conventions, and
   tooling to whatever language the project uses — Python, C++, Rust,
-  JavaScript, Kotlin — without separate configurations.
+  JavaScript, Kotlin, and without separate configurations.
 
 ## Platforms
 
