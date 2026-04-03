@@ -3,7 +3,7 @@
 Instance manager — spawn, track, and coordinate parallel AI instances.
 
 This replaces the traditional agent/sub-agent model with peer instances
-that share the same scaffolting structure.
+that share the same scaffolding structure.
 
 Usage:
     manager = InstanceManager()
@@ -53,7 +53,7 @@ class InstanceInfo:
 
 class InstanceManager:
     """
-    Coordinates multiple AI instances working on the same scaffolting.
+    Coordinates multiple AI instances working on the same scaffolding.
 
     Instead of a parent AI spawning child agents, the manager
     distributes tasks to peer instances that all share the same
@@ -89,7 +89,7 @@ class InstanceManager:
         In a real implementation, this would:
         1. Read pending tasks from queue.json
         2. Spawn AI processes (each with their own context window)
-        3. Each process reads the scaffolting independently
+        3. Each process reads the scaffolding independently
         4. Each process works on its assigned task
         5. Each process writes results to results.json
         """

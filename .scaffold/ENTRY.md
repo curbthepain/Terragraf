@@ -3,8 +3,9 @@
 
 ## What This Is
 
-Kohala scaffolting. Not a project generator — this IS the project.
+Terraformer scaffolding. Not a project generator — this IS the project.
 You work from inside this structure. Any AI can slot in.
+CLI entry point: `./terra help`
 
 Targets: **Linux (Wayland)** and **Windows 10/11** only.
 
@@ -17,7 +18,7 @@ Targets: **Linux (Wayland)** and **Windows 10/11** only.
 5. **Tables (.table)** — lookup decisions. Don't re-derive what's known.
 6. **Generators (JS/PY)** — execute: read the structure, produce output.
 7. **Instances** — multi-instancing replaces agents. Run parallel AI instances
-   that share this scaffolting but work on separate tasks. Not sub-agents.
+   that share this scaffolding but work on separate tasks. Not sub-agents.
    Pseudo-agents. Structurally different.
 
 ## Structure
@@ -64,24 +65,24 @@ Targets: **Linux (Wayland)** and **Windows 10/11** only.
 │   │   └── locks/          ← File locks for coordination
 │   └── README.md           ← How multi-instancing works
 │
-├── git/                    ← Git & GitHub workflow scaffolting
+├── git/                    ← Git & GitHub workflow scaffolding
 │   ├── branch.sh           ← Branch with conventions
 │   ├── commit.sh           ← Structured commits
 │   ├── pr.sh               ← PR with templates
 │   ├── workflows/          ← CI/CD templates
 │   └── templates/          ← PR/issue templates
 │
-├── ml/                     ← PyTorch ML scaffolting
+├── ml/                     ← PyTorch ML scaffolding
 │   ├── models/             ← Architecture templates (base, CNN, transformer)
 │   ├── datasets/           ← Data pipeline templates
 │   └── training/           ← Train/eval loops, config
 │
-├── compute/                ← GPU/Math scaffolting
+├── compute/                ← GPU/Math scaffolding
 │   ├── fft/                ← FFT utilities (Python, C++, spectral)
 │   ├── vulkan/             ← Vulkan instance, pipeline, memory, layer
 │   └── shaders/            ← GLSL compute shaders
 │
-├── generators/             ← JS/PY scripts that EXECUTE the scaffolting
+├── generators/             ← JS/PY scripts that EXECUTE the scaffolding
 │   ├── resolve.js          ← Resolves #include directives in .inc files
 │   ├── gen_module.js       ← Generates a new module from headers
 │   ├── gen_model.py        ← Generates ML model from config
@@ -89,7 +90,7 @@ Targets: **Linux (Wayland)** and **Windows 10/11** only.
 │   └── scaffold.sh         ← Master orchestrator (shell baseline)
 │
 └── hooks/                  ← Lifecycle hooks
-    ├── on_enter.sh         ← Run when AI enters the scaffolting
+    ├── on_enter.sh         ← Run when AI enters the scaffolding
     ├── on_commit.sh        ← Run around commits
     ├── on_generate.sh      ← Run after file generation
     └── on_instance.sh      ← Run when an instance spawns/completes
@@ -97,17 +98,16 @@ Targets: **Linux (Wayland)** and **Windows 10/11** only.
 
 ## Flow
 
-1. Read `ENTRY.md` → understand the system (you're doing this now)
-2. Read `MANIFEST.toml` → get config, variables, what's enabled
-3. Read relevant `.h` → understand what exists
-4. Consult `.route` → find where to work
-5. Check `.table` → look up known decisions
-6. Use `.inc` → compose output from fragments
-7. Use `instances/` → spin up parallel work instead of sub-agents
-8. Use `git/` → manage version control
-9. Use `ml/` → build and train models
-10. Use `compute/` → FFT, Vulkan, GPU work
-11. Run generators → automate repetitive scaffolting
+1. Run `./terra init` → wire hooks, check environment
+2. Read `ENTRY.md` → understand the system (you're doing this now)
+3. Read `MANIFEST.toml` → get config, variables, what's enabled
+4. Run `./terra route <intent>` → find where to work
+5. Run `./terra lookup <error>` → check known fixes
+6. Run `./terra pattern` → match existing design patterns
+7. Run `./terra dep <module>` → check ripple effects
+8. Run `./terra gen <type> <name>` → generate from scaffolding
+9. Run `./terra queue add <task>` → queue parallel work
+10. See `COMMANDS.md` for the full command card
 
 **Headers declare. Includes compose. Routes navigate. Tables decide.
 Generators execute. Instances parallelize.**

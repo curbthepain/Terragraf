@@ -1,0 +1,408 @@
+#!/usr/bin/env bash
+# terra — single entry point for the Terraformer scaffolding system.
+# Human commands. Fits on one card.
+#
+#   terra status          what's here, what works
+#   terra route <intent>  where do I go for this?
+#   terra lookup <error>  known fix for this error?
+#   terra pattern <name>  what pattern fits here?
+#   terra dep <module>    what depends on what?
+#   terra gen module <n>  generate a module
+#   terra gen model <n>   generate a model
+#   terra gen shader <n>  generate a shader
+#   terra hook enter      run the entry hook
+#   terra hook commit     run the commit hook
+#   terra queue           show the task queue
+#   terra queue add <t>   add a task to the queue
+#   terra init            wire hooks into git, check env
+#   terra help            print this
+
+set -euo pipefail
+
+TERRA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCAFFOLD="$TERRA_ROOT/.scaffold"
+
+# ── Colors (if terminal supports them) ───────────────────────────────
+
+if [ -t 1 ]; then
+    BOLD='\033[1m'
+    DIM='\033[2m'
+    GREEN='\033[32m'
+    YELLOW='\033[33m'
+    CYAN='\033[36m'
+    RED='\033[31m'
+    RESET='\033[0m'
+else
+    BOLD='' DIM='' GREEN='' YELLOW='' CYAN='' RED='' RESET=''
+fi
+
+# ── Helpers ──────────────────────────────────────────────────────────
+
+has_node() { command -v node &>/dev/null; }
+has_python() { command -v python3 &>/dev/null || command -v python &>/dev/null; }
+python_cmd() { command -v python3 &>/dev/null && echo "python3" || echo "python"; }
+
+count_files() {
+    local dir="$1" ext="$2"
+    find "$dir" -name "*.$ext" 2>/dev/null | wc -l
+}
+
+# ── status ───────────────────────────────────────────────────────────
+
+cmd_status() {
+    echo -e "${BOLD}Terraformer${RESET}"
+    echo ""
+
+    # Platform
+    case "$(uname -s)" in
+        Linux*)
+            [ -n "${WAYLAND_DISPLAY:-}" ] && echo -e "  platform   ${GREEN}linux/wayland${RESET}" || echo -e "  platform   ${GREEN}linux${RESET}"
+            ;;
+        MINGW*|MSYS*|CYGWIN*) echo -e "  platform   ${GREEN}windows${RESET}" ;;
+        *) echo -e "  platform   ${YELLOW}unknown${RESET}" ;;
+    esac
+
+    # Runtimes
+    command -v bash &>/dev/null && echo -e "  bash       ${GREEN}yes${RESET}" || echo -e "  bash       ${RED}no${RESET}"
+    command -v node &>/dev/null && echo -e "  node       ${GREEN}$(node --version)${RESET}" || echo -e "  node       ${DIM}not found${RESET}"
+    command -v python3 &>/dev/null && echo -e "  python     ${GREEN}$(python3 --version 2>&1 | awk '{print $2}')${RESET}" || echo -e "  python     ${DIM}not found${RESET}"
+    command -v git &>/dev/null && echo -e "  git        ${GREEN}yes${RESET}" || echo -e "  git        ${RED}no${RESET}"
+    echo ""
+
+    # Structure
+    echo -e "${BOLD}Structure${RESET}"
+    echo -e "  headers    $(count_files "$SCAFFOLD/headers" h)"
+    echo -e "  includes   $(count_files "$SCAFFOLD/includes" inc)"
+    echo -e "  routes     $(count_files "$SCAFFOLD/routes" route)"
+    echo -e "  tables     $(count_files "$SCAFFOLD/tables" table)"
+    echo ""
+
+    # Queue
+    if [ -f "$SCAFFOLD/instances/shared/queue.json" ]; then
+        local queued
+        queued=$(grep -c '"status": "pending"' "$SCAFFOLD/instances/shared/queue.json" 2>/dev/null || echo 0)
+        echo -e "  queue      ${queued} pending"
+    fi
+    if [ -f "$SCAFFOLD/instances/shared/results.json" ]; then
+        local done
+        done=$(grep -c '"instance_id"' "$SCAFFOLD/instances/shared/results.json" 2>/dev/null || echo 0)
+        echo -e "  results    ${done} completed"
+    fi
+}
+
+# ── route ────────────────────────────────────────────────────────────
+
+cmd_route() {
+    local query="${*:?Usage: terra route <intent>}"
+    local query_lower
+    query_lower=$(echo "$query" | tr '[:upper:]' '[:lower:]')
+    local found=0
+
+    for file in "$SCAFFOLD"/routes/*.route; do
+        [ -f "$file" ] || continue
+        while IFS= read -r line; do
+            # Skip comments and blanks
+            [[ "$line" =~ ^[[:space:]]*# ]] && continue
+            [[ -z "${line// }" ]] && continue
+
+            local intent target
+            intent=$(echo "$line" | sed 's/ *->.*//')
+            target=$(echo "$line" | sed 's/.*-> *//' | sed 's/ *#.*//')
+            local intent_lower
+            intent_lower=$(echo "$intent" | tr '[:upper:]' '[:lower:]')
+
+            if [[ "$intent_lower" == *"$query_lower"* ]]; then
+                echo -e "  ${CYAN}${intent}${RESET} -> ${BOLD}${target}${RESET}"
+                found=1
+            fi
+        done < "$file"
+    done
+
+    if [ "$found" -eq 0 ]; then
+        echo -e "  ${DIM}no route matches '$query'${RESET}"
+        echo -e "  ${DIM}try: terra route feature, terra route bug, terra route model${RESET}"
+    fi
+}
+
+# ── lookup ───────────────────────────────────────────────────────────
+
+cmd_lookup() {
+    local query="${*:?Usage: terra lookup <error or keyword>}"
+    local query_lower
+    query_lower=$(echo "$query" | tr '[:upper:]' '[:lower:]')
+    local found=0
+
+    while IFS='|' read -r pattern cause fix hint; do
+        # Skip comments and blanks
+        [[ "$pattern" =~ ^[[:space:]]*# ]] && continue
+        [[ -z "${pattern// }" ]] && continue
+
+        local pattern_lower
+        pattern_lower=$(echo "$pattern" | tr '[:upper:]' '[:lower:]')
+        if [[ "$pattern_lower" == *"$query_lower"* ]]; then
+            echo -e "  ${RED}error${RESET}  $(echo "$pattern" | xargs)"
+            echo -e "  ${YELLOW}cause${RESET}  $(echo "$cause" | xargs)"
+            echo -e "  ${GREEN}fix${RESET}    $(echo "$fix" | xargs)"
+            [ -n "${hint// }" ] && echo -e "  ${DIM}where${RESET}  $(echo "$hint" | xargs)"
+            echo ""
+            found=1
+        fi
+    done < "$SCAFFOLD/tables/errors.table"
+
+    if [ "$found" -eq 0 ]; then
+        echo -e "  ${DIM}no known error matches '$query'${RESET}"
+    fi
+}
+
+# ── pattern ──────────────────────────────────────────────────────────
+
+cmd_pattern() {
+    local query="${*:-}"
+    local query_lower
+    query_lower=$(echo "$query" | tr '[:upper:]' '[:lower:]')
+    local found=0
+
+    while IFS='|' read -r name where example notes; do
+        [[ "$name" =~ ^[[:space:]]*# ]] && continue
+        [[ -z "${name// }" ]] && continue
+
+        local name_lower
+        name_lower=$(echo "$name" | tr '[:upper:]' '[:lower:]')
+        if [ -z "$query" ] || [[ "$name_lower" == *"$query_lower"* ]]; then
+            echo -e "  ${BOLD}$(echo "$name" | xargs)${RESET}"
+            [ -n "${where// }" ] && echo -e "    where   $(echo "$where" | xargs)"
+            [ -n "${example// }" ] && echo -e "    example $(echo "$example" | xargs)"
+            [ -n "${notes// }" ] && echo -e "    ${DIM}$(echo "$notes" | xargs)${RESET}"
+            echo ""
+            found=1
+        fi
+    done < "$SCAFFOLD/tables/patterns.table"
+
+    if [ "$found" -eq 0 ]; then
+        echo -e "  ${DIM}no pattern matches '$query'${RESET}"
+    fi
+}
+
+# ── dep ──────────────────────────────────────────────────────────────
+
+cmd_dep() {
+    local query="${*:-}"
+    local query_lower
+    query_lower=$(echo "$query" | tr '[:upper:]' '[:lower:]')
+    local found=0
+
+    while IFS='|' read -r module depends rel risk; do
+        [[ "$module" =~ ^[[:space:]]*# ]] && continue
+        [[ -z "${module// }" ]] && continue
+
+        local mod_lower
+        mod_lower=$(echo "$module" | tr '[:upper:]' '[:lower:]')
+        if [ -z "$query" ] || [[ "$mod_lower" == *"$query_lower"* ]]; then
+            local risk_trimmed
+            risk_trimmed=$(echo "$risk" | xargs)
+            local risk_color="$RESET"
+            case "$risk_trimmed" in
+                high)   risk_color="$RED" ;;
+                medium) risk_color="$YELLOW" ;;
+                low)    risk_color="$GREEN" ;;
+            esac
+            echo -e "  $(echo "$module" | xargs) -> $(echo "$depends" | xargs)  ${DIM}$(echo "$rel" | xargs)${RESET}  ${risk_color}${risk_trimmed}${RESET}"
+            found=1
+        fi
+    done < "$SCAFFOLD/tables/deps.table"
+
+    if [ "$found" -eq 0 ]; then
+        echo -e "  ${DIM}no dependency matches '$query'${RESET}"
+    fi
+}
+
+# ── gen ──────────────────────────────────────────────────────────────
+
+cmd_gen() {
+    local what="${1:?Usage: terra gen <module|model|shader> <name>}"
+    shift
+    bash "$SCAFFOLD/generators/scaffold.sh" "$what" "$@"
+    # fire the post-generate hook
+    if [ -x "$SCAFFOLD/hooks/on_generate.sh" ]; then
+        bash "$SCAFFOLD/hooks/on_generate.sh" "${2:-generated}" 2>/dev/null || true
+    fi
+}
+
+# ── hook ─────────────────────────────────────────────────────────────
+
+cmd_hook() {
+    local name="${1:?Usage: terra hook <enter|commit|generate|instance>}"
+    shift
+    local script="$SCAFFOLD/hooks/on_${name}.sh"
+    if [ -f "$script" ]; then
+        bash "$script" "$@"
+    else
+        echo -e "  ${RED}no hook: on_${name}.sh${RESET}"
+        echo -e "  ${DIM}available: enter, commit, generate, instance${RESET}"
+    fi
+}
+
+# ── queue ────────────────────────────────────────────────────────────
+
+cmd_queue() {
+    local action="${1:-show}"
+    local queue_file="$SCAFFOLD/instances/shared/queue.json"
+
+    case "$action" in
+        show)
+            if [ ! -f "$queue_file" ]; then
+                echo -e "  ${DIM}queue is empty${RESET}"
+                return
+            fi
+            echo -e "${BOLD}Task Queue${RESET}"
+            echo ""
+            # Parse simple JSON queue
+            if has_python; then
+                $(python_cmd) -c "
+import json, sys
+with open('$queue_file') as f:
+    data = json.load(f)
+tasks = data.get('tasks', data) if isinstance(data, dict) else data
+if not tasks:
+    print('  (empty)')
+else:
+    for t in (tasks if isinstance(tasks, list) else []):
+        sid = t.get('id', '?')[:8]
+        status = t.get('status', '?')
+        desc = t.get('description', t.get('task', '?'))
+        color = '\033[32m' if status == 'completed' else '\033[33m' if status == 'pending' else '\033[36m'
+        print(f'  {color}{status:<10}\033[0m {sid}  {desc}')
+"
+            else
+                cat "$queue_file"
+            fi
+            ;;
+        add)
+            shift
+            local desc="${*:?Usage: terra queue add <task description>}"
+            local id
+            id=$(date +%s%N | sha256sum | head -c 12)
+            if has_python; then
+                $(python_cmd) -c "
+import json, os
+qf = '$queue_file'
+if os.path.exists(qf):
+    with open(qf) as f:
+        data = json.load(f)
+else:
+    data = {'tasks': []}
+if isinstance(data, list):
+    data = {'tasks': data}
+tasks = data.setdefault('tasks', [])
+tasks.append({'id': '$id', 'status': 'pending', 'description': '''$desc'''})
+with open(qf, 'w') as f:
+    json.dump(data, f, indent=2)
+print('  queued: $id  $desc')
+"
+            else
+                echo -e "  ${RED}python required to manage queue${RESET}"
+            fi
+            ;;
+        *)
+            echo "Usage: terra queue [show|add <task>]"
+            ;;
+    esac
+}
+
+# ── init ─────────────────────────────────────────────────────────
+
+cmd_init() {
+    echo -e "${BOLD}Terraformer init${RESET}"
+    echo ""
+
+    # Wire commit hook into git
+    local git_dir="$TERRA_ROOT/.git"
+    if [ -d "$git_dir" ]; then
+        local hooks_dir="$git_dir/hooks"
+        mkdir -p "$hooks_dir"
+
+        # Pre-commit hook
+        local pre_commit="$hooks_dir/pre-commit"
+        if [ ! -f "$pre_commit" ]; then
+            cat > "$pre_commit" << 'HOOK'
+#!/usr/bin/env bash
+SCAFFOLD_DIR="$(git rev-parse --show-toplevel)/.scaffold"
+[ -x "$SCAFFOLD_DIR/hooks/on_commit.sh" ] && bash "$SCAFFOLD_DIR/hooks/on_commit.sh" pre
+HOOK
+            chmod +x "$pre_commit"
+            echo -e "  ${GREEN}wired${RESET}  pre-commit hook"
+        else
+            echo -e "  ${DIM}exists${RESET} pre-commit hook"
+        fi
+
+        # Post-commit hook
+        local post_commit="$hooks_dir/post-commit"
+        if [ ! -f "$post_commit" ]; then
+            cat > "$post_commit" << 'HOOK'
+#!/usr/bin/env bash
+SCAFFOLD_DIR="$(git rev-parse --show-toplevel)/.scaffold"
+[ -x "$SCAFFOLD_DIR/hooks/on_commit.sh" ] && bash "$SCAFFOLD_DIR/hooks/on_commit.sh" post
+HOOK
+            chmod +x "$post_commit"
+            echo -e "  ${GREEN}wired${RESET}  post-commit hook"
+        else
+            echo -e "  ${DIM}exists${RESET} post-commit hook"
+        fi
+    else
+        echo -e "  ${YELLOW}no .git directory${RESET}"
+    fi
+
+    # Ensure shared dirs exist
+    mkdir -p "$SCAFFOLD/instances/shared/locks"
+    echo -e "  ${GREEN}ready${RESET}  shared instance dirs"
+
+    # Initialize queue/results if empty
+    [ -f "$SCAFFOLD/instances/shared/queue.json" ] || echo '{"tasks":[]}' > "$SCAFFOLD/instances/shared/queue.json"
+    [ -f "$SCAFFOLD/instances/shared/results.json" ] || echo '[]' > "$SCAFFOLD/instances/shared/results.json"
+    echo -e "  ${GREEN}ready${RESET}  queue and results"
+
+    echo ""
+
+    # Run the entry hook
+    if [ -x "$SCAFFOLD/hooks/on_enter.sh" ]; then
+        bash "$SCAFFOLD/hooks/on_enter.sh"
+    fi
+}
+
+# ── help ─────────────────────────────────────────────────────────────
+
+cmd_help() {
+    echo -e "${BOLD}terra${RESET} — Terraformer commands"
+    echo ""
+    echo -e "  ${CYAN}terra init${RESET}               wire hooks, check env"
+    echo -e "  ${CYAN}terra status${RESET}             what's here, what works"
+    echo -e "  ${CYAN}terra route${RESET} <intent>     where do I go for this?"
+    echo -e "  ${CYAN}terra lookup${RESET} <error>     known fix for this error?"
+    echo -e "  ${CYAN}terra pattern${RESET} [name]     what pattern fits here?"
+    echo -e "  ${CYAN}terra dep${RESET} [module]       what depends on what?"
+    echo -e "  ${CYAN}terra gen${RESET} <type> <name>  generate module/model/shader"
+    echo -e "  ${CYAN}terra hook${RESET} <name>        run a lifecycle hook"
+    echo -e "  ${CYAN}terra queue${RESET}              show task queue"
+    echo -e "  ${CYAN}terra queue add${RESET} <task>   add task to queue"
+    echo -e "  ${CYAN}terra help${RESET}               this"
+    echo ""
+    echo -e "  ${DIM}Routes:  .scaffold/routes/*.route${RESET}"
+    echo -e "  ${DIM}Tables:  .scaffold/tables/*.table${RESET}"
+    echo -e "  ${DIM}Headers: .scaffold/headers/*.h${RESET}"
+}
+
+# ── Dispatch ─────────────────────────────────────────────────────────
+
+case "${1:-}" in
+    init)     cmd_init ;;
+    status)   cmd_status ;;
+    route)    shift; cmd_route "$@" ;;
+    lookup)   shift; cmd_lookup "$@" ;;
+    pattern)  shift; cmd_pattern "$@" ;;
+    dep)      shift; cmd_dep "$@" ;;
+    gen)      shift; cmd_gen "$@" ;;
+    hook)     shift; cmd_hook "$@" ;;
+    queue)    shift; cmd_queue "$@" ;;
+    help|-h|--help) cmd_help ;;
+    *)        cmd_help ;;
+esac

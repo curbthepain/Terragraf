@@ -13,7 +13,7 @@ Traditional AI agents (like Claude's sub-agents) are:
 ## How Multi-Instancing Works
 
 Instead of one AI spawning sub-agents, Kohala runs **multiple AI instances
-in parallel** that share the same scaffolting:
+in parallel** that share the same scaffolding:
 
 ```
 Instance 0 (coordinator)
@@ -23,7 +23,7 @@ Instance 0 (coordinator)
 
 Instance 1                Instance 2                Instance 3
     pulls task                pulls task                pulls task
-    reads scaffolting         reads scaffolting         reads scaffolting
+    reads scaffolding         reads scaffolding         reads scaffolding
     does work                 does work                 does work
     writes result             writes result             writes result
 ```

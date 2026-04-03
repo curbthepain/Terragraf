@@ -7,10 +7,9 @@
 # Relationships: uses, extends, config, data, events
 # Risk: low, medium, high
 
-# Add your project's internal dependencies below:
-# ui       | core    | uses    | medium
-# ui       | models  | data    | high
-# services | core    | extends | high
-# services | config  | config  | low
-# ml       | compute | uses    | medium
-# tests    | core    | uses    | low
+ui       | core    | uses    | medium
+ui       | models  | data    | high
+services | core    | extends | high
+services | config  | config  | low
+ml       | compute | uses    | medium
+tests    | core    | uses    | low

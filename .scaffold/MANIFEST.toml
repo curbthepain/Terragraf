@@ -1,10 +1,11 @@
 # .scaffold/MANIFEST.toml
 # Machine-readable metadata. The AI's config file.
-# Everything in the scaffolting reads this first.
+# Everything in the scaffolding reads this first.
 
 [project]
-name = "Kohala"
-type = "scaffolting"        # This IS the AI's src folder
+name = "Terraformer"
+type = "scaffolding"        # This IS the AI's src folder
+cli = "terra"               # Single entry point: ./terra help
 license = "Apache-2.0"
 
 [platforms]
@@ -13,7 +14,7 @@ windows_10 = true           # Windows 10
 windows_11 = true           # Windows 11
 # No mobile. No macOS. Desktop only.
 
-[scaffolting]
+[scaffolding]
 version = "0.1.0"
 entry = "ENTRY.md"
 
@@ -27,7 +28,7 @@ shaders = true              # GPU shader pipeline
 ci = true                   # CI/CD workflows
 instances = true            # Multi-instancing (replaces agents)
 
-# Languages the scaffolting supports
+# Languages the scaffolding supports
 [languages]
 python = true               # Generators, ML, FFT
 javascript = true           # Generators, resolve, tooling
@@ -83,5 +84,5 @@ shared_state = ".scaffold/instances/shared/"
 instance_dir = ".scaffold/instances/"
 ipc = "filesystem"          # "filesystem", "socket", "pipe"
 # Each instance gets its own working context but shares
-# the scaffolting structure, headers, routes, and tables.
+# the scaffolding structure, headers, routes, and tables.
 # Instances communicate via the shared state directory.

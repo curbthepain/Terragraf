@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # .scaffold/hooks/on_enter.sh
-# Runs when an AI enters the scaffolting for the first time in a session.
+# Runs when an AI enters the scaffolding for the first time in a session.
 #
 # Purpose: orient the AI, check the environment, report what's available.
 
@@ -8,7 +8,7 @@ set -euo pipefail
 
 SCAFFOLD_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-echo "=== Kohala Scaffolting — Session Start ==="
+echo "=== Terraformer — Session Start ==="
 echo ""
 
 # Platform

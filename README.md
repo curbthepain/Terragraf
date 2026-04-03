@@ -1,6 +1,6 @@
 # Terraformer
 
-A scaffolting system for AI.
+A scaffolding system for AI.
 
 Terraformer is the working directory any AI reads on entry. It provides
 structure, navigation, composition, and execution everything an AI
@@ -37,7 +37,7 @@ Terraformer gives an AI session seven interlocking systems:
 
 - **Instances** Multi-instancing that replaces the traditional agent
   model. Instead of one AI spawning sub-agents in a hierarchy, Terraformer
-  runs multiple AI instances as peers. They share the same scaffolting,
+  runs multiple AI instances as peers. They share the same scaffolding,
   pull tasks from a shared queue, and write results back. No context
   window tax. No summarization loss.
 
@@ -49,24 +49,24 @@ Terraformer gives an AI session seven interlocking systems:
 - Real-time instance coordination over sockets and pipes, not just
   filesystem IPC.
 
-- A training loop where the scaffolting learns from the AI's own
+- A training loop where the scaffolding learns from the AI's own
   sessions, routes that sharpen over time, tables that grow from
   encountered errors, headers that stay current as the codebase evolves.
 
 - Native Vulkan compute integration for AI workloads that need GPU
-  access directly from the scaffolting, not through a separate toolchain.
+  access directly from the scaffolding, not through a separate toolchain.
 
 - FFT and spectral analysis as first-class compute primitives, available
   to any instance that needs signal processing.
 
-- PyTorch model scaffolting that generates, trains, evaluates, and
+- PyTorch model scaffolding that generates, trains, evaluates, and
   deploys from within the same structure the AI already works in.
 
 - Cross-platform parity between Linux Wayland and Windows 10/11 so the
-  same scaffolting runs identically on both without platform-specific
+  same scaffolding runs identically on both without platform-specific
   workarounds.
 
-- Language-aware scaffolting that adapts its output, conventions, and
+- Language-aware scaffolding that adapts its output, conventions, and
   tooling to whatever language the project uses — Python, C++, Rust,
   JavaScript, Kotlin, and without separate configurations.
 

@@ -1,32 +1,30 @@
 # .scaffold/routes/bugs.route
-# Symptom → likely cause location. Saves blind searching.
+# Symptom -> likely cause location. Saves blind searching.
 #
 # Format: SYMPTOM -> PATH [explanation]
 
-# ─── Crashes ──────────────────────────────────────────────────────────
-# null pointer           -> src/models/           # Nullable fields
-# crash on startup       -> src/main.*            # Init order
-# crash on startup       -> src/config/           # Missing config
-# segfault               -> compute/vulkan/       # Memory management
-# segfault               -> src/native/           # JNI/NDK code
-# stack overflow         -> src/                  # Infinite recursion
+# ── Crashes ──────────────────────────────────────────────────────────
+null pointer           -> src/models/           # Nullable fields
+crash on startup       -> src/main.*            # Init order
+crash on startup       -> src/config/           # Missing config
+segfault               -> compute/vulkan/       # Memory management
+segfault               -> src/native/           # JNI/NDK code
+stack overflow         -> src/                  # Infinite recursion
 
-# ─── Data Issues ──────────────────────────────────────────────────────
-# wrong output           -> src/models/           # Data transform bug
-# wrong output           -> ml/models/            # Model architecture
-# NaN in training        -> ml/training/          # Learning rate / loss
-# NaN in training        -> ml/models/            # Missing normalization
+# ── Data Issues ──────────────────────────────────────────────────────
+wrong output           -> src/models/           # Data transform bug
+wrong output           -> ml/models/            # Model architecture
+NaN in training        -> ml/training/          # Learning rate / loss
+NaN in training        -> ml/models/            # Missing normalization
 
-# ─── Performance ──────────────────────────────────────────────────────
-# slow                   -> src/services/         # N+1, missing cache
-# slow                   -> compute/              # Suboptimal GPU usage
-# memory leak            -> src/services/         # Unclosed resources
-# memory leak            -> compute/vulkan/memory.cpp  # Buffer leak
-# GPU hang               -> compute/shaders/      # Infinite loop in shader
+# ── Performance ──────────────────────────────────────────────────────
+slow                   -> src/services/         # N+1, missing cache
+slow                   -> compute/              # Suboptimal GPU usage
+memory leak            -> src/services/         # Unclosed resources
+memory leak            -> compute/vulkan/memory.cpp  # Buffer leak
+GPU hang               -> compute/shaders/      # Infinite loop in shader
 
-# ─── Build/CI ─────────────────────────────────────────────────────────
-# build fails            -> tables/errors.table   # Known build errors
-# test fails after merge -> headers/deps.h        # Version conflict
-# CI timeout             -> git/workflows/        # Pipeline config
-
-# Add your project's symptom routes below:
+# ── Build/CI ─────────────────────────────────────────────────────────
+build fails            -> tables/errors.table   # Known build errors
+test fails after merge -> headers/deps.h        # Version conflict
+CI timeout             -> git/workflows/        # Pipeline config

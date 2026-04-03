@@ -10,7 +10,7 @@
 #   ./scaffold.sh module <name> [lang]     — generate a new module
 #   ./scaffold.sh model <name> [base]      — generate an ML model
 #   ./scaffold.sh shader <name> [buffers]  — generate a compute shader
-#   ./scaffold.sh status                   — show scaffolting status
+#   ./scaffold.sh status                   — show scaffolding status
 #   ./scaffold.sh instance <task>          — spawn an AI instance
 
 set -euo pipefail
@@ -151,7 +151,7 @@ case "${1:-}" in
         echo "  module <name> [lang]  Generate a new module"
         echo "  model <name> [base]   Generate a PyTorch model"
         echo "  shader <name> [bufs]  Generate a compute shader"
-        echo "  status                Show scaffolting status"
+        echo "  status                Show scaffolding status"
         echo "  instance <task>       Spawn an AI instance"
         ;;
 esac

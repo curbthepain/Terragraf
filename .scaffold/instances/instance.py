@@ -2,7 +2,7 @@
 .scaffold/instances/instance.py
 Single AI instance lifecycle.
 
-Each instance is a peer — not a child agent. It reads the same scaffolting
+Each instance is a peer — not a child agent. It reads the same scaffolding
 as every other instance but has its own context window and task.
 
 Lifecycle:
@@ -41,7 +41,7 @@ class InstanceContext:
 
 class Instance:
     """
-    A single AI instance working within the scaffolting.
+    A single AI instance working within the scaffolding.
 
     Usage:
         instance = Instance(task_id="abc123", task_description="fix FFT bug")
@@ -63,7 +63,7 @@ class Instance:
 
     def orient(self):
         """
-        Phase 1: Read the scaffolting to understand the environment.
+        Phase 1: Read the scaffolding to understand the environment.
         Every instance does this on startup.
         """
         # Read manifest

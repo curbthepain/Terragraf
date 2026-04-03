@@ -1,38 +1,36 @@
 # .scaffold/routes/structure.route
-# Concept → directory. Where things live.
+# Concept -> directory. Where things live.
 #
 # Format: CONCEPT -> PATH [description]
 
-# ─── Project Root ─────────────────────────────────────────────────────
-# scaffolding       -> .scaffold/                  # This system
-# source code       -> src/                        # All source
-# entry point       -> src/main.*                  # App entry
-# config            -> src/config/                 # Configuration
-# build config      -> build.gradle.kts            # Build system
-# ci/cd             -> .github/workflows/          # CI pipelines
+# ── Project Root ─────────────────────────────────────────────────────
+scaffolding       -> .scaffold/                  # This system
+source code       -> src/                        # All source
+entry point       -> src/main.*                  # App entry
+config            -> src/config/                 # Configuration
+build config      -> build.gradle.kts            # Build system
+ci/cd             -> .github/workflows/          # CI pipelines
 
-# ─── Code Organization ───────────────────────────────────────────────
-# models            -> src/models/                 # Data structures
-# views             -> src/ui/                     # UI layer
-# services          -> src/services/               # Business logic
-# utils             -> src/utils/                  # Shared helpers
-# native            -> src/native/                 # C/C++ via NDK/JNI
+# ── Code Organization ───────────────────────────────────────────────
+models            -> src/models/                 # Data structures
+views             -> src/ui/                     # UI layer
+services          -> src/services/               # Business logic
+utils             -> src/utils/                  # Shared helpers
+native            -> src/native/                 # C/C++ via NDK/JNI
 
-# ─── ML ───────────────────────────────────────────────────────────────
-# ml models         -> ml/models/                  # Architecture defs
-# ml data           -> ml/datasets/                # Data loading
-# ml training       -> ml/training/                # Train/eval loops
-# checkpoints       -> checkpoints/                # Saved models
-# training logs     -> runs/                       # TensorBoard etc
+# ── ML ───────────────────────────────────────────────────────────────
+ml models         -> ml/models/                  # Architecture defs
+ml data           -> ml/datasets/                # Data loading
+ml training       -> ml/training/                # Train/eval loops
+checkpoints       -> checkpoints/                # Saved models
+training logs     -> runs/                       # TensorBoard etc
 
-# ─── Compute ──────────────────────────────────────────────────────────
-# fft               -> compute/fft/                # FFT utilities
-# vulkan            -> compute/vulkan/             # Vulkan code
-# shaders           -> compute/shaders/            # GPU shaders
+# ── Compute ──────────────────────────────────────────────────────────
+fft               -> compute/fft/                # FFT utilities
+vulkan            -> compute/vulkan/             # Vulkan code
+shaders           -> compute/shaders/            # GPU shaders
 
-# ─── Tests ────────────────────────────────────────────────────────────
-# tests             -> tests/                      # Test root
-# test fixtures     -> tests/fixtures/             # Shared test data
-# test config       -> tests/conftest.*            # Test setup
-
-# Add your project's structure below:
+# ── Tests ────────────────────────────────────────────────────────────
+tests             -> tests/                      # Test root
+test fixtures     -> tests/fixtures/             # Shared test data
+test config       -> tests/conftest.*            # Test setup
