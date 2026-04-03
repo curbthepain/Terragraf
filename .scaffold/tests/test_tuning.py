@@ -468,3 +468,228 @@ class TestStatePersistence:
         restored = json.loads(text)
         assert restored["profile"] == "arena_slayer"
         assert restored["knobs"]["execution_frequency"] == 0.5
+
+
+# ── CLI State Persistence (JSON round-trip) ───────────────────────
+
+
+import os
+import tuning.cli as cli
+
+
+class TestCLIStatePersistence:
+    """Test .tuning_state.json round-trip through CLI internals."""
+
+    def setup_method(self):
+        self._tmpdir = tempfile.mkdtemp()
+        self._state_path = Path(self._tmpdir) / ".tuning_state.json"
+        self._orig_state_file = cli.STATE_FILE
+        cli.STATE_FILE = self._state_path
+
+    def teardown_method(self):
+        cli.STATE_FILE = self._orig_state_file
+        if self._state_path.exists():
+            self._state_path.unlink()
+        os.rmdir(self._tmpdir)
+
+    def test_load_save_roundtrip(self):
+        engine = ThematicEngine()
+        engine.load("arena_slayer")
+        cli._save_state(engine)
+
+        engine2 = cli._load_engine()
+        assert engine2.profile is not None
+        assert engine2.profile.name == "arena_slayer"
+        assert engine2.get_active_axes() == engine.get_active_axes()
+
+    def test_knob_persists_through_roundtrip(self):
+        engine = ThematicEngine()
+        engine.load("arena_slayer")
+        engine.set_knob("execution_frequency", 0.3)
+        cli._save_state(engine)
+
+        engine2 = cli._load_engine()
+        assert engine2.profile.get_knob("execution_frequency").value == 0.3
+
+    def test_zone_persists_through_roundtrip(self):
+        engine = ThematicEngine()
+        engine.load("arena_slayer")
+        engine.enter_zone("combat_arena")
+        cli._save_state(engine)
+
+        engine2 = cli._load_engine()
+        assert engine2.active_zone is not None
+        assert engine2.active_zone.name == "combat_arena"
+
+    def test_full_state_roundtrip(self):
+        engine = ThematicEngine()
+        engine.load("arena_slayer")
+        engine.enter_zone("hub_fortress")
+        engine.set_knob("execution_frequency", 0.15)
+        cli._save_state(engine)
+
+        # Verify JSON on disk
+        with open(self._state_path) as f:
+            data = json.load(f)
+        assert data["profile"] == "arena_slayer"
+        assert data["zone"] == "hub_fortress"
+        assert data["knobs"]["execution_frequency"] == 0.15
+
+        # Verify reload
+        engine2 = cli._load_engine()
+        assert engine2.profile.name == "arena_slayer"
+        assert engine2.active_zone.name == "hub_fortress"
+        assert engine2.profile.get_knob("execution_frequency").value == 0.15
+
+    def test_missing_state_file_loads_clean(self):
+        engine = cli._load_engine()
+        assert engine.profile is None
+
+    def test_corrupted_state_file_recovers(self):
+        with open(self._state_path, "w") as f:
+            f.write("{{{not json at all")
+        engine = cli._load_engine()
+        assert engine.profile is None
+
+    def test_state_file_with_unknown_profile(self):
+        with open(self._state_path, "w") as f:
+            json.dump({"profile": "nonexistent_universe", "zone": None, "knobs": {}}, f)
+        engine = cli._load_engine()
+        assert engine.profile is None
+
+    def test_knob_changed_between_saves(self):
+        engine = ThematicEngine()
+        engine.load("arena_slayer")
+        engine.set_knob("execution_frequency", 0.2)
+        cli._save_state(engine)
+
+        engine.set_knob("execution_frequency", 0.9)
+        cli._save_state(engine)
+
+        engine2 = cli._load_engine()
+        assert engine2.profile.get_knob("execution_frequency").value == 0.9
+
+    def test_zone_exit_clears_in_state(self):
+        engine = ThematicEngine()
+        engine.load("arena_slayer")
+        engine.enter_zone("combat_arena")
+        cli._save_state(engine)
+        engine.exit_zone()
+        cli._save_state(engine)
+
+        engine2 = cli._load_engine()
+        assert engine2.active_zone is None
+
+        with open(self._state_path) as f:
+            data = json.load(f)
+        assert data["zone"] is None
+
+
+# ── CLI Integration (subprocess) ──────────────────────────────────
+
+
+import subprocess
+
+
+class TestCLIIntegration:
+    """End-to-end tests spawning the CLI as a subprocess."""
+
+    CLI_PATH = str(Path(__file__).parent.parent / "tuning" / "cli.py")
+
+    def setup_method(self):
+        self._tmpdir = tempfile.mkdtemp()
+        self._state_path = os.path.join(self._tmpdir, ".tuning_state.json")
+        self._env = {**os.environ, "TUNING_STATE_FILE": self._state_path}
+
+    def teardown_method(self):
+        if os.path.exists(self._state_path):
+            os.unlink(self._state_path)
+        # Clean up analytics file if created
+        analytics = os.path.join(self._tmpdir, "analytics.json")
+        if os.path.exists(analytics):
+            os.unlink(analytics)
+        os.rmdir(self._tmpdir)
+
+    def _run(self, *args):
+        result = subprocess.run(
+            [sys.executable, self.CLI_PATH, *args],
+            capture_output=True, text=True, env=self._env, timeout=10,
+        )
+        return result.stdout
+
+    def test_list_shows_profiles(self):
+        out = self._run("list")
+        for name in ["arena_slayer", "cartoon_platformer", "ai_assistant",
+                      "looter_chaos", "milsim_surreal", "mythic_roguelike",
+                      "punishing_action", "realtime_engine"]:
+            assert name in out
+
+    def test_status_no_profile(self):
+        out = self._run("status")
+        assert "no profile loaded" in out
+
+    def test_load_profile(self):
+        out = self._run("load", "arena_slayer")
+        assert "loaded" in out
+        assert "arena_slayer" in out
+
+    def test_load_then_status(self):
+        self._run("load", "arena_slayer")
+        out = self._run("status")
+        assert "arena_slayer" in out
+        assert "mortality_weight" in out
+
+    def test_load_nonexistent(self):
+        out = self._run("load", "fake_profile_xyz")
+        assert "not found" in out
+
+    def test_zone_enter_exit(self):
+        self._run("load", "arena_slayer")
+        out = self._run("zone", "combat_arena")
+        assert "entered" in out
+        assert "combat_arena" in out
+
+        out = self._run("zone", "--exit")
+        assert "exited" in out
+
+    def test_set_knob(self):
+        self._run("load", "arena_slayer")
+        out = self._run("set", "execution_frequency", "0.3")
+        assert "set" in out.lower()
+        assert "0.3" in out
+
+    def test_set_invalid_knob(self):
+        self._run("load", "arena_slayer")
+        out = self._run("set", "nonexistent_knob_xyz", "1.0")
+        assert "knob not found" in out
+
+    def test_axes_command(self):
+        self._run("load", "arena_slayer")
+        out = self._run("axes")
+        assert "mortality_weight" in out
+        assert "power_fantasy" in out
+        assert "shitpost_tolerance" in out
+
+    def test_directive_command(self):
+        self._run("load", "arena_slayer")
+        out = self._run("directive")
+        assert len(out.strip()) > 0
+
+    def test_promise_command(self):
+        self._run("load", "arena_slayer")
+        out = self._run("promise")
+        assert len(out.strip()) > 0
+
+    def test_instructions_command(self):
+        self._run("load", "arena_slayer")
+        out = self._run("instructions")
+        assert len(out.strip()) > 0
+        assert "mortality_weight" in out
+
+    def test_unknown_command(self):
+        out = self._run("foobar")
+        assert "unknown" in out
+
+    def test_set_missing_args(self):
+        out = self._run("set")
+        assert "usage" in out

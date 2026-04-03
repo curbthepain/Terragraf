@@ -16,6 +16,7 @@ Usage:
 """
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -26,7 +27,9 @@ from tuning.engine import ThematicEngine
 from tuning.tracker import record_profile_load, record_knob_adjustment
 
 # Persistent state file for CLI sessions
-STATE_FILE = Path(__file__).parent / ".tuning_state.json"
+STATE_FILE = Path(os.environ.get(
+    "TUNING_STATE_FILE", str(Path(__file__).parent / ".tuning_state.json")
+))
 
 
 # ── Colors ───────────────────────────────────────────────────────────
