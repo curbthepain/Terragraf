@@ -110,11 +110,21 @@
     #scope "compile"
 }
 
+// ─── Qt (app) ───────────────────────────────────────────────────────
+
+#dep pyside6 {
+    #role "Qt container application shell"
+    #import "from PySide6.QtWidgets import QApplication"
+    #version ">=6.5"
+    #scope "app"
+}
+
 // ─── Licenses ───────────────────────────────────────────────────────
 // numpy: BSD-3 | scipy: BSD-3 | matplotlib: PSF (BSD-like)
 // pillow: HPND | networkx: BSD-3 | trimesh: MIT | torch: BSD-3
-// pytest: MIT | vulkan: Apache-2.0 | glfw: zlib
-// imgui: MIT | implot: MIT | imnodes: MIT | fftw3: GPL (optional)
-// All Apache 2.0 compatible except fftw3 (optional, not linked by default)
+// pytest: MIT | pyside6: LGPL-3.0 | vulkan: Apache-2.0 | glfw: zlib
+// imgui: MIT | implot: MIT | imnodes: MIT | glad: MIT/PD | glm: MIT
+// fftw3: GPL (optional, not linked by default)
+// All Apache 2.0 compatible except fftw3 (optional)
 
 #endif // DEPS_H
