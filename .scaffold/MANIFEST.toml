@@ -3,7 +3,7 @@
 # Everything in the scaffolding reads this first.
 
 [project]
-name = "Terraformer"
+name = "Terragraf"
 type = "scaffolding"        # This IS the AI's src folder
 cli = "terra"               # Single entry point: ./terra help
 license = "Apache-2.0"
@@ -30,6 +30,7 @@ instances = true            # Multi-instancing (replaces agents)
 math = true                 # Math & algebra primitives
 viz = true                  # Visualization (2D + 3D)
 imgui = true                # ImGui real-time math modeling
+sharpen = true              # Self-sharpening routes and tables
 
 # Languages the scaffolding supports
 [languages]

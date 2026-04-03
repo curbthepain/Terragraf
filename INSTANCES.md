@@ -1,6 +1,6 @@
 # Multi-Instancing
 
-Terraformer's instance model replaces the traditional AI agent hierarchy
+Terragraf's instance model replaces the traditional AI agent hierarchy
 with peer instances sharing one scaffold.
 
 ## The problem with agents
@@ -22,7 +22,7 @@ complex, interdependent, or need shared context.
 
 ## How multi-instancing works
 
-Instead of one AI spawning sub-agents, Terraformer runs **multiple AI
+Instead of one AI spawning sub-agents, Terragraf runs **multiple AI
 instances in parallel** that share the same scaffolding:
 
 ```
@@ -44,7 +44,7 @@ exist and reads results) but does not own or control the others.
 
 ## Key differences from agents
 
-| | Traditional agents | Terraformer instances |
+| | Traditional agents | Terragraf instances |
 |---|---|---|
 | **Topology** | Tree (parent → children) | Flat (coordinator + peers) |
 | **Context** | Summarized at each level | Full scaffold per instance |

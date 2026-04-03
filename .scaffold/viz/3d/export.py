@@ -22,7 +22,7 @@ def export_obj(path: str, vertices: np.ndarray,
     normals: optional (N, 3) array of vertex normals.
     """
     with open(path, "w") as f:
-        f.write("# Exported by Terraformer\n")
+        f.write("# Exported by Terragraf\n")
 
         for v in vertices:
             f.write(f"v {v[0]:.6f} {v[1]:.6f} {v[2]:.6f}\n")

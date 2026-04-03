@@ -1,6 +1,6 @@
 # Third-Party Licenses
 
-Terraformer uses the following third-party libraries. No GPL dependencies.
+Terragraf uses the following third-party libraries. No GPL dependencies.
 
 ## Current Dependencies
 

@@ -29,7 +29,7 @@ namespace scaffold::render {
 struct ContextConfig {
     int width = 1280;
     int height = 720;
-    std::string title = "Terraformer";
+    std::string title = "Terragraf";
     int gl_major = 4;
     int gl_minor = 5;
     bool vsync = true;

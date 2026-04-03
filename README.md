@@ -1,15 +1,15 @@
-# Terraformer
+# Terragraf
 
 **This is not a code generator. This is the environment the AI operates inside of.**
 
 [![CI](https://github.com/curbthepain/Terragraf/actions/workflows/ci.yml/badge.svg)](https://github.com/curbthepain/Terragraf/actions/workflows/ci.yml)
 
-Terraformer is the working directory any AI reads on entry. It provides
+Terragraf is the working directory any AI reads on entry. It provides
 structure, navigation, composition, and execution — everything an AI
 needs to orient itself in a codebase and start producing immediately.
 
 Tools like Claude Code, Cursor, and Aider burn context window on
-rediscovering project structure every session. Terraformer eliminates
+rediscovering project structure every session. Terragraf eliminates
 that tax — the AI reads headers, follows routes, and consults tables
 instead of scanning every file or relying on summarization.
 
@@ -41,7 +41,7 @@ command reference.
 
 ## What it does
 
-Terraformer gives an AI session seven interlocking systems:
+Terragraf gives an AI session seven interlocking systems:
 
 ```
 .scaffold/
@@ -103,7 +103,7 @@ hierarchy. They share the same scaffolding, pull tasks from a shared
 queue, and write results back. No context window tax. No summarization
 loss.
 
-This is the architectural thesis of Terraformer — see
+This is the architectural thesis of Terragraf — see
 [INSTANCES.md](INSTANCES.md) for the full design.
 
 ### Git

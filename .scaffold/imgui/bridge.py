@@ -1,6 +1,6 @@
 """
 .scaffold/imgui/bridge.py
-Python <-> C++ bridge for Terraformer ImGui panels.
+Python <-> C++ bridge for Terragraf ImGui panels.
 
 Provides bidirectional communication between Python compute
 (math, FFT, ML) and the C++ ImGui frontend via TCP socket.

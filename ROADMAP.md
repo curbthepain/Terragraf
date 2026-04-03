@@ -1,11 +1,11 @@
-# Terraformer Feature Roadmap
+# Terragraf Feature Roadmap
 
 **Branch:** `terra-yog`
 **Status:** Plan saved. Ready to implement in next session.
 
 ## Context
 
-Terraformer has a working `terra` CLI, FFT/spectral code (numpy + C++ FFTW), Vulkan compute scaffolds, GLSL shaders, and PyTorch ML. The next phase adds real math primitives, visualization pipelines, 3D data modeling, and interactive ImGui tooling. All code must stay Apache 2.0 compatible. README gets proper contributor credits.
+Terragraf has a working `terra` CLI, FFT/spectral code (numpy + C++ FFTW), Vulkan compute scaffolds, GLSL shaders, and PyTorch ML. The next phase adds real math primitives, visualization pipelines, 3D data modeling, and interactive ImGui tooling. All code must stay Apache 2.0 compatible. README gets proper contributor credits.
 
 ---
 
