@@ -1,173 +1,97 @@
 # Terragraf Feature Roadmap
 
-**Branch:** `terra-yog`
-**Status:** Plan saved. Ready to implement in next session.
-
-## Context
-
-Terragraf has a working `terra` CLI, FFT/spectral code (numpy + C++ FFTW), Vulkan compute scaffolds, GLSL shaders, and PyTorch ML. The next phase adds real math primitives, visualization pipelines, 3D data modeling, and interactive ImGui tooling. All code must stay Apache 2.0 compatible. README gets proper contributor credits.
+**Status:** Phases 0-7 complete. 210 tests passing.
 
 ---
 
-## Phase 0: Housekeeping (do first)
+## Completed
 
-### README contributor credits + license clarity
+### Phase 0: Housekeeping
+- README with contributor credits
+- `NOTICE` file, `THIRD_PARTY_LICENSES.md`
+- Apache 2.0 compliance verified
 
-**Files:** `README.md`, `NOTICE` (new)
+### Phase 1: Math & Algebra Primitives
+- `.scaffold/compute/math/` — linalg, algebra, stats, transforms
+- Dependencies: numpy, scipy (BSD-3)
+- 48 tests (algebra 10, linalg 13, stats 15, transforms 10)
 
-- Add professional Contributors section at bottom of README.md
-- Create `NOTICE` file (Apache 2.0 convention for attribution)
-- Add THIRD_PARTY_LICENSES.md for tracking dependency licenses
+### Phase 2: Spectrograms & 2D Visualization
+- `.scaffold/viz/` — spectrogram, heatmap rendering
+- `.scaffold/compute/fft/` — FFT, STFT, spectral analysis
+- 25 tests (fft 15, spectral 10)
 
-Contributors table for README:
+### Phase 3: 3D Data Modeling & Node Graphs
+- `.scaffold/viz/3d/` — nodes, mesh, volume, scene
+- `.scaffold/compute/render/` — OpenGL mesh + volume renderers
 
-| Name | Role | Contact |
-|------|------|---------||
-| Austin Wisniewski | Creator, Lead | [@curbthepain](https://github.com/curbthepain) |
-| Claude (Anthropic) | AI Contributor | [anthropic.com](https://anthropic.com) |
+### Phase 4: Ultrasound-Style Dataset Imaging
+- Volume renderer, transfer functions, ray marching shader
 
----
+### Phase 5: Real-Time ImGui Math Modeling
+- `.scaffold/imgui/` — 7 panels (math, spectrogram, node editor, volume, tuning, debug, settings)
+- GLFW 3.4 + OpenGL 4.5 + Dear ImGui (docking) + ImPlot + ImNodes
+- TCP bridge (`bridge.py`) with length-prefixed JSON protocol
+- C++ bridge client (background recv thread, main-thread dispatch)
+- All dependencies MIT/zlib/PD — fully Apache 2.0 compatible
 
-## Phase 1: Math & Algebra Primitives
+### Phase 6: Self-Sharpening & Tuning
+- `.scaffold/sharpen/` — self-sharpening engine (prune stale, promote hot, learn errors)
+- `.scaffold/tuning/` — thematic tension calibration (8 universe profiles, 6 reaction signatures, knobs, zones)
+- 82 tuning tests
 
-**New directory:** `.scaffold/compute/math/`
+### Phase 7: Socket IPC for Multi-Instancing
+- `.scaffold/instances/transport.py` — TCP socket transport (server + client)
+- Length-prefixed JSON protocol, same wire format as ImGui bridge
+- Manager supports "auto"/"socket"/"filesystem" IPC modes
+- Sub-millisecond dispatch, 10+ concurrent instances
+- Graceful fallback to filesystem IPC
+- 16 transport tests
 
-**Files to create:**
-- `math/__init__.py` — exports
-- `math/linalg.py` — linear algebra: matrix ops, eigenvalues, SVD, LU decomposition, determinants
-- `math/algebra.py` — symbolic-style algebra: polynomial eval, roots, interpolation, curve fitting
-- `math/stats.py` — statistics: distributions, hypothesis tests, correlation, regression
-- `math/transforms.py` — beyond FFT: wavelet, DCT, Hilbert, z-transform
-
-**Builds on:** existing `compute/fft/` code, numpy already in use
-
-**Dependencies (all Apache 2.0 / BSD compatible):**
-
-| Library | License | Purpose |
-|---------|---------|---------||
-| numpy | BSD-3 | Already used. Matrix ops, linalg |
-| scipy | BSD-3 | Advanced linalg, signal, stats |
-| sympy | BSD-3 | Symbolic math (optional) |
-
-**Terra commands:**
-- `terra math eval <expr>` — evaluate a math expression
-- `terra math linalg <op>` — run a linear algebra operation
-
-**Header:** Add `math.h` to `.scaffold/headers/`
-
----
-
-## Phase 2: Spectrograms & 2D Visualization
-
-**New directory:** `.scaffold/viz/`
-
-**Files to create:**
-- `viz/__init__.py` — exports
-- `viz/spectrogram.py` — render spectrograms from FFT/STFT output (builds on `compute/fft/spectral.py` which already has `spectrogram()`)
-- `viz/heatmap.py` — generic heatmap renderer for 2D data
-- `viz/stream.py` — real-time data stream plotter (scrolling line charts, live updates)
-- `viz/export.py` — save to PNG/SVG/raw buffer
-
-**Builds on:** `compute/fft/spectral.py` already has `spectrogram()`, `mel_filterbank()`, `spectral_centroid()`
-
-**Dependencies:**
-
-| Library | License | Purpose |
-|---------|---------|---------||
-| matplotlib | PSF (BSD-like) | 2D plotting, spectrogram rendering |
-| pillow | HPND (permissive) | Image export |
-
-**Terra commands:**
-- `terra viz spectrogram <data>` — generate spectrogram
-- `terra viz heatmap <data>` — render heatmap
-- `terra viz stream` — launch live data viewer
+### Phase 8: Qt Container App
+- `.scaffold/app/` — PySide6 container shell with 5 pages
+- **Home** — landing page with test status and quick nav
+- **Viewer** — launch/stop bridge.py and ImGui processes
+- **Tuning** — profile selector, zone buttons, knob widgets (slider/dropdown/toggle/text), behavioral instructions
+- **Debug** — bridge connection controls, ping/RTT, stats, filterable message log
+- **Settings** — bridge host/port, paths, panel visibility, persistent config
+- Sidebar navigation (Ctrl+1-5), dark CI terminal theme
+- Bridge client with Qt signals/slots for cross-thread safety
+- 17 app tests (10 pass everywhere, 7 need PySide6 + libEGL)
 
 ---
 
-## Phase 3: 3D Data Modeling & Node Graphs
+## Test Summary — 210 Total
 
-**New directory:** `.scaffold/viz/3d/`
-
-**Files to create:**
-- `viz/3d/__init__.py`
-- `viz/3d/nodes.py` — 3D node graph generator (dependency graphs, data flow, neural net arch)
-- `viz/3d/mesh.py` — mesh generation from data (surface plots, point clouds)
-- `viz/3d/volume.py` — volumetric rendering ("ultrasound" view)
-- `viz/3d/scene.py` — scene manager (camera, lighting, export)
-- `viz/3d/export.py` — export to OBJ/PLY/GLTF
-
-**C side:** `.scaffold/compute/render/`
-- `render/gl_context.cpp` — OpenGL context (Wayland + Win32)
-- `render/mesh_renderer.cpp` — basic mesh rendering
-- `render/volume_renderer.cpp` — ray marching for volumetric data
-
-**Dependencies (recommended lighter path):**
-
-| Library | License | Purpose |
-|---------|---------|---------||
-| moderngl | MIT | OpenGL rendering |
-| pyrr | MIT | 3D math (matrices, quaternions) |
-| networkx | BSD-3 | Graph layouts |
-| trimesh | MIT | Mesh I/O (OBJ, PLY, GLTF) |
-
-**Terra commands:**
-- `terra viz 3d nodes <data>` — 3D node map
-- `terra viz 3d mesh <data>` — 3D surface
-- `terra viz 3d volume <data>` — volumetric render
+| File | Count | What |
+|------|-------|------|
+| test_algebra.py | 10 | polynomial eval, roots, interpolation, curve fit |
+| test_fft.py | 15 | FFT roundtrip, spectrum, STFT, convolution |
+| test_generators.py | 10 | model gen, shader gen |
+| test_linalg.py | 13 | matmul, inverse, eigen, SVD, LU, solve |
+| test_spectral.py | 10 | centroid, rolloff, bandpass, mel filterbank |
+| test_stats.py | 15 | descriptive, correlation, regression, t-test |
+| test_transforms.py | 10 | DCT, Hilbert, wavelet, z-transform, Laplace |
+| test_tuning.py | 82 | schema, loader, engine, knobs, zones, CLI |
+| test_transport.py | 16 | protocol, server/client, manager integration |
+| test_app.py | 17 | theme, bridge client, page imports, bridge handlers |
 
 ---
 
-## Phase 4: Ultrasound-Style Dataset Imaging
+## What's Next
 
-**Lives in:** `.scaffold/viz/3d/volume.py` + `.scaffold/compute/shaders/volume.comp`
+### End-to-End Debug
+- Compile and run ImGui + bridge.py + Qt on a machine with GLFW/Vulkan
+- Verify the full loop: Qt launches bridge -> bridge accepts ImGui -> tuning panel populates -> knob changes flow back
 
-Volumetric rendering of datasets — treat a dataset's feature space as a 3D density field, render it like medical ultrasound/CT.
+### Language-Aware Output
+- Generators adapt conventions and tooling per project language
+- No separate configuration files per language
 
-**Files to create:**
-- `viz/3d/volume.py` — Python volume renderer (ray marching CPU or GPU)
-- `compute/shaders/volume.comp` — GPU ray marching shader
-- `viz/3d/transfer_function.py` — data values to colors/opacity
-- `viz/ultrasound.py` — high-level API: dataset in, image out
-
-**Builds on:** Phase 3 rendering + existing Vulkan pipeline.cpp + fft.comp shader pattern
-
----
-
-## Phase 5: Real-Time ImGui Math Modeling
-
-**New directory:** `.scaffold/imgui/`
-
-**Files to create:**
-- `imgui/CMakeLists.txt` — build config
-- `imgui/main.cpp` — ImGui app entry (GLFW + OpenGL or Vulkan)
-- `imgui/math_panel.cpp` — interactive math with sliders, live function plotting
-- `imgui/spectrogram_panel.cpp` — real-time spectrogram display
-- `imgui/node_editor.cpp` — visual node graph editor
-- `imgui/volume_panel.cpp` — interactive 3D volume slicer
-- `imgui/bridge.py` — Python<->C++ bridge (shared memory or socket)
-
-**Dependencies:**
-
-| Library | License | Purpose |
-|---------|---------|---------||
-| Dear ImGui | MIT | Immediate mode GUI |
-| ImPlot | MIT | Real-time charts |
-| ImNodes | MIT | Node editor |
-| GLFW | zlib | Windowing |
-| glad | MIT/PD | OpenGL loader |
-| glm | MIT | Math for OpenGL |
-
-All MIT/zlib/public domain. Fully Apache 2.0 compatible.
-
-**Terra commands:**
-- `terra imgui build` — build the ImGui app
-- `terra imgui run` — launch interactive viewer
-- `terra imgui math` — math modeling panel
-- `terra imgui nodes` — node graph editor
-
-**Platform notes:**
-- Linux: GLFW + Wayland backend (GLFW 3.4+)
-- Windows: GLFW + Win32 backend
+### Polish
+- Error handling and reconnection logic in bridge clients
+- Panel layout persistence in ImGui (save/restore docking state)
+- Qt container process management hardening
 
 ---
 
@@ -176,130 +100,15 @@ All MIT/zlib/public domain. Fully Apache 2.0 compatible.
 **No GPL dependencies. Nothing requires license change.**
 
 | License | Libraries |
-|---------|-----------||
-| **BSD-3** | numpy, scipy, matplotlib, pyglet, networkx |
+|---------|-----------|
+| **BSD-3** | numpy, scipy, networkx |
 | **MIT** | Dear ImGui, ImPlot, ImNodes, moderngl, trimesh, pyrr, glm |
 | **zlib** | GLFW |
-| **PSF** | matplotlib |
-| **HPND** | Pillow |
+| **LGPL-3** | PySide6 (dynamically linked, Apache 2.0 compatible) |
 | **Public Domain** | glad |
 
-Create `THIRD_PARTY_LICENSES.md` listing each dependency, version, license, and URL.
-
 ---
 
-## Implementation Order
+## Platforms
 
-```
-Phase 0  Housekeeping         README credits, NOTICE, license tracking
-   |
-Phase 1  Math primitives      .scaffold/compute/math/ (numpy + scipy)
-   |
-Phase 2  Spectrograms + 2D    .scaffold/viz/ (matplotlib, builds on FFT)
-   |
-Phase 3  3D node graphs       .scaffold/viz/3d/ (moderngl + networkx)
-   |
-Phase 4  Ultrasound volumes   volume.py + volume.comp shader
-   |
-Phase 5  ImGui real-time      .scaffold/imgui/ (Dear ImGui + ImPlot + ImNodes)
-```
-
-Each phase is independently useful. Phase 5 ties it all together.
-
-## Phase 6: Finish ImGui Real-Time App (next up)
-
-**Status:** Scaffolded (Phase 5), needs implementation.
-
-`imgui/main.cpp` exists but is entirely commented out. All panels are stubs.
-
-### What needs to happen:
-1. **GLFW/OpenGL/ImGui initialization** — uncomment and wire up `main.cpp` event loop
-2. **Math panel** — connect `compute/math/` to ImPlot for live function plotting with sliders
-3. **Spectrogram panel** — real-time spectrogram display fed by `compute/fft/spectral.py`
-4. **Node editor** — wire ImNodes to `viz/3d/nodes.py` graph data
-5. **Volume panel** — interactive 3D volume slicer using `viz/3d/volume.py`
-6. **Python↔C++ bridge** — implement `imgui/bridge.py` using either:
-   - Unix domain sockets (Linux) / named pipes (Windows)
-   - Shared memory via mmap
-   - HTTP localhost (simplest, highest latency)
-
-### Build verification:
-```
-terra imgui build   # CMake build succeeds
-terra imgui run     # Window opens, panels render
-```
-
-### Dependencies (already declared in deps.h):
-Dear ImGui (MIT), ImPlot (MIT), ImNodes (MIT), GLFW (zlib), glad (PD), glm (MIT)
-
----
-
-## Phase 7: Socket/Pipe IPC for Multi-Instancing
-
-**Status:** Not started. Currently filesystem-only IPC.
-
-Replace the filesystem-based queue/results IPC in `instances/` with real-time socket or pipe coordination.
-
-### What needs to happen:
-1. **IPC transport layer** — abstract over Unix sockets, named pipes, or ZeroMQ
-2. **Message protocol** — define a simple JSON or msgpack wire format for task dispatch/results
-3. **Instance manager upgrade** — `instances/manager.py` switches from file polling to event-driven dispatch
-4. **Instance client upgrade** — `instances/instance.py` connects to manager via socket
-5. **Self-sharpening routes** — routes and tables update based on instance feedback (which routes get used, which fail)
-6. **Language-aware output** — generators adapt output style based on project conventions
-
-### Design goals:
-- Sub-millisecond task dispatch (vs. ~100ms filesystem polling)
-- Support 10+ concurrent AI instances
-- Graceful fallback to filesystem IPC if sockets unavailable
-
-### Candidate libraries:
-| Library | License | Purpose |
-|---------|---------|---------||
-| zmq (pyzmq) | LGPL/BSD | High-perf message passing |
-| msgpack | Apache-2.0 | Binary serialization |
-
-### MANIFEST.toml change:
-```toml
-[features]
-ipc = "socket"  # was "filesystem"
-```
-
----
-
-## Files Modified (existing)
-
-| File | Change |
-|------|--------|
-| `README.md` | Add Contributors, update roadmap |
-| `MANIFEST.toml` | Add `[features]` flags: math, viz, imgui |
-| `.scaffold/headers/` | Add `math.h`, `viz.h` |
-| `.scaffold/routes/tasks.route` | Add math, viz, imgui entries |
-| `.scaffold/routes/structure.route` | Add viz, imgui mappings |
-| `.scaffold/tables/deps.table` | Add viz->compute, imgui->viz |
-| `terra` | Add `math`, `viz`, `imgui` subcommands |
-| `COMMANDS.md` | Add new commands |
-
-## Files Created (new)
-
-| Directory | Contents |
-|-----------|----------|
-| `.scaffold/compute/math/` | linalg.py, algebra.py, stats.py, transforms.py |
-| `.scaffold/viz/` | spectrogram.py, heatmap.py, stream.py, export.py |
-| `.scaffold/viz/3d/` | nodes.py, mesh.py, volume.py, scene.py, export.py |
-| `.scaffold/imgui/` | main.cpp, panels, bridge.py, CMakeLists.txt |
-| `.scaffold/compute/shaders/volume.comp` | GPU ray marching |
-| `.scaffold/compute/render/` | gl_context.cpp, renderers |
-| Root | `NOTICE`, `THIRD_PARTY_LICENSES.md` |
-
----
-
-## Verification
-
-After each phase:
-1. `terra status` shows new subsystems
-2. `terra route <intent>` finds new files
-3. Python imports work: `from scaffold.compute.math import linalg`
-4. Generators produce valid code
-5. Phase 5: `terra imgui build && terra imgui run` launches viewer
-6. All license files accurate and complete
+Linux (Wayland) and Windows 10/11.

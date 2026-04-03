@@ -261,3 +261,15 @@ class Bridge:
         self.on("tune_set_knob", handle_tune_set_knob)
         self.on("tune_reset_knobs", handle_tune_reset_knobs)
         self.on("tune_get_instructions", handle_tune_get_instructions)
+
+    def register_debug_handlers(self):
+        """Register ping/pong and debug echo handlers."""
+
+        def handle_ping(msg):
+            self.send("pong", msg.get("data"))
+
+        def handle_debug_echo(msg):
+            self.send("debug_echo", msg.get("data"))
+
+        self.on("ping", handle_ping)
+        self.on("debug_echo", handle_debug_echo)
