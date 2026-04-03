@@ -22,7 +22,7 @@ Terraformer has a working `terra` CLI, FFT/spectral code (numpy + C++ FFTW), Vul
 Contributors table for README:
 
 | Name | Role | Contact |
-|------|------|---------|
+|------|------|---------||
 | Austin Wisniewski | Creator, Lead | [@curbthepain](https://github.com/curbthepain) |
 | Claude (Anthropic) | AI Contributor | [anthropic.com](https://anthropic.com) |
 
@@ -44,7 +44,7 @@ Contributors table for README:
 **Dependencies (all Apache 2.0 / BSD compatible):**
 
 | Library | License | Purpose |
-|---------|---------|---------|
+|---------|---------|---------||
 | numpy | BSD-3 | Already used. Matrix ops, linalg |
 | scipy | BSD-3 | Advanced linalg, signal, stats |
 | sympy | BSD-3 | Symbolic math (optional) |
@@ -73,7 +73,7 @@ Contributors table for README:
 **Dependencies:**
 
 | Library | License | Purpose |
-|---------|---------|---------|
+|---------|---------|---------||
 | matplotlib | PSF (BSD-like) | 2D plotting, spectrogram rendering |
 | pillow | HPND (permissive) | Image export |
 
@@ -104,7 +104,7 @@ Contributors table for README:
 **Dependencies (recommended lighter path):**
 
 | Library | License | Purpose |
-|---------|---------|---------|
+|---------|---------|---------||
 | moderngl | MIT | OpenGL rendering |
 | pyrr | MIT | 3D math (matrices, quaternions) |
 | networkx | BSD-3 | Graph layouts |
@@ -149,7 +149,7 @@ Volumetric rendering of datasets — treat a dataset's feature space as a 3D den
 **Dependencies:**
 
 | Library | License | Purpose |
-|---------|---------|---------|
+|---------|---------|---------||
 | Dear ImGui | MIT | Immediate mode GUI |
 | ImPlot | MIT | Real-time charts |
 | ImNodes | MIT | Node editor |
@@ -176,7 +176,7 @@ All MIT/zlib/public domain. Fully Apache 2.0 compatible.
 **No GPL dependencies. Nothing requires license change.**
 
 | License | Libraries |
-|---------|-----------|
+|---------|-----------||
 | **BSD-3** | numpy, scipy, matplotlib, pyglet, networkx |
 | **MIT** | Dear ImGui, ImPlot, ImNodes, moderngl, trimesh, pyrr, glm |
 | **zlib** | GLFW |
@@ -205,6 +205,65 @@ Phase 5  ImGui real-time      .scaffold/imgui/ (Dear ImGui + ImPlot + ImNodes)
 ```
 
 Each phase is independently useful. Phase 5 ties it all together.
+
+## Phase 6: Finish ImGui Real-Time App (next up)
+
+**Status:** Scaffolded (Phase 5), needs implementation.
+
+`imgui/main.cpp` exists but is entirely commented out. All panels are stubs.
+
+### What needs to happen:
+1. **GLFW/OpenGL/ImGui initialization** — uncomment and wire up `main.cpp` event loop
+2. **Math panel** — connect `compute/math/` to ImPlot for live function plotting with sliders
+3. **Spectrogram panel** — real-time spectrogram display fed by `compute/fft/spectral.py`
+4. **Node editor** — wire ImNodes to `viz/3d/nodes.py` graph data
+5. **Volume panel** — interactive 3D volume slicer using `viz/3d/volume.py`
+6. **Python↔C++ bridge** — implement `imgui/bridge.py` using either:
+   - Unix domain sockets (Linux) / named pipes (Windows)
+   - Shared memory via mmap
+   - HTTP localhost (simplest, highest latency)
+
+### Build verification:
+```
+terra imgui build   # CMake build succeeds
+terra imgui run     # Window opens, panels render
+```
+
+### Dependencies (already declared in deps.h):
+Dear ImGui (MIT), ImPlot (MIT), ImNodes (MIT), GLFW (zlib), glad (PD), glm (MIT)
+
+---
+
+## Phase 7: Socket/Pipe IPC for Multi-Instancing
+
+**Status:** Not started. Currently filesystem-only IPC.
+
+Replace the filesystem-based queue/results IPC in `instances/` with real-time socket or pipe coordination.
+
+### What needs to happen:
+1. **IPC transport layer** — abstract over Unix sockets, named pipes, or ZeroMQ
+2. **Message protocol** — define a simple JSON or msgpack wire format for task dispatch/results
+3. **Instance manager upgrade** — `instances/manager.py` switches from file polling to event-driven dispatch
+4. **Instance client upgrade** — `instances/instance.py` connects to manager via socket
+5. **Self-sharpening routes** — routes and tables update based on instance feedback (which routes get used, which fail)
+6. **Language-aware output** — generators adapt output style based on project conventions
+
+### Design goals:
+- Sub-millisecond task dispatch (vs. ~100ms filesystem polling)
+- Support 10+ concurrent AI instances
+- Graceful fallback to filesystem IPC if sockets unavailable
+
+### Candidate libraries:
+| Library | License | Purpose |
+|---------|---------|---------||
+| zmq (pyzmq) | LGPL/BSD | High-perf message passing |
+| msgpack | Apache-2.0 | Binary serialization |
+
+### MANIFEST.toml change:
+```toml
+[features]
+ipc = "socket"  # was "filesystem"
+```
 
 ---
 
