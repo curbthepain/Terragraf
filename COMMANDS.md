@@ -66,6 +66,11 @@ TUNING
   terra tune instructions   full behavioral instruction output
   terra tune promise        show thematic promise
 
+MODE
+  terra mode                show current mode (CI or App) + capabilities
+  terra mode check          exit 0 if app mode, exit 1 if CI
+  terra mode can <cap>      check if a capability is available
+
 APP
   terra app                 launch the Qt container app
   terra app --offscreen     launch headless (for testing)
@@ -110,5 +115,6 @@ The ImGui viewer (`terra imgui run`) includes seven dockable panels:
 - **math** evaluates expressions and navigates math primitives.
 - **sharpen** prunes stale entries, promotes hot ones, learns from usage.
 - **tune** loads universe profiles and generates behavioral instructions from thematic axes.
+- **mode** detects CI vs App. Tells the AI what it can and can't build.
 - **app** launches the Qt container — the graphical shell for Terragraf.
 - **hook** runs at the right time. Enter, commit, generate, spawn.
