@@ -46,7 +46,7 @@ Terraformer gives an AI session seven interlocking systems:
 
 ## What it does tomorrow
 
-- Real-time instance coordination over sockets and pipes, not just
+- Realtime instance coordination over sockets and pipes, not just
   filesystem IPC.
 
 - A training loop where the scaffolding learns from the AI's own
@@ -66,7 +66,7 @@ Terraformer gives an AI session seven interlocking systems:
   same scaffolding runs identically on both without platform-specific
   workarounds.
 
-- Language-aware scaffolding that adapts its output, conventions, and
+- Language aware scaffolding that adapts its output, conventions, and
   tooling to whatever language the project uses — Python, C++, Rust,
   JavaScript, Kotlin, and without separate configurations.
 
