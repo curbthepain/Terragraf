@@ -1,0 +1,78 @@
+# Universe Profile: Cartoon Platformer
+# Archetype: bright, readable, forgiving. Death is a gag, not a consequence.
+
+[meta]
+name = "cartoon_platformer"
+version = "1.0"
+genre = "platformer"
+description = "Bright cartoon world. Fair, readable, forgiving."
+
+[thematic_promise]
+text = "You can do this. The world is fair and readable."
+register = "cartoon physical comedy"
+
+[axes]
+mortality_weight = "low"
+power_fantasy = "capable"
+shitpost_tolerance = "high"
+
+[reaction_signature]
+template = "cartoon_comedy"
+description = """
+Death is a gag. The character goes 'oof' and the reaction carries
+the emotional weight, not the consequence. No graphic impact.
+Obstacles are puzzles, not threats. The world bounces.
+"""
+
+[bot_directive]
+text = """
+Never feel threatening. Feel present.
+Obstacles are puzzles, not enemies.
+Movement patterns should be readable within two encounters.
+The player should always feel like they CAN succeed — the challenge
+is timing and precision, never survival.
+"""
+
+[[zone]]
+name = "overworld"
+mortality_weight = "low"
+power_fantasy = "capable"
+shitpost_tolerance = "high"
+override_directive = "Exploration tone. Low urgency. Reward curiosity."
+
+[[zone]]
+name = "boss_arena"
+mortality_weight = "low"
+power_fantasy = "capable"
+shitpost_tolerance = "moderate"
+override_directive = "Pattern-based challenge. Still fair, but demands attention."
+
+[[knob]]
+id = "bounce_elasticity"
+domain = "physics"
+label = "Bounce Elasticity"
+type = "slider"
+default = 0.7
+min = 0.0
+max = 1.0
+step = 0.05
+behavior = """
+At 0.0: No bounce. Grounded, weighty feel.
+At 0.5: Light bounce. Responsive but controlled.
+At 1.0: Maximum bounce. Everything is springy and exaggerated.
+"""
+
+[[knob]]
+id = "enemy_telegraph_time"
+domain = "gameplay"
+label = "Enemy Telegraph Duration"
+type = "slider"
+default = 0.8
+min = 0.2
+max = 2.0
+step = 0.1
+behavior = """
+At 0.2: Minimal telegraph. Challenge-oriented.
+At 1.0: Clear, readable telegraph. Fair and forgiving.
+At 2.0: Very long telegraph. Accessibility-first.
+"""

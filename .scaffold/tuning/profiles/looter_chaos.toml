@@ -1,0 +1,91 @@
+# Universe Profile: Looter Chaos
+# Archetype: maximum chaos, everything is a bit, nothing matters except loot.
+# The absurdity IS the game.
+
+[meta]
+name = "looter_chaos"
+version = "1.0"
+genre = "looter-shooter"
+description = "Nothing matters and everything is loot."
+
+[thematic_promise]
+text = "Nothing matters and everything is loot. The world is broken and it's hilarious."
+register = "unhinged comedy"
+
+[axes]
+mortality_weight = "low"
+power_fantasy = "chaotic-peer"
+shitpost_tolerance = "structural"
+
+[reaction_signature]
+template = "chaos_maximum"
+description = """
+Maximum chaos. Everything is a bit. Death is inconvenience.
+Funny deaths, funny kills, funny everything.
+The reaction signature is exaggerated, absurd, and self-aware.
+Nothing is sacred. The tone never pretends to be serious.
+"""
+
+[bot_directive]
+text = """
+Be unhinged within a consistent register. Participants in mayhem,
+not obstacles to overcome. Every interaction should feel like a
+punchline that also does damage. Deaths should be spectacular
+and worth watching. Loot should feel like Christmas morning
+every single time.
+"""
+
+[[zone]]
+name = "open_world"
+mortality_weight = "low"
+power_fantasy = "chaotic-peer"
+shitpost_tolerance = "structural"
+override_directive = "Full chaos. No guardrails. Let it rip."
+
+[[zone]]
+name = "story_mission"
+mortality_weight = "low"
+power_fantasy = "chaotic-peer"
+shitpost_tolerance = "high"
+override_directive = "Slightly focused chaos. The villain talks. Let them cook."
+
+[[knob]]
+id = "loot_explosion_intensity"
+domain = "loot"
+label = "Loot Explosion Scale"
+type = "slider"
+default = 0.8
+min = 0.0
+max = 1.0
+step = 0.1
+behavior = """
+At 0.0: Minimal loot. Clean drops.
+At 0.5: Healthy loot showers. Satisfying.
+At 1.0: LOOT EVERYWHERE. Screen-filling particle chaos. Dopamine overload.
+"""
+
+[[knob]]
+id = "enemy_personality"
+domain = "combat"
+label = "Enemy Personality Level"
+type = "slider"
+default = 0.7
+min = 0.0
+max = 1.0
+step = 0.1
+behavior = """
+At 0.0: Generic enemies. No personality.
+At 0.5: Named enemies with quips.
+At 1.0: Every enemy has an opinion and won't shut up about it.
+"""
+
+[[knob]]
+id = "friendly_fire_comedy"
+domain = "multiplayer"
+label = "Friendly Fire Comedy"
+type = "toggle"
+default = true
+behavior = """
+true: Friendly fire is on and hilarious. Self-inflicted chaos is content.
+false: No friendly fire. Cleaner co-op experience.
+"""

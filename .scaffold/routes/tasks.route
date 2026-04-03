@@ -57,6 +57,14 @@ statistics           -> compute/math/stats.py      # Distributions, regression
 math transforms      -> compute/math/transforms.py # Wavelet, DCT, Hilbert
 math                 -> headers/math.h             # Math subsystem overview
 
+# ─── Thematic Tuning ──────────────────────────────────────────────────
+tune output            -> tuning/engine.py          # Thematic engine entry
+tune behavior          -> tuning/engine.py          # Bot/behavior calibration
+load universe          -> tuning/profiles/          # Universe profile directory
+thematic calibration   -> tuning/engine.py          # Full calibration workflow
+reaction signature     -> includes/reactions/       # Composable reaction fragments
+tune knobs             -> tuning/cli.py             # Adjust custom knobs
+
 # ─── Refactoring ──────────────────────────────────────────────────────
 refactor             -> headers/conventions.h       # Re-read conventions
 rename               -> headers/project.h          # Module boundaries

@@ -1,0 +1,100 @@
+# Universe Profile: Mythic Roguelike
+# Archetype: death is story, not failure. Growing competence against
+# mythic resistance. You will escape. Not yet. But you will.
+
+[meta]
+name = "mythic_roguelike"
+version = "1.0"
+genre = "roguelike"
+description = "Death is the mechanic. Every run teaches. Escape is earned."
+
+[thematic_promise]
+text = "You will escape. Not yet. But you will."
+register = "mythic wit"
+
+[axes]
+mortality_weight = "medium-narrative"
+power_fantasy = "capable"
+shitpost_tolerance = "narrow"
+
+[reaction_signature]
+template = "mythic_wounded"
+description = """
+Wounded but not broken. The protagonist bleeds but quips.
+Death is narratively significant — each run adds to the story.
+Reactions are mythic in scale but human in emotion.
+"""
+
+[bot_directive]
+text = """
+Feel genuinely dangerous. Be readable enough that a good run feels earned.
+Difficulty should feel like mythic resistance, not artificial punishment.
+Every encounter should teach something for the next run.
+The player should feel they lost because they haven't learned YET,
+not because the game cheated.
+"""
+
+[[zone]]
+name = "first_realm"
+mortality_weight = "medium-narrative"
+power_fantasy = "capable"
+shitpost_tolerance = "narrow"
+override_directive = "Tutorial-adjacent. Introduce mechanics through combat, not text."
+
+[[zone]]
+name = "final_realm"
+mortality_weight = "medium-narrative"
+power_fantasy = "god-tier"
+shitpost_tolerance = "zero"
+override_directive = "Full mythic register. The player has earned this. Make it feel like it."
+
+[[zone]]
+name = "hub_between_runs"
+mortality_weight = "none"
+power_fantasy = "capable"
+shitpost_tolerance = "moderate"
+override_directive = "Story beats. Character relationships. No combat tension."
+
+[[knob]]
+id = "run_difficulty_scaling"
+domain = "progression"
+label = "Per-Run Difficulty Curve"
+type = "curve"
+default = [[0.0, 0.3], [0.3, 0.4], [0.6, 0.6], [0.8, 0.75], [1.0, 0.9]]
+x_label = "Run Progress"
+y_label = "Difficulty"
+behavior = """
+Maps run progress to encounter difficulty.
+Early rooms ease the player in. Mid-run tests builds.
+Final encounters should feel like a genuine mythic challenge.
+"""
+
+[[knob]]
+id = "meta_progression_weight"
+domain = "progression"
+label = "Meta-Progression Impact"
+type = "slider"
+default = 0.4
+min = 0.0
+max = 1.0
+step = 0.05
+behavior = """
+At 0.0: Pure skill. No permanent upgrades matter.
+At 0.5: Balanced. Upgrades help but skill dominates.
+At 1.0: Heavy meta-progression. Grinding unlocks power.
+"""
+
+[[knob]]
+id = "narrative_density"
+domain = "story"
+label = "Story Beat Frequency"
+type = "slider"
+default = 0.6
+min = 0.0
+max = 1.0
+step = 0.1
+behavior = """
+At 0.0: Minimal story. Pure gameplay loop.
+At 0.5: Story between runs, occasional mid-run beats.
+At 1.0: Dense narrative. Frequent dialogue, character moments mid-run.
+"""

@@ -1,0 +1,93 @@
+# Universe Profile: Arena Slayer
+# Archetype: power fantasy FPS. You are the weapon. The enemies exist
+# to be expressed through, not to challenge.
+
+[meta]
+name = "arena_slayer"
+version = "1.0"
+genre = "fps"
+description = "You are the threat. The arena fears you. Prove it."
+
+[thematic_promise]
+text = "You are the threat. The arena fears you. Prove it."
+register = "operatic metal"
+
+[axes]
+mortality_weight = "high-personal"
+power_fantasy = "god-tier"
+shitpost_tolerance = "zero"
+
+[reaction_signature]
+template = "visceral_operatic"
+description = """
+Gore is aesthetic, not horror. Visceral, operatic, metal.
+Every kill should feel like a riff landing. Every death should feel
+like you missed a beat in the performance.
+Impact is immediate and satisfying. No slow deaths.
+"""
+
+[bot_directive]
+text = """
+Exist to be destroyed efficiently.
+Scale aggression to make the player feel momentum, not resistance.
+Die when the player slips, not when the player plays.
+Enemies are fuel for the performance, not obstacles to the player.
+"""
+
+[[zone]]
+name = "combat_arena"
+mortality_weight = "high-personal"
+power_fantasy = "god-tier"
+shitpost_tolerance = "zero"
+override_directive = "Maximum aggression. The arena is a test of mastery."
+
+[[zone]]
+name = "hub_fortress"
+mortality_weight = "none"
+power_fantasy = "god-tier"
+shitpost_tolerance = "narrow"
+override_directive = "No combat tension. Player is home. Let them breathe."
+
+[[knob]]
+id = "aggression_scaling"
+domain = "combat"
+label = "Bot Aggression Curve"
+type = "curve"
+default = [[0.0, 0.3], [0.25, 0.5], [0.5, 0.7], [0.75, 0.85], [1.0, 1.0]]
+x_label = "Player Momentum"
+y_label = "Bot Aggression"
+behavior = """
+Aggression tracks player momentum, not time.
+When the player is ripping, bots push harder to feed the fantasy.
+When the player stalls, bots ease slightly — not to help, but to reset rhythm.
+"""
+
+[[knob]]
+id = "execution_frequency"
+domain = "combat"
+label = "Execution Windows"
+type = "slider"
+default = 0.7
+min = 0.0
+max = 1.0
+step = 0.05
+behavior = """
+At 0.0: Executions rare. Pure gunplay.
+At 0.5: Standard. Staggered enemies at designed rate.
+At 1.0: Aggressive stagger. The game wants you performing constantly.
+"""
+
+[[knob]]
+id = "resource_from_kills"
+domain = "combat"
+label = "Resource Recovery on Kill"
+type = "slider"
+default = 0.6
+min = 0.0
+max = 1.0
+step = 0.1
+behavior = """
+At 0.0: No resource recovery. Pure resource management.
+At 0.5: Moderate recovery. Aggression is rewarded but not required.
+At 1.0: Full recovery. The game demands constant aggression to survive.
+"""

@@ -31,6 +31,7 @@ math = true                 # Math & algebra primitives
 viz = true                  # Visualization (2D + 3D)
 imgui = true                # ImGui real-time math modeling
 sharpen = true              # Self-sharpening routes and tables
+tuning = true               # Thematic tension calibration
 
 # Languages the scaffolding supports
 [languages]

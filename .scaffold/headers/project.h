@@ -79,6 +79,13 @@
     #desc "Git workflow scripts — branch, commit, PR, CI/CD templates"
 }
 
+#module tuning {
+    #path "tuning"
+    #exports [ThematicEngine, UniverseProfile, Knob, Zone, load_profile, list_profiles]
+    #depends [sharpen]
+    #desc "Thematic tension calibration — universe profiles, behavioral instructions, zone-aware axes"
+}
+
 #module tests {
     #path "tests"
     #exports []

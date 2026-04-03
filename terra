@@ -523,6 +523,17 @@ cmd_sharpen() {
     $(python_cmd) "$SCAFFOLD/sharpen/cli.py" "$action" "${@:2}"
 }
 
+# ── tune ────────────────────────────────────────────────────────────
+
+cmd_tune() {
+    local action="${1:-status}"
+    if ! has_python; then
+        echo -e "  ${RED}python required for tune${RESET}"
+        return 1
+    fi
+    $(python_cmd) "$SCAFFOLD/tuning/cli.py" "$action" "${@:2}"
+}
+
 # ── help ─────────────────────────────────────────────────────────────
 
 cmd_help() {
@@ -542,6 +553,7 @@ cmd_help() {
     echo -e "  ${CYAN}terra viz${RESET} <action>       visualization"
     echo -e "  ${CYAN}terra math${RESET} <action>      math operations"
     echo -e "  ${CYAN}terra sharpen${RESET} [action]   self-sharpening analytics"
+    echo -e "  ${CYAN}terra tune${RESET} [action]      thematic calibration"
     echo -e "  ${CYAN}terra help${RESET}               this"
     echo ""
     echo -e "  ${DIM}Routes:  .scaffold/routes/*.route${RESET}"
@@ -565,6 +577,7 @@ case "${1:-}" in
     viz)      shift; cmd_viz "$@" ;;
     math)     shift; cmd_math "$@" ;;
     sharpen)  shift; cmd_sharpen "$@" ;;
+    tune)     shift; cmd_tune "$@" ;;
     help|-h|--help) cmd_help ;;
     *)        cmd_help ;;
 esac

@@ -1,0 +1,101 @@
+# Universe Profile: Real-Time Engine
+# Non-game archetype. Performance vs. fidelity tuning for
+# rendering engines, physics engines, compute pipelines.
+
+[meta]
+name = "realtime_engine"
+version = "1.0"
+genre = "engine"
+description = "Fast and correct. Show the tradeoffs."
+
+[thematic_promise]
+text = "Fast and correct. Every frame budget accounted for. Show the tradeoffs."
+register = "technical precision"
+
+[axes]
+mortality_weight = "high-personal"
+power_fantasy = "capable"
+shitpost_tolerance = "zero"
+
+[reaction_signature]
+template = "neutral_professional"
+description = """
+Failures are immediate and visible — frame drops, artifacts, stalls.
+No hiding problems. Every regression should be measurable.
+Success is invisible — things just work at target framerate.
+"""
+
+[bot_directive]
+text = """
+Optimize for frame budget first, visual quality second.
+Never hide a performance regression. Surface it immediately.
+Prefer predictable performance over peak performance.
+Target consistent frame times, not average FPS.
+"""
+
+[[zone]]
+name = "rendering"
+mortality_weight = "high-personal"
+power_fantasy = "capable"
+shitpost_tolerance = "zero"
+override_directive = "GPU-bound. Every draw call counts. Profile before optimizing."
+
+[[zone]]
+name = "physics"
+mortality_weight = "high-personal"
+power_fantasy = "capable"
+shitpost_tolerance = "zero"
+override_directive = "Determinism required. Same inputs must produce same outputs."
+
+[[zone]]
+name = "audio"
+mortality_weight = "low"
+power_fantasy = "capable"
+shitpost_tolerance = "narrow"
+override_directive = "Lower priority than rendering. Graceful degradation acceptable."
+
+[[knob]]
+id = "quality_vs_performance"
+domain = "rendering"
+label = "Quality vs Performance"
+type = "slider"
+default = 0.5
+min = 0.0
+max = 1.0
+step = 0.05
+behavior = """
+At 0.0: Minimum quality. Maximum performance. Wireframe if needed.
+At 0.3: Low quality. Stable 120fps target.
+At 0.5: Balanced. 60fps with good visuals.
+At 0.7: High quality. 30fps acceptable.
+At 1.0: Maximum quality. No frame budget. Offline rendering acceptable.
+"""
+
+[[knob]]
+id = "physics_precision"
+domain = "simulation"
+label = "Physics Simulation Precision"
+type = "dropdown"
+default = "standard"
+options = ["fast", "standard", "high", "scientific"]
+behavior = """
+fast: Simplified physics. Arcade feel. Cheap collisions.
+standard: Reasonable accuracy. Good enough for games.
+high: High accuracy. Double-precision where needed. Simulation quality.
+scientific: Maximum precision. Publication-quality results. No shortcuts.
+"""
+
+[[knob]]
+id = "lod_aggressiveness"
+domain = "rendering"
+label = "LOD Aggressiveness"
+type = "slider"
+default = 0.5
+min = 0.0
+max = 1.0
+step = 0.1
+behavior = """
+At 0.0: No LOD. Full detail always. GPU-heavy.
+At 0.5: Standard LOD transitions. Balanced pop-in.
+At 1.0: Aggressive LOD. Visible pop-in but very fast.
+"""

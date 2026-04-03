@@ -15,4 +15,6 @@ ml       | compute | uses    | medium
 math     | compute | extends | low
 viz      | compute | uses    | medium
 imgui    | viz     | uses    | medium
+tuning   | sharpen | uses    | low
+imgui    | tuning  | uses    | medium
 tests    | core    | uses    | low
