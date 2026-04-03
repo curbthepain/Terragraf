@@ -28,8 +28,7 @@ COMMANDS = [
     ("IMGUI", [
         ("terra imgui build", "build the ImGui app"),
         ("terra imgui run", "launch interactive viewer"),
-        ("terra imgui math", "math modeling panel"),
-        ("terra imgui nodes", "node graph editor"),
+        ("terra imgui bridge", "start Python bridge server"),
     ]),
     ("VISUALIZE", [
         ("terra viz spectrogram", "render spectrogram"),
@@ -51,19 +50,28 @@ COMMANDS = [
     ("SHARPEN", [
         ("terra sharpen", "run self-sharpening"),
         ("terra sharpen --dry-run", "preview changes"),
+        ("terra sharpen status", "analytics summary"),
     ]),
     ("TUNING", [
         ("terra tune", "show active profile"),
         ("terra tune list", "list profiles"),
         ("terra tune load <name>", "load profile"),
         ("terra tune zone <name>", "enter zone"),
-        ("terra tune set <id> <val>", "set knob"),
+        ("terra tune zone --exit", "exit current zone"),
+        ("terra tune set <id> <val>", "set knob value"),
+        ("terra tune axes", "show thematic axes"),
+        ("terra tune directive", "show bot directive"),
         ("terra tune instructions", "behavioral output"),
+        ("terra tune promise", "show thematic promise"),
     ]),
     ("MODE", [
         ("terra mode", "show CI or App mode"),
         ("terra mode check", "exit 0=app, 1=ci"),
         ("terra mode can <cap>", "check capability"),
+    ]),
+    ("APP", [
+        ("terra app", "launch Qt container"),
+        ("terra app --offscreen", "headless mode (testing)"),
     ]),
 ]
 
