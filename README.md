@@ -44,31 +44,15 @@ Terraformer gives an AI session seven interlocking systems:
 - **Git** Branching, commit, and PR workflows baked into the structure
   so the AI follows project conventions without being told each time.
 
-## What it does tomorrow
+## What's next
 
-- Realtime instance coordination over sockets and pipes, not just
-  filesystem IPC.
+- Instance coordination over sockets and pipes, not just filesystem IPC.
 
-- A training loop where the scaffolding learns from the AI's own
-  sessions, routes that sharpen over time, tables that grow from
-  encountered errors, headers that stay current as the codebase evolves.
+- Self-sharpening routes and tables — the scaffolding updates itself
+  from encountered errors and completed tasks instead of staying static.
 
-- Native Vulkan compute integration for AI workloads that need GPU
-  access directly from the scaffolding, not through a separate toolchain.
-
-- FFT and spectral analysis as first-class compute primitives, available
-  to any instance that needs signal processing.
-
-- PyTorch model scaffolding that generates, trains, evaluates, and
-  deploys from within the same structure the AI already works in.
-
-- Cross-platform parity between Linux Wayland and Windows 10/11 so the
-  same scaffolding runs identically on both without platform-specific
-  workarounds.
-
-- Language aware scaffolding that adapts its output, conventions, and
-  tooling to whatever language the project uses — Python, C++, Rust,
-  JavaScript, Kotlin, and without separate configurations.
+- Language-aware output that adapts conventions and tooling per project
+  language without separate configurations.
 
 ## Platforms
 
