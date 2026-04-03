@@ -39,6 +39,10 @@ command reference.
 
 ---
 
+![Commands](commands-card.svg)
+
+---
+
 ## What it does
 
 Terragraf gives an AI session eight interlocking systems:
