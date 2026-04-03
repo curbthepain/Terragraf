@@ -11,7 +11,7 @@ Targets: **Linux (Wayland)** and **Windows 10/11** only.
 
 ## Core Concepts
 
-1. **Scaffolting** — this structure. Your src folder. Where you live and work from.
+1. **Scaffolding** — this structure. Your src folder. Where you live and work from.
 2. **Headers (.h)** — declare what exists. Contracts. Like C headers.
 3. **Includes (.inc)** — composable fragments. Snap together like C includes.
 4. **Routes (.route)** — navigate from intent to files. "I want to X" → go here.

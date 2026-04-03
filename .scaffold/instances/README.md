@@ -12,7 +12,7 @@ Traditional AI agents (like Claude's sub-agents) are:
 
 ## How Multi-Instancing Works
 
-Instead of one AI spawning sub-agents, Kohala runs **multiple AI instances
+Instead of one AI spawning sub-agents, Terraformer runs **multiple AI instances
 in parallel** that share the same scaffolding:
 
 ```

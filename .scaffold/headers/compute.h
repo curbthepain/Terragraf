@@ -47,7 +47,7 @@
         layer:     "compute/vulkan/layer.cpp"
     },
 
-    // Vulkan layer development (Kohala-specific):
+    // Vulkan layer development (Terraformer-specific):
     //   A Vulkan layer intercepts API calls between the app and the driver.
     //   Layers can validate, profile, debug, or modify Vulkan behavior.
     //   See compute/vulkan/layer.cpp for the scaffold.
