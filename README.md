@@ -81,7 +81,7 @@ descriptions.
 ├── imgui/                  — ImGui viewer (7 panels, TCP bridge to Python)
 ├── ml/                     — PyTorch models, datasets, training
 ├── hooks/                  — lifecycle hooks (enter, commit, generate)
-└── tests/                  — pytest suite (210 tests)
+└── tests/                  — pytest suite (302 tests)
 ```
 
 ### Headers
@@ -167,6 +167,18 @@ terra imgui bridge         # start Python bridge server
   per project language without separate configurations.
 
 See [ROADMAP.md](ROADMAP.md) for the full phased plan.
+
+---
+
+## Tests — 302 Passing
+
+See [TESTS.md](TESTS.md) for the full test reference — what's covered,
+how to run, coverage by module.
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest .scaffold/tests/ -v
+```
 
 ---
 

@@ -1,6 +1,6 @@
 # Terragraf Feature Roadmap
 
-**Status:** Phases 0-7 complete. 210 tests passing.
+**Status:** Phases 0-7 complete. 302 tests passing.
 
 ---
 
@@ -61,7 +61,9 @@
 
 ---
 
-## Test Summary — 210 Total
+## Test Summary — 302 Total
+
+See [TESTS.md](TESTS.md) for the full test reference.
 
 | File | Count | What |
 |------|-------|------|
@@ -75,6 +77,9 @@
 | test_tuning.py | 82 | schema, loader, engine, knobs, zones, CLI |
 | test_transport.py | 16 | protocol, server/client, manager integration |
 | test_app.py | 17 | theme, bridge client, page imports, bridge handlers |
+| test_sharpen.py | 30 | config, tracker IO/locking, engine 4 passes, file modification |
+| test_viz.py | 17 | heatmap, export, spectrogram, ultrasound volume |
+| test_viz3d.py | 45 | transfer function, mesh, nodes, scene, volume renderer, OBJ/PLY export |
 
 ---
 

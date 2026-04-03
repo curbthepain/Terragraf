@@ -125,6 +125,6 @@
   <line x1="20" y1="780" x2="860" y2="780" stroke="#30363d" stroke-width="1" />
   <text x="30" y="806" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="11" fill="#7d8590">Qt pages: Home (Ctrl+1)  Viewer (Ctrl+2)  Tuning (Ctrl+3)  Debug (Ctrl+4)  Settings (Ctrl+5)</text>
   <text x="30" y="830" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="11" fill="#7d8590">ImGui panels: Math  Spectrogram  Node Editor  Volume  Tuning  Debug  Settings</text>
-  <text x="30" y="854" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="11" fill="#3fb950">210 tests passing</text>
+  <text x="30" y="854" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="11" fill="#3fb950">302 tests passing</text>
   <text x="856" y="854" text-anchor="end" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" fill="#7d8590">terragraf v0.1</text>
 </svg>
