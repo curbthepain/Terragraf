@@ -100,5 +100,5 @@ def laplace_transform_numerical(signal: np.ndarray, s_values: np.ndarray,
     result = np.zeros(len(s_values), dtype=complex)
     for i, s in enumerate(s_values):
         integrand = signal * np.exp(-s * t)
-        result[i] = np.trapz(integrand, dx=dt)
+        result[i] = np.trapezoid(integrand, dx=dt)
     return result

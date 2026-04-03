@@ -19,42 +19,17 @@ jobs:
       # Uncomment the section matching your project's language.
 
       # Python
-      # - uses: actions/setup-python@v5
-      #   with:
-      #     python-version: '3.11'
-      # - run: pip install -r requirements.txt
-
-      # Node.js
-      # - uses: actions/setup-node@v4
-      #   with:
-      #     node-version: '20'
-      # - run: npm ci
-
-      # JDK (Kotlin/Java/Android)
-      # - uses: actions/setup-java@v4
-      #   with:
-      #     distribution: 'temurin'
-      #     java-version: '17'
-
-      # Rust
-      # - uses: dtolnay/rust-toolchain@stable
-
-      # C++ with CMake
-      # - run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y cmake build-essential
-
-      # Vulkan SDK
-      # - uses: humbletim/setup-vulkan-sdk@v1.2.0
-      #   with:
-      #     vulkan-query-version: latest
-      #     vulkan-components: Vulkan-Headers, Vulkan-Loader
-
-      # ─── Build ────────────────────────────────────────────────────
-      - run: echo "Add build command here"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy scipy pytest
 
       # ─── Test ─────────────────────────────────────────────────────
-      - run: echo "Add test command here"
+      - name: Run tests
+        working-directory: .scaffold
+        run: python -m pytest tests/ -v --tb=short
 
       # ─── Lint ─────────────────────────────────────────────────────
-      - run: echo "Add lint command here"
+      - name: Check syntax
+        working-directory: .scaffold
+        run: python -m py_compile compute/math/linalg.py compute/math/algebra.py compute/math/stats.py compute/math/transforms.py compute/fft/fft.py compute/fft/spectral.py

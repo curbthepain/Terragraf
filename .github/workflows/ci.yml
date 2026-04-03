@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main, terra-yog]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: pip install numpy scipy pytest
+
+      - name: Run tests
+        working-directory: .scaffold
+        run: python -m pytest tests/ -v --tb=short
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check syntax
+        working-directory: .scaffold
+        run: python -m py_compile compute/math/linalg.py compute/math/algebra.py compute/math/stats.py compute/math/transforms.py compute/fft/fft.py compute/fft/spectral.py generators/gen_model.py generators/gen_shader.py
