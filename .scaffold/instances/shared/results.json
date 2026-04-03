@@ -26,5 +26,19 @@
     "status": "completed",
     "result": "all good",
     "completed_at": 1775239832.1558006
+  },
+  {
+    "instance_id": "reporter",
+    "task_id": "a213e522",
+    "status": "completed",
+    "result": "all good",
+    "completed_at": 1775244418.7182555
+  },
+  {
+    "instance_id": "reporter",
+    "task_id": "15e1e6f4",
+    "status": "completed",
+    "result": "all good",
+    "completed_at": 1775244540.725944
   }
 ]
