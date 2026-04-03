@@ -74,6 +74,13 @@ Terraformer gives an AI session seven interlocking systems:
 
 Linux (Wayland) and Windows 10/11.
 
+## Contributors
+
+| Name | Role | Contact |
+|------|------|---------|
+| Austin Wisniewski | Creator, Lead | [@curbthepain](https://github.com/curbthepain) |
+| Claude (Anthropic) | AI Contributor | [anthropic.com](https://anthropic.com) |
+
 ## License
 
 Apache 2.0

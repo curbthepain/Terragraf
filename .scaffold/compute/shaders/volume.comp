@@ -1,0 +1,147 @@
+/**
+ * .scaffold/compute/shaders/volume.comp
+ * GPU ray marching for volumetric data — Vulkan compute shader.
+ *
+ * Renders a 3D density field using front-to-back compositing.
+ * Pairs with: compute/render/volume_renderer.cpp (CPU path)
+ *             viz/3d/volume.py (Python path)
+ *
+ * Compile: glslangValidator -V volume.comp -o volume.spv
+ *
+ * Usage:
+ *   1. Upload 3D volume data to volumeData buffer
+ *   2. Set camera/volume params via push constants
+ *   3. Dispatch (width/16, height/16, 1) workgroups
+ *   4. Read RGBA result from outputImage
+ */
+
+#version 450
+
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+// Volume data: 3D density field, stored as flat buffer
+layout(set = 0, binding = 0) buffer VolumeData {
+    float data[];
+} volume;
+
+// Transfer function: 256 RGBA entries (lookup table)
+layout(set = 0, binding = 1) buffer TransferFunc {
+    vec4 colors[256];
+} transfer;
+
+// Output image: RGBA float
+layout(set = 0, binding = 2, rgba32f) uniform image2D outputImage;
+
+layout(push_constant) uniform PushConstants {
+    // Volume dimensions
+    uint vol_x;
+    uint vol_y;
+    uint vol_z;
+
+    // Image dimensions
+    uint img_width;
+    uint img_height;
+
+    // Camera
+    vec3 camera_pos;
+    vec3 camera_forward;
+    vec3 camera_right;
+    vec3 camera_up;
+
+    // Ray marching
+    float step_size;
+    uint max_steps;
+    float density_scale;
+    float opacity_threshold;
+} params;
+
+/**
+ * Trilinear interpolation sample from volume.
+ */
+float sample_volume(vec3 pos) {
+    // Clamp to volume bounds
+    pos = clamp(pos, vec3(0), vec3(params.vol_x - 1, params.vol_y - 1, params.vol_z - 1));
+
+    ivec3 i = ivec3(floor(pos));
+    vec3 f = fract(pos);
+
+    // Clamp upper indices
+    ivec3 i1 = min(i + 1, ivec3(params.vol_x - 1, params.vol_y - 1, params.vol_z - 1));
+
+    // Flat index into volume buffer
+    #define IDX(x, y, z) ((z) * params.vol_x * params.vol_y + (y) * params.vol_x + (x))
+
+    float c000 = volume.data[IDX(i.x,  i.y,  i.z)];
+    float c100 = volume.data[IDX(i1.x, i.y,  i.z)];
+    float c010 = volume.data[IDX(i.x,  i1.y, i.z)];
+    float c001 = volume.data[IDX(i.x,  i.y,  i1.z)];
+    float c110 = volume.data[IDX(i1.x, i1.y, i.z)];
+    float c101 = volume.data[IDX(i1.x, i.y,  i1.z)];
+    float c011 = volume.data[IDX(i.x,  i1.y, i1.z)];
+    float c111 = volume.data[IDX(i1.x, i1.y, i1.z)];
+
+    #undef IDX
+
+    // Trilinear
+    return mix(
+        mix(mix(c000, c100, f.x), mix(c010, c110, f.x), f.y),
+        mix(mix(c001, c101, f.x), mix(c011, c111, f.x), f.y),
+        f.z
+    );
+}
+
+/**
+ * Look up transfer function color for a density value.
+ */
+vec4 lookup_transfer(float density) {
+    float idx = clamp(density * 255.0, 0.0, 255.0);
+    int i0 = int(floor(idx));
+    int i1 = min(i0 + 1, 255);
+    float t = fract(idx);
+    return mix(transfer.colors[i0], transfer.colors[i1], t);
+}
+
+void main() {
+    uvec2 pixel = gl_GlobalInvocationID.xy;
+
+    if (pixel.x >= params.img_width || pixel.y >= params.img_height)
+        return;
+
+    // Compute ray origin and direction
+    float u = (float(pixel.x) / float(params.img_width) - 0.5);
+    float v = (float(pixel.y) / float(params.img_height) - 0.5);
+    float extent = max(max(float(params.vol_x), float(params.vol_y)), float(params.vol_z));
+
+    vec3 ray_origin = params.camera_pos
+                    + params.camera_right * u * extent
+                    + params.camera_up * v * extent;
+    vec3 ray_dir = params.camera_forward;
+
+    // Front-to-back compositing
+    vec4 color = vec4(0.0);
+
+    for (uint step = 0; step < params.max_steps; ++step) {
+        vec3 pos = ray_origin + ray_dir * float(step) * params.step_size;
+
+        // Bounds check
+        if (any(lessThan(pos, vec3(0))) ||
+            any(greaterThanEqual(pos, vec3(params.vol_x - 1, params.vol_y - 1, params.vol_z - 1))))
+            continue;
+
+        float density = sample_volume(pos) * params.density_scale;
+
+        if (density > 0.01) {
+            vec4 sample_color = lookup_transfer(density);
+            float alpha = sample_color.a * params.step_size;
+
+            color.rgb += (1.0 - color.a) * sample_color.rgb * alpha;
+            color.a += (1.0 - color.a) * alpha;
+
+            if (color.a > params.opacity_threshold)
+                break;
+        }
+    }
+
+    color = clamp(color, 0.0, 1.0);
+    imageStore(outputImage, ivec2(pixel), color);
+}

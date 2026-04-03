@@ -12,4 +12,7 @@ ui       | models  | data    | high
 services | core    | extends | high
 services | config  | config  | low
 ml       | compute | uses    | medium
+math     | compute | extends | low
+viz      | compute | uses    | medium
+imgui    | viz     | uses    | medium
 tests    | core    | uses    | low

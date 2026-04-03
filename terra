@@ -369,6 +369,134 @@ HOOK
     fi
 }
 
+# ── imgui ───────────────────────────────────────────────────────────
+
+cmd_imgui() {
+    local action="${1:?Usage: terra imgui <build|run|math|nodes>}"
+    shift
+
+    case "$action" in
+        build)
+            echo -e "${BOLD}Building ImGui app...${RESET}"
+            local build_dir="$SCAFFOLD/imgui/build"
+            mkdir -p "$build_dir"
+            if command -v cmake &>/dev/null; then
+                cmake -B "$build_dir" -S "$SCAFFOLD/imgui" && cmake --build "$build_dir"
+            else
+                echo -e "  ${RED}cmake required to build ImGui app${RESET}"
+                echo -e "  ${DIM}install: sudo apt install cmake (Linux) or winget install cmake (Windows)${RESET}"
+            fi
+            ;;
+        run)
+            local binary="$SCAFFOLD/imgui/build/terraformer_imgui"
+            if [ -x "$binary" ]; then
+                "$binary"
+            else
+                echo -e "  ${YELLOW}not built yet${RESET}"
+                echo -e "  ${DIM}run: terra imgui build${RESET}"
+            fi
+            ;;
+        math)
+            echo -e "  ${CYAN}imgui.math_panel${RESET} — interactive function plotter"
+            echo -e "  ${DIM}see .scaffold/imgui/math_panel.cpp${RESET}"
+            ;;
+        nodes)
+            echo -e "  ${CYAN}imgui.node_editor${RESET} — visual node graph editor"
+            echo -e "  ${DIM}see .scaffold/imgui/node_editor.cpp${RESET}"
+            ;;
+        *)
+            echo -e "  ${BOLD}terra imgui${RESET}"
+            echo -e "    ${CYAN}build${RESET}   build the ImGui app"
+            echo -e "    ${CYAN}run${RESET}     launch interactive viewer"
+            echo -e "    ${CYAN}math${RESET}    math modeling panel info"
+            echo -e "    ${CYAN}nodes${RESET}   node graph editor info"
+            ;;
+    esac
+}
+
+# ── viz ─────────────────────────────────────────────────────────────
+
+cmd_viz() {
+    local action="${1:?Usage: terra viz <spectrogram|heatmap|stream|3d>}"
+    shift
+
+    case "$action" in
+        spectrogram)
+            echo -e "  ${CYAN}viz.spectrogram${RESET} — render spectrogram from signal"
+            echo -e "  ${DIM}see .scaffold/viz/spectrogram.py${RESET}"
+            echo -e "  ${DIM}builds on: compute/fft/spectral.py${RESET}"
+            ;;
+        heatmap)
+            echo -e "  ${CYAN}viz.heatmap${RESET} — render 2D data as heatmap"
+            echo -e "  ${DIM}see .scaffold/viz/heatmap.py${RESET}"
+            ;;
+        stream)
+            echo -e "  ${CYAN}viz.stream${RESET} — real-time scrolling line chart"
+            echo -e "  ${DIM}see .scaffold/viz/stream.py${RESET}"
+            ;;
+        3d)
+            local sub="${1:-help}"
+            case "$sub" in
+                nodes)  echo -e "  ${CYAN}viz.3d.nodes${RESET} — 3D node graph"; echo -e "  ${DIM}see .scaffold/viz/3d/nodes.py${RESET}" ;;
+                mesh)   echo -e "  ${CYAN}viz.3d.mesh${RESET} — 3D mesh/surface"; echo -e "  ${DIM}see .scaffold/viz/3d/mesh.py${RESET}" ;;
+                volume) echo -e "  ${CYAN}viz.3d.volume${RESET} — volumetric rendering"; echo -e "  ${DIM}see .scaffold/viz/3d/volume.py${RESET}" ;;
+                *)
+                    echo -e "  ${BOLD}terra viz 3d${RESET}"
+                    echo -e "    ${CYAN}nodes${RESET}    3D node graph"
+                    echo -e "    ${CYAN}mesh${RESET}     3D mesh/surface"
+                    echo -e "    ${CYAN}volume${RESET}   volumetric rendering"
+                    ;;
+            esac
+            ;;
+        *)
+            echo -e "  ${BOLD}terra viz${RESET}"
+            echo -e "    ${CYAN}spectrogram${RESET}  render spectrogram"
+            echo -e "    ${CYAN}heatmap${RESET}      render 2D heatmap"
+            echo -e "    ${CYAN}stream${RESET}       real-time data plotter"
+            echo -e "    ${CYAN}3d${RESET}           3D visualization"
+            ;;
+    esac
+}
+
+# ── math ────────────────────────────────────────────────────────────
+
+cmd_math() {
+    local action="${1:?Usage: terra math <eval|linalg|stats>}"
+    shift
+
+    if ! has_python; then
+        echo -e "  ${RED}python required for math operations${RESET}"
+        return 1
+    fi
+
+    case "$action" in
+        eval)
+            local expr="${*:?Usage: terra math eval <expression>}"
+            $(python_cmd) -c "
+import numpy as np
+result = eval('''$expr''')
+print(result)
+"
+            ;;
+        linalg)
+            local op="${1:?Usage: terra math linalg <op> (det, inv, eig, svd, rank)}"
+            echo -e "  ${CYAN}linalg.$op${RESET} — see .scaffold/compute/math/linalg.py"
+            echo -e "  ${DIM}import: from scaffold.compute.math import linalg${RESET}"
+            ;;
+        stats)
+            local op="${1:-describe}"
+            echo -e "  ${CYAN}stats.$op${RESET} — see .scaffold/compute/math/stats.py"
+            echo -e "  ${DIM}import: from scaffold.compute.math import stats${RESET}"
+            ;;
+        *)
+            echo -e "  ${BOLD}terra math${RESET}"
+            echo -e "    ${CYAN}eval${RESET} <expr>     evaluate a math expression"
+            echo -e "    ${CYAN}linalg${RESET} <op>     linear algebra operation info"
+            echo -e "    ${CYAN}stats${RESET} [op]      statistics operation info"
+            ;;
+    esac
+}
+
 # ── help ─────────────────────────────────────────────────────────────
 
 cmd_help() {
@@ -384,6 +512,9 @@ cmd_help() {
     echo -e "  ${CYAN}terra hook${RESET} <name>        run a lifecycle hook"
     echo -e "  ${CYAN}terra queue${RESET}              show task queue"
     echo -e "  ${CYAN}terra queue add${RESET} <task>   add task to queue"
+    echo -e "  ${CYAN}terra imgui${RESET} <action>      ImGui real-time viewer"
+    echo -e "  ${CYAN}terra viz${RESET} <action>       visualization"
+    echo -e "  ${CYAN}terra math${RESET} <action>      math operations"
     echo -e "  ${CYAN}terra help${RESET}               this"
     echo ""
     echo -e "  ${DIM}Routes:  .scaffold/routes/*.route${RESET}"
@@ -403,6 +534,9 @@ case "${1:-}" in
     gen)      shift; cmd_gen "$@" ;;
     hook)     shift; cmd_hook "$@" ;;
     queue)    shift; cmd_queue "$@" ;;
+    imgui)    shift; cmd_imgui "$@" ;;
+    viz)      shift; cmd_viz "$@" ;;
+    math)     shift; cmd_math "$@" ;;
     help|-h|--help) cmd_help ;;
     *)        cmd_help ;;
 esac

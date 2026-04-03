@@ -40,6 +40,23 @@ vulkan setup         -> compute/vulkan/instance.cpp # Vulkan init
 compute pipeline     -> compute/vulkan/pipeline.cpp # GPU pipeline
 write shader         -> generators/gen_shader.py   # Generate shader
 
+# ─── Visualization ────────────────────────────────────────────────────
+render spectrogram   -> viz/spectrogram.py         # Spectrogram from signal
+render heatmap       -> viz/heatmap.py             # 2D heatmap
+live stream          -> viz/stream.py              # Real-time data plotter
+export figure        -> viz/export.py              # Save to PNG/SVG
+visualize            -> headers/viz.h              # Viz subsystem overview
+3d nodes             -> viz/3d/nodes.py            # 3D node graph
+3d mesh              -> viz/3d/mesh.py             # 3D mesh/surface
+3d volume            -> viz/3d/volume.py           # Volumetric rendering
+
+# ─── Math ─────────────────────────────────────────────────────────────
+linear algebra       -> compute/math/linalg.py     # Matrix ops, SVD, eigenvalues
+algebra              -> compute/math/algebra.py    # Polynomials, interpolation
+statistics           -> compute/math/stats.py      # Distributions, regression
+math transforms      -> compute/math/transforms.py # Wavelet, DCT, Hilbert
+math                 -> headers/math.h             # Math subsystem overview
+
 # ─── Refactoring ──────────────────────────────────────────────────────
 refactor             -> headers/conventions.h       # Re-read conventions
 rename               -> headers/project.h          # Module boundaries

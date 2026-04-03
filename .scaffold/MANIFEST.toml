@@ -27,6 +27,9 @@ vulkan = true               # Vulkan compute/graphics
 shaders = true              # GPU shader pipeline
 ci = true                   # CI/CD workflows
 instances = true            # Multi-instancing (replaces agents)
+math = true                 # Math & algebra primitives
+viz = true                  # Visualization (2D + 3D)
+imgui = true                # ImGui real-time math modeling
 
 # Languages the scaffolding supports
 [languages]

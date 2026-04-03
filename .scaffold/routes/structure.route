@@ -25,6 +25,25 @@ ml training       -> ml/training/                # Train/eval loops
 checkpoints       -> checkpoints/                # Saved models
 training logs     -> runs/                       # TensorBoard etc
 
+# ── Visualization ────────────────────────────────────────────────────
+viz               -> viz/                        # Visualization root
+spectrogram       -> viz/spectrogram.py          # Spectrogram rendering
+heatmap           -> viz/heatmap.py              # 2D heatmaps
+stream            -> viz/stream.py               # Real-time plotting
+viz export        -> viz/export.py               # Figure export
+3d                -> viz/3d/                     # 3D visualization
+nodes             -> viz/3d/nodes.py             # Node graphs
+mesh              -> viz/3d/mesh.py              # Mesh generation
+volume            -> viz/3d/volume.py            # Volumetric rendering
+scene             -> viz/3d/scene.py             # 3D scene management
+
+# ── Math ─────────────────────────────────────────────────────────────
+math              -> compute/math/               # Math primitives
+linalg            -> compute/math/linalg.py      # Linear algebra
+algebra           -> compute/math/algebra.py     # Polynomial algebra
+statistics        -> compute/math/stats.py       # Statistics
+transforms        -> compute/math/transforms.py  # DCT, wavelet, etc.
+
 # ── Compute ──────────────────────────────────────────────────────────
 fft               -> compute/fft/                # FFT utilities
 vulkan            -> compute/vulkan/             # Vulkan code

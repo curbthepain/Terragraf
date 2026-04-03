@@ -27,6 +27,25 @@ LIFECYCLE
   terra hook generate       run after file generation
   terra hook instance       run on instance spawn
 
+IMGUI
+  terra imgui build         build the ImGui app
+  terra imgui run           launch interactive viewer
+  terra imgui math          math modeling panel info
+  terra imgui nodes         node graph editor info
+
+VISUALIZE
+  terra viz spectrogram     render spectrogram from signal
+  terra viz heatmap         render 2D heatmap
+  terra viz stream          real-time data plotter
+  terra viz 3d nodes        3D node graph
+  terra viz 3d mesh         3D mesh/surface
+  terra viz 3d volume       volumetric rendering
+
+MATH
+  terra math eval <expr>    evaluate a math expression
+  terra math linalg <op>    linear algebra operation info
+  terra math stats [op]     statistics operation info
+
 INSTANCES
   terra queue               show the task queue
   terra queue add <task>    add a task to the queue
@@ -40,4 +59,7 @@ INSTANCES
 - **dep** shows what touches what. Check before you change.
 - **gen** builds files from the scaffolding. Not from scratch.
 - **queue** is for parallel work. Tasks go in, instances pull them out.
+- **imgui** builds and runs the real-time ImGui math modeling app.
+- **viz** renders spectrograms, heatmaps, streams, and 3D views.
+- **math** evaluates expressions and navigates math primitives.
 - **hook** runs at the right time. Enter, commit, generate, spawn.
