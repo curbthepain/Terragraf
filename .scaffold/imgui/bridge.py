@@ -19,9 +19,16 @@ Usage (C++ side):
 import json
 import socket
 import struct
+import sys
 import threading
+from pathlib import Path
 import numpy as np
 from typing import Any, Callable, Optional
+
+# Add .scaffold/ to path for tuning imports
+_SCAFFOLD_DIR = Path(__file__).parent.parent
+if str(_SCAFFOLD_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCAFFOLD_DIR))
 
 
 class Bridge:
@@ -141,3 +148,116 @@ class Bridge:
             msg_type = msg.get("type", "")
             if msg_type in self._handlers:
                 self._handlers[msg_type](msg)
+
+    # ── Tuning Integration ──────────────────────────────────────────
+
+    def register_tuning_handlers(self):
+        """Register handlers for thematic tension calibration messages.
+
+        Call after start() to wire up tune_* message handling.
+        The ThematicEngine is instantiated lazily on first use.
+        """
+        from tuning.engine import ThematicEngine
+        engine = ThematicEngine()
+
+        def _profile_to_json(profile):
+            """Serialize a UniverseProfile for the C++ panel."""
+            knobs = []
+            for k in profile.knobs:
+                knob_data = {
+                    "id": k.id,
+                    "domain": k.domain,
+                    "label": k.label,
+                    "knob_type": k.knob_type,
+                    "description": k.description,
+                    "behavior": k.behavior,
+                    "default": k.default,
+                    "value": k.value,
+                }
+                if k.knob_type == "slider":
+                    knob_data.update({
+                        "min_val": k.min_val,
+                        "max_val": k.max_val,
+                        "step": k.step,
+                    })
+                elif k.knob_type == "dropdown":
+                    knob_data["options"] = k.options or []
+                elif k.knob_type == "curve":
+                    knob_data["x_label"] = k.x_label
+                    knob_data["y_label"] = k.y_label
+                elif k.knob_type == "text":
+                    knob_data["max_length"] = k.max_length or 256
+                knobs.append(knob_data)
+
+            zones = [{"name": z.name} for z in profile.zones]
+
+            return {
+                "name": profile.name,
+                "genre": profile.genre,
+                "description": profile.description,
+                "thematic_promise": profile.thematic_promise,
+                "register": profile.register,
+                "mortality_weight": profile.mortality_weight,
+                "power_fantasy": profile.power_fantasy,
+                "shitpost_tolerance": profile.shitpost_tolerance,
+                "reaction_template": profile.reaction.template,
+                "reaction_description": profile.reaction.description,
+                "bot_directive": profile.bot_directive,
+                "zones": zones,
+                "knobs": knobs,
+                "knob_domains": profile.knob_domains(),
+            }
+
+        def _state_update():
+            """Build a state update response dict."""
+            axes = engine.get_active_axes()
+            zone = engine.active_zone
+            return {
+                "axes": axes,
+                "zone": zone.name if zone else None,
+                "knobs": engine.get_knob_state(),
+                "instructions": engine.get_behavioral_instructions(),
+            }
+
+        def handle_tune_list(msg):
+            profiles = engine.list_profiles()
+            self.send("tune_profiles", {"profiles": profiles})
+
+        def handle_tune_load(msg):
+            name = msg.get("data", {}).get("name", "")
+            profile = engine.load(name)
+            data = _profile_to_json(profile)
+            data["instructions"] = engine.get_behavioral_instructions()
+            self.send("tune_profile_data", data)
+
+        def handle_tune_zone(msg):
+            zone_name = msg.get("data", {}).get("zone", "")
+            engine.enter_zone(zone_name)
+            self.send("tune_state_update", _state_update())
+
+        def handle_tune_zone_exit(msg):
+            engine.exit_zone()
+            self.send("tune_state_update", _state_update())
+
+        def handle_tune_set_knob(msg):
+            data = msg.get("data", {})
+            knob_id = data.get("id", "")
+            value = data.get("value")
+            engine.set_knob(knob_id, value)
+            self.send("tune_state_update", _state_update())
+
+        def handle_tune_reset_knobs(msg):
+            engine.reset_knob()
+            self.send("tune_state_update", _state_update())
+
+        def handle_tune_get_instructions(msg):
+            text = engine.get_behavioral_instructions()
+            self.send("tune_instructions", {"text": text})
+
+        self.on("tune_list", handle_tune_list)
+        self.on("tune_load", handle_tune_load)
+        self.on("tune_zone", handle_tune_zone)
+        self.on("tune_zone_exit", handle_tune_zone_exit)
+        self.on("tune_set_knob", handle_tune_set_knob)
+        self.on("tune_reset_knobs", handle_tune_reset_knobs)
+        self.on("tune_get_instructions", handle_tune_get_instructions)

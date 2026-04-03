@@ -33,6 +33,7 @@ set(SOURCES
     spectrogram_panel.cpp
     node_editor.cpp
     volume_panel.cpp
+    tuning_panel.cpp
 )
 
 # ImGui sources (when using as source, not as library)

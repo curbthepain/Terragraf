@@ -25,6 +25,7 @@ void render_math_panel();
 void render_spectrogram_panel();
 void render_node_editor();
 void render_volume_panel();
+void render_tuning_panel();
 
 /**
  * GLFW error callback.
@@ -91,6 +92,7 @@ int main(int argc, char** argv) {
     //     render_spectrogram_panel();
     //     render_node_editor();
     //     render_volume_panel();
+    //     render_tuning_panel();
     //
     //     // Render
     //     ImGui::Render();

@@ -45,7 +45,7 @@ command reference.
 
 ## What it does
 
-Terragraf gives an AI session eight interlocking systems:
+Terragraf gives an AI session nine interlocking systems:
 
 ```
 .scaffold/
@@ -57,6 +57,7 @@ Terragraf gives an AI session eight interlocking systems:
 ├── instances/              — peer AI instances sharing one scaffold
 ├── git/                    — branch/commit/PR workflows baked in
 ├── sharpen/                — self-sharpening engine (prunes stale, promotes hot)
+├── tuning/                 — thematic tension calibration (profiles, knobs, zones)
 ├── compute/
 │   ├── fft/                — FFT / spectral analysis (numpy + C++ FFTW)
 │   ├── math/               — linalg, algebra, stats, transforms
@@ -126,6 +127,21 @@ flagged. The scaffold becomes a learning surface, not a frozen config.
 ```bash
 terra sharpen --dry-run    # preview what would change
 terra sharpen              # apply sharpening
+```
+
+### Tuning
+
+Thematic tension calibration — a domain-agnostic behavioral tuning
+system. Universe profiles define three core axes (mortality weight,
+power fantasy, shitpost tolerance), per-zone overrides, and custom
+knobs. The engine generates behavioral instruction blocks the AI reads
+on session entry or zone transition to maintain thematic congruence.
+
+```bash
+terra tune list            # available profiles
+terra tune load mythic_roguelike
+terra tune zone combat     # shift thematic axes
+terra tune instructions    # full behavioral output
 ```
 
 ---

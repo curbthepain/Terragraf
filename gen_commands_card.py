@@ -52,6 +52,14 @@ COMMANDS = [
         ("terra sharpen", "run self-sharpening"),
         ("terra sharpen --dry-run", "preview changes"),
     ]),
+    ("TUNING", [
+        ("terra tune", "show active profile"),
+        ("terra tune list", "list profiles"),
+        ("terra tune load <name>", "load profile"),
+        ("terra tune zone <name>", "enter zone"),
+        ("terra tune set <id> <val>", "set knob"),
+        ("terra tune instructions", "behavioral output"),
+    ]),
 ]
 
 # Layout — sized for GitHub README (~880px content width)

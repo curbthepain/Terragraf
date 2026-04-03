@@ -49,6 +49,22 @@ MATH
 INSTANCES
   terra queue               show the task queue
   terra queue add <task>    add a task to the queue
+
+SHARPEN
+  terra sharpen             run self-sharpening engine
+  terra sharpen --dry-run   preview what would change
+
+TUNING
+  terra tune                show active profile + axes + knobs
+  terra tune list           list available universe profiles
+  terra tune load <name>    load a universe profile
+  terra tune zone <name>    enter a thematic zone
+  terra tune zone --exit    exit current zone
+  terra tune set <id> <val> set a knob value
+  terra tune axes           show current thematic axes
+  terra tune directive      show current bot directive
+  terra tune instructions   full behavioral instruction output
+  terra tune promise        show thematic promise
 ```
 
 ## One sentence each
@@ -62,4 +78,6 @@ INSTANCES
 - **imgui** builds and runs the real-time ImGui math modeling app.
 - **viz** renders spectrograms, heatmaps, streams, and 3D views.
 - **math** evaluates expressions and navigates math primitives.
+- **sharpen** prunes stale entries, promotes hot ones, learns from usage.
+- **tune** loads universe profiles and generates behavioral instructions from thematic axes.
 - **hook** runs at the right time. Enter, commit, generate, spawn.
