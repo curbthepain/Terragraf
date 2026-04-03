@@ -60,6 +60,11 @@ COMMANDS = [
         ("terra tune set <id> <val>", "set knob"),
         ("terra tune instructions", "behavioral output"),
     ]),
+    ("MODE", [
+        ("terra mode", "show CI or App mode"),
+        ("terra mode check", "exit 0=app, 1=ci"),
+        ("terra mode can <cap>", "check capability"),
+    ]),
 ]
 
 # Layout — sized for GitHub README (~880px content width)
