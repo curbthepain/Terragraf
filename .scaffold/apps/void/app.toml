@@ -1,0 +1,51 @@
+# Void IDE — first-party IDE for Terragraf
+# https://voideditor.com  |  MIT License
+#
+# Install:
+#   1. Download code-server or Void's server build into bin/
+#   2. Terra auto-detects this manifest and adds "Void" to the sidebar
+#
+# Void is a VS Code fork with built-in AI features.
+# It runs via code-server, serving a full IDE over HTTP that Terra
+# embeds in a QWebEngineView panel.
+
+[ide]
+name = "Void"
+version = "0.1"
+description = "AI-native code editor (VS Code fork)"
+license = "MIT"
+
+# How this IDE is presented to the user
+[ide.display]
+label = "Void"            # sidebar button text
+shortcut = "Ctrl+6"       # keyboard shortcut to switch to this page
+
+# How to launch this IDE
+[ide.launch]
+# "webview" = launch a server process, embed its HTTP output in QWebEngineView
+# "process" = launch a standalone window process (no embedding, just managed)
+type = "webview"
+
+# Command to start the IDE server, relative to this app.toml's directory
+# Use {port} as placeholder — Terra picks an available port
+command = "bin/code-server --bind-addr 127.0.0.1:{port} --auth none --disable-telemetry"
+
+# Fallback: if 'command' binary doesn't exist, try this system command
+fallback_command = "code-server --bind-addr 127.0.0.1:{port} --auth none --disable-telemetry"
+
+# Port range Terra will search for an available port
+port_range = [9100, 9199]
+
+# Seconds to wait for the server to become ready before showing the webview
+startup_delay = 3
+
+# Health check URL — Terra pings this to confirm the server is up
+health_check = "http://127.0.0.1:{port}/"
+
+# Working directory for the IDE (relative to project root)
+# Leave empty to use the project root
+workspace = ""
+
+# Environment variables to pass to the IDE process
+[ide.launch.env]
+# VOID_AI_PROVIDER = "anthropic"

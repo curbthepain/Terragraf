@@ -86,6 +86,13 @@
     #desc "Thematic tension calibration — universe profiles, behavioral instructions, zone-aware axes"
 }
 
+#module app_host {
+    #path "app"
+    #exports [AppHostManager, IDEManifest, IDEHostPage]
+    #depends []
+    #desc "Modular IDE host — discovers IDEs in apps/ via app.toml manifests, embeds via QWebEngineView or manages as child process"
+}
+
 #module tests {
     #path "tests"
     #exports []
