@@ -1,47 +1,40 @@
 # Hot Context — Thematic Tension Calibration Framework
 
-## Status: Phase 2 Complete — Ready to Commit
+## Status: Phase 2 Complete — Tests Passing
 
-All Phase 1 and Phase 2 work is done. Everything below has been implemented and verified.
+All Phase 1 and Phase 2 work is done and verified. 154 tests pass (95 existing + 59 tuning).
 
-## What Was Done
+## What's Been Done
 
-### Phase 1 (Previous Session)
+### Phase 1 — Python Engine
+- `.scaffold/tuning/` package — schema, loader, engine, config, tracker, CLI
+- 7 starter universe profiles at `.scaffold/tuning/profiles/`
+- 6 reaction signature `.inc` fragments at `.scaffold/includes/reactions/`
+- Scaffold integration — headers, manifest, routes, deps, terra CLI
 
-1. **Python package** at `.scaffold/tuning/` — schema, loader, engine, config, tracker, CLI
-2. **7 starter universe profiles** at `.scaffold/tuning/profiles/`
-3. **6 reaction signature `.inc` fragments** at `.scaffold/includes/reactions/`
-4. **Scaffold integration** — headers, manifest, routes, deps, terra CLI
+### Phase 2 — ImGui Integration & Docs
+- `tuning_panel.cpp` — data-driven ImGui panel (profile selector, axes, zones, knobs by domain, behavioral instructions)
+- `bridge.py` — 7 tune_* message handlers with ThematicEngine integration
+- Build integration (CMakeLists.txt, main.cpp)
+- Commands card updated + SVG regenerated (11 categories, TUNING added)
+- README + COMMANDS.md updated
+- `test_tuning.py` — 59 tests covering schema, loader, engine, axes, zones, knobs, instructions, behavior parsing, state export/import, JSON persistence
 
-### Phase 2 (This Session)
+## Next Goals
 
-1. **ImGui tuning panel** (`.scaffold/imgui/tuning_panel.cpp`) — data-driven panel with profile selector, thematic promise display, axis viewer, zone buttons, knobs by domain (slider/toggle/dropdown/curve/text), behavioral instructions output
-2. **Bridge protocol handlers** (`.scaffold/imgui/bridge.py`) — 7 tune_* message handlers (tune_list, tune_load, tune_zone, tune_zone_exit, tune_set_knob, tune_reset_knobs, tune_get_instructions) with ThematicEngine integration
-3. **Build integration** — `CMakeLists.txt` updated with tuning_panel.cpp, `main.cpp` updated with render_tuning_panel() forward decl and call
-4. **Commands card** — TUNING category added to `gen_commands_card.py`, `commands-card.svg` regenerated
-5. **README.md** — system count updated (eight→nine), tuning added to scaffold tree, Tuning subsection added
-6. **COMMANDS.md** — TUNE section added with all subcommands, one-liner descriptions added
+1. **Construct the ImGui app** — uncomment scaffold code in main.cpp and all panels, vendor ImGui/ImPlot/ImNodes/GLFW/glad as submodules, get the app compiling and rendering on Windows 11. Target: all 5 panels render in a docked layout.
 
-## Verification
+2. **TCP bridge connection** — wire the C++ side of the bridge protocol. ImGui panels need a TCP client that connects to bridge.py on localhost:9876, sends/receives length-prefixed JSON. Start with tuning panel as the first live-connected panel.
 
-- 95 tests pass (`python -m pytest .scaffold/tests/`)
-- `gen_commands_card.py` runs clean, SVG regenerated
-- Bridge imports tuning engine without errors
-- ThematicEngine loads all 8 profiles successfully
+3. **CLI integration test** — end-to-end test that spawns `terra tune list`, `terra tune load`, `terra tune set`, etc. as subprocesses and validates stdout output. Not just engine unit tests — test the actual CLI dispatch path.
 
-## Key Files Modified/Created
+4. **Tuning state JSON persistence test** — test the `.tuning_state.json` round-trip through the CLI (load profile via CLI, set knob, verify state file written, load fresh engine from state file, verify restored state matches).
+
+## Key Files
 
 ```
-.scaffold/imgui/tuning_panel.cpp     (CREATED)
-.scaffold/imgui/bridge.py            (MODIFIED — tune_* handlers)
-.scaffold/imgui/CMakeLists.txt       (MODIFIED — added tuning_panel.cpp)
-.scaffold/imgui/main.cpp             (MODIFIED — render_tuning_panel)
-gen_commands_card.py                 (MODIFIED — TUNING category)
-commands-card.svg                    (REGENERATED)
-README.md                           (MODIFIED — system count, tree, section)
-COMMANDS.md                         (MODIFIED — TUNE section)
+.scaffold/tuning/           — Python engine package
+.scaffold/imgui/             — ImGui app (panels, bridge, build)
+.scaffold/tests/test_tuning.py — 59 tuning tests
+terra                        — CLI entry point
 ```
-
-## NOT YET DONE
-
-Nothing remains — commit and push.
