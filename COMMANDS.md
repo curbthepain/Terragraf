@@ -28,10 +28,9 @@ LIFECYCLE
   terra hook instance       run on instance spawn
 
 IMGUI
-  terra imgui build         build the ImGui app
+  terra imgui build         build the ImGui app (cmake + make)
   terra imgui run           launch interactive viewer
-  terra imgui math          math modeling panel info
-  terra imgui nodes         node graph editor info
+  terra imgui bridge        start the Python bridge server
 
 VISUALIZE
   terra viz spectrogram     render spectrogram from signal
@@ -53,9 +52,7 @@ INSTANCES
 SHARPEN
   terra sharpen             run self-sharpening engine
   terra sharpen --dry-run   preview what would change
-
-APP
-  terra app                 launch the Qt container app
+  terra sharpen status      show analytics summary
 
 TUNING
   terra tune                show active profile + axes + knobs
@@ -68,7 +65,37 @@ TUNING
   terra tune directive      show current bot directive
   terra tune instructions   full behavioral instruction output
   terra tune promise        show thematic promise
+
+APP
+  terra app                 launch the Qt container app
+  terra app --offscreen     launch headless (for testing)
 ```
+
+## Qt container pages
+
+The Qt app (`terra app`) includes five pages accessible via sidebar or Ctrl+1-5:
+
+| Page | Key | What it does |
+|------|-----|--------------|
+| Home | Ctrl+1 | Landing page, test status, quick nav |
+| Viewer | Ctrl+2 | Launch/stop bridge.py and ImGui processes |
+| Tuning | Ctrl+3 | Profile selector, zone buttons, knob widgets, behavioral instructions |
+| Debug | Ctrl+4 | Bridge connection, ping/RTT, message log, stats, test sender |
+| Settings | Ctrl+5 | Bridge host/port, paths, panel visibility, persistent config |
+
+## ImGui panels
+
+The ImGui viewer (`terra imgui run`) includes seven dockable panels:
+
+| Panel | What it does |
+|-------|--------------|
+| Math | Interactive function plotting with sliders |
+| Spectrogram | Real-time FFT magnitude heatmap |
+| Node Editor | Visual graph editor with ImNodes |
+| Volume Slicer | Orthogonal slice viewer for volumetric data |
+| Tuning | Thematic calibration (mirrors CLI via bridge) |
+| Debug | Message log, FPS/RTT graphs, connection status |
+| Settings | Panel visibility, theme, bridge config, render settings |
 
 ## One sentence each
 
