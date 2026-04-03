@@ -1,0 +1,60 @@
+/**
+ * .scaffold/compute/shaders/compute.comp
+ * GLSL compute shader template.
+ *
+ * Compile: glslangValidator -V compute.comp -o compute.spv
+ * Or:      glslc compute.comp -o compute.spv
+ *
+ * This is a general-purpose compute shader skeleton.
+ * Customize the layout, bindings, and main() for your workload.
+ */
+
+#version 450
+
+// ─── Workgroup size ─────────────────────────────────────────────────
+// Tune for your GPU. Common sizes: 64, 128, 256.
+// Use specialization constants to set at runtime if needed.
+
+layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+// ─── Buffer bindings ────────────────────────────────────────────────
+// These correspond to the descriptor set layout in pipeline.cpp.
+// binding 0 = input, binding 1 = output (customize as needed).
+
+layout(set = 0, binding = 0) buffer InputBuffer {
+    float data[];
+} input_buf;
+
+layout(set = 0, binding = 1) buffer OutputBuffer {
+    float data[];
+} output_buf;
+
+// ─── Push constants (optional) ──────────────────────────────────────
+// Small, fast data passed directly in the command buffer.
+// Good for: array sizes, offsets, scalar params.
+
+// layout(push_constant) uniform PushConstants {
+//     uint n;           // number of elements
+//     float scale;      // scaling factor
+// } params;
+
+// ─── Shared memory (optional) ───────────────────────────────────────
+// Fast on-chip memory shared within a workgroup.
+// Good for: reductions, scan, tiled algorithms.
+
+// shared float shared_data[256];
+
+// ─── Main ───────────────────────────────────────────────────────────
+
+void main() {
+    uint idx = gl_GlobalInvocationID.x;
+
+    // Bounds check (important when dispatch size > data size)
+    // if (idx >= params.n) return;
+
+    // Your compute logic here:
+    float value = input_buf.data[idx];
+
+    // Example: simple element-wise operation
+    output_buf.data[idx] = value * value;
+}

@@ -1,0 +1,30 @@
+# .scaffold/tables/errors.table
+# Known error patterns → cause → fix → where to look.
+# AI checks this BEFORE debugging from scratch.
+#
+# Format: ERROR_PATTERN | CAUSE | FIX | FILE_HINT
+
+# ─── Build ────────────────────────────────────────────────────────────
+# Could not resolve dependency | Missing repo or wrong version | Check build.gradle repos and version | build.gradle*
+# Execution failed for task :compile | Syntax or type error | Read compiler output for file:line | src/**
+# SDK location not found | local.properties missing | Create local.properties with sdk.dir= | local.properties
+# CMake Error | CMakeLists misconfigured | Check target_link_libraries and find_package | CMakeLists.txt
+# SPIR-V compilation failed | Shader syntax error | Run glslangValidator manually for details | compute/shaders/
+
+# ─── Python/ML ────────────────────────────────────────────────────────
+# ModuleNotFoundError | Package not installed | pip install or check venv activation | requirements.txt
+# CUDA out of memory | Batch too large or leak | Reduce batch size or add torch.no_grad() | ml/training/
+# RuntimeError: shape mismatch | Tensor dimensions wrong | Check model forward() shapes | ml/models/
+# ValueError: optimizer got empty | No parameters require grad | Check model parameter freezing | ml/training/
+
+# ─── Vulkan ───────────────────────────────────────────────────────────
+# VK_ERROR_INITIALIZATION_FAILED | Driver or instance issue | Check Vulkan SDK and GPU drivers | compute/vulkan/instance.cpp
+# VK_ERROR_DEVICE_LOST | GPU crash or timeout | Check shader for infinite loops | compute/shaders/
+# VK_ERROR_OUT_OF_DEVICE_MEMORY | GPU memory exhausted | Reduce buffer sizes or free unused | compute/vulkan/memory.cpp
+
+# ─── Git ──────────────────────────────────────────────────────────────
+# merge conflict | Divergent changes | Resolve conflicts in marked files | (see git status)
+# push rejected | Remote has new commits | git pull --rebase then push | (see git log)
+# hook failed | Pre-commit check failed | Fix the issue, don't --no-verify | (see hook output)
+
+# Add your project's known errors below:

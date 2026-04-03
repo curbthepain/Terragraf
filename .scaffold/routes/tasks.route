@@ -1,0 +1,52 @@
+# .scaffold/routes/tasks.route
+# Intent → where to go. The AI's first lookup when given a task.
+#
+# Format: INTENT -> TARGET [notes]
+
+# ─── Feature Work ─────────────────────────────────────────────────────
+add feature          -> headers/project.h          # Find the right module
+add module           -> generators/gen_module.js   # Generate new module
+add endpoint         -> routes/structure.route      # Find the API layer
+add test             -> includes/test_scaffold.inc  # Test skeleton
+add dependency       -> headers/deps.h             # Check existing deps first
+add model            -> ml/models/base_model.py    # Start from base
+add shader           -> compute/shaders/compute.comp # Shader template
+add ci workflow      -> git/workflows/ci.yml       # CI template
+
+# ─── Bug Fixes ────────────────────────────────────────────────────────
+fix bug              -> routes/bugs.route           # Symptom-based navigation
+fix test             -> tables/errors.table         # Known test failures
+fix build            -> tables/errors.table         # Known build errors
+fix crash            -> routes/bugs.route           # Symptom → cause
+
+# ─── Git/GitHub ───────────────────────────────────────────────────────
+create branch        -> git/branch.sh              # Branch with conventions
+commit               -> git/commit.sh              # Structured commit
+create pr            -> git/pr.sh                  # PR with template
+setup ci             -> git/workflows/             # CI pipeline templates
+release              -> headers/git.h              # Check release strategy
+
+# ─── ML/AI ────────────────────────────────────────────────────────────
+train model          -> ml/training/trainer.py     # Training loop
+evaluate model       -> ml/training/evaluate.py    # Eval harness
+build dataset        -> ml/datasets/base_dataset.py # Dataset template
+deploy model         -> headers/ml.h               # Check deployment config
+new model            -> generators/gen_model.py    # Generate from config
+
+# ─── Compute ──────────────────────────────────────────────────────────
+run fft              -> compute/fft/fft.py         # FFT utilities
+spectral analysis    -> compute/fft/spectral.py    # Spectral tools
+vulkan setup         -> compute/vulkan/instance.cpp # Vulkan init
+compute pipeline     -> compute/vulkan/pipeline.cpp # GPU pipeline
+write shader         -> generators/gen_shader.py   # Generate shader
+
+# ─── Refactoring ──────────────────────────────────────────────────────
+refactor             -> headers/conventions.h       # Re-read conventions
+rename               -> headers/project.h          # Module boundaries
+extract              -> generators/gen_module.js   # New module from existing
+
+# ─── Understanding ────────────────────────────────────────────────────
+explain code         -> headers/project.h          # Module map
+explain architecture -> tables/deps.table          # Dependency graph
+explain deps         -> headers/deps.h             # External deps
+how does X work      -> routes/structure.route      # Navigate to area

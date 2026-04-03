@@ -1,0 +1,87 @@
+# .scaffold/MANIFEST.toml
+# Machine-readable metadata. The AI's config file.
+# Everything in the scaffolting reads this first.
+
+[project]
+name = "Kohala"
+type = "scaffolting"        # This IS the AI's src folder
+license = "Apache-2.0"
+
+[platforms]
+linux_wayland = true        # Linux with Wayland compositor
+windows_10 = true           # Windows 10
+windows_11 = true           # Windows 11
+# No mobile. No macOS. Desktop only.
+
+[scaffolting]
+version = "0.1.0"
+entry = "ENTRY.md"
+
+# Feature flags — what subsystems are active
+[features]
+git = true                  # Git/GitHub workflows
+ml = true                   # PyTorch ML pipeline
+fft = true                  # FFT/spectral analysis
+vulkan = true               # Vulkan compute/graphics
+shaders = true              # GPU shader pipeline
+ci = true                   # CI/CD workflows
+instances = true            # Multi-instancing (replaces agents)
+
+# Languages the scaffolting supports
+[languages]
+python = true               # Generators, ML, FFT
+javascript = true           # Generators, resolve, tooling
+cpp = true                  # Vulkan, FFT, native compute
+rust = false                # Optional future support
+kotlin = false              # Disabled (not Android anymore)
+
+# Runtimes available on host
+[runtimes]
+shell = true                # Always available (bash/sh)
+powershell = false          # Windows — set true on Win hosts
+node = false                # For JS generators
+python = false              # For PY generators/ML
+cmake = false               # For C++ builds
+cuda = false                # For GPU compute
+
+# Global variables available to all templates via {{var_name}}
+[vars]
+# Fill per-instance. Examples:
+# python_version = "3.11"
+# cuda_arch = "sm_86"
+# vulkan_api = "1.3"
+
+# Git configuration
+[git]
+default_branch = "main"
+branch_prefix = ""
+commit_style = "conventional"
+pr_template = "git/templates/pull_request.md"
+issue_template = "git/templates/issue.md"
+remote = "origin"
+
+# ML configuration
+[ml]
+framework = "pytorch"
+python_version = "3.11"
+cuda_version = "12.1"
+default_device = "auto"     # "auto", "cpu", "cuda"
+checkpoint_dir = "checkpoints/"
+data_dir = "data/"
+log_dir = "runs/"
+
+# Compute configuration
+[compute]
+vulkan_api = "1.3"
+fft_backend = "numpy"       # "numpy", "scipy", "fftw", "cufft", "vulkan"
+shader_lang = "glsl"        # "glsl", "hlsl", "wgsl"
+
+# Multi-instancing configuration (replaces traditional agents)
+[instances]
+max_concurrent = 4          # Max parallel AI instances
+shared_state = ".scaffold/instances/shared/"
+instance_dir = ".scaffold/instances/"
+ipc = "filesystem"          # "filesystem", "socket", "pipe"
+# Each instance gets its own working context but shares
+# the scaffolting structure, headers, routes, and tables.
+# Instances communicate via the shared state directory.

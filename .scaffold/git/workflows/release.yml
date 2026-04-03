@@ -1,0 +1,27 @@
+# .scaffold/git/workflows/release.yml
+# Release workflow template. Triggered on version tags.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      # ─── Build release artifacts ──────────────────────────────────
+      - run: echo "Build release artifacts here"
+
+      # ─── Create GitHub Release ────────────────────────────────────
+      - uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: true
+          # files: |
+          #   dist/*

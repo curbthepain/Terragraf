@@ -1,0 +1,40 @@
+# .scaffold/git/workflows/ml-train.yml
+# ML training pipeline. Run on GPU runners or manually dispatched.
+
+name: Train
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: 'Model config file'
+        required: true
+        default: 'ml/training/config.toml'
+      epochs:
+        description: 'Number of epochs'
+        required: false
+        default: '10'
+
+jobs:
+  train:
+    runs-on: ubuntu-latest  # Change to self-hosted GPU runner
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install -r requirements.txt
+
+      # ─── Train ────────────────────────────────────────────────────
+      - run: |
+          python -m ml.training.trainer \
+            --config ${{ github.event.inputs.model }} \
+            --epochs ${{ github.event.inputs.epochs }}
+
+      # ─── Upload artifacts ─────────────────────────────────────────
+      - uses: actions/upload-artifact@v4
+        with:
+          name: checkpoints
+          path: checkpoints/

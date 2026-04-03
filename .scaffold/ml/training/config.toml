@@ -1,0 +1,31 @@
+# .scaffold/ml/training/config.toml
+# Default hyperparameters. Override per-experiment.
+
+[model]
+name = ""               # Model class name from ml/models/
+# Architecture-specific params go here
+
+[training]
+epochs = 10
+batch_size = 32
+learning_rate = 1e-3
+weight_decay = 1e-4
+optimizer = "adam"       # "adam", "adamw", "sgd"
+scheduler = "cosine"    # "cosine", "step", "plateau", "none"
+
+[data]
+dataset = ""            # Dataset class name
+root_dir = "data/"
+val_split = 0.2
+num_workers = 4
+augment = true
+
+[checkpoint]
+save_dir = "checkpoints/"
+save_best = true
+save_every = 0          # Save every N epochs (0 = only best and final)
+
+[logging]
+backend = "tensorboard" # "tensorboard", "wandb", "mlflow"
+log_dir = "runs/"
+log_every = 10          # Log every N batches

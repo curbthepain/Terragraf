@@ -1,0 +1,73 @@
+/**
+ * .scaffold/compute/shaders/fft.comp
+ * GPU-accelerated FFT via Vulkan compute shader.
+ *
+ * Implements radix-2 Cooley-Tukey FFT on the GPU.
+ * For large transforms, this is orders of magnitude faster than CPU.
+ *
+ * Compile: glslangValidator -V fft.comp -o fft.spv
+ *
+ * Usage:
+ *   1. Upload complex signal to input buffer (interleaved real/imag)
+ *   2. Dispatch with N/2 workgroups (N = signal length, must be power of 2)
+ *   3. Read result from output buffer
+ */
+
+#version 450
+
+layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+// Complex numbers stored as vec2 (x = real, y = imaginary)
+layout(set = 0, binding = 0) buffer DataBuffer {
+    vec2 data[];
+} buf;
+
+layout(push_constant) uniform PushConstants {
+    uint n;         // Total number of complex elements (power of 2)
+    uint stage;     // Current butterfly stage (0 to log2(n)-1)
+    uint direction; // 0 = forward FFT, 1 = inverse FFT
+} params;
+
+// ─── Complex arithmetic ─────────────────────────────────────────────
+
+vec2 complex_mul(vec2 a, vec2 b) {
+    return vec2(
+        a.x * b.x - a.y * b.y,
+        a.x * b.y + a.y * b.x
+    );
+}
+
+// ─── Main: one butterfly operation per invocation ────────────────────
+
+void main() {
+    uint idx = gl_GlobalInvocationID.x;
+    if (idx >= params.n / 2) return;
+
+    uint stage = params.stage;
+    uint block_size = 1u << (stage + 1);
+    uint half_block = 1u << stage;
+
+    // Which block and position within it
+    uint block_idx = idx / half_block;
+    uint pos = idx % half_block;
+
+    // Indices of the butterfly pair
+    uint i = block_idx * block_size + pos;
+    uint j = i + half_block;
+
+    // Twiddle factor: W_N^k = exp(-2*pi*i*k/N)
+    float angle = -6.28318530718 * float(pos) / float(block_size);
+    if (params.direction == 1) angle = -angle; // Inverse
+
+    vec2 twiddle = vec2(cos(angle), sin(angle));
+
+    // Butterfly
+    vec2 a = buf.data[i];
+    vec2 b = complex_mul(buf.data[j], twiddle);
+
+    buf.data[i] = a + b;
+    buf.data[j] = a - b;
+
+    // If this is the last stage of inverse FFT, scale by 1/N
+    // (handled on CPU side after readback for simplicity)
+}

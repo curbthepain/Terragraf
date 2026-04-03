@@ -1,0 +1,16 @@
+# .scaffold/tables/deps.table
+# Internal dependency matrix. What depends on what.
+# AI uses this to understand ripple effects before changing things.
+#
+# Format: MODULE | DEPENDS_ON | RELATIONSHIP | CHANGE_RISK
+#
+# Relationships: uses, extends, config, data, events
+# Risk: low, medium, high
+
+# Add your project's internal dependencies below:
+# ui       | core    | uses    | medium
+# ui       | models  | data    | high
+# services | core    | extends | high
+# services | config  | config  | low
+# ml       | compute | uses    | medium
+# tests    | core    | uses    | low

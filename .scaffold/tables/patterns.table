@@ -1,0 +1,12 @@
+# .scaffold/tables/patterns.table
+# Design patterns in use → where → example → notes.
+# AI generates code that FITS, not code that clashes.
+#
+# Format: PATTERN | WHERE_USED | EXAMPLE_FILE | NOTES
+
+# Add your project's patterns below:
+# Repository | Data layer | src/data/UserRepo.kt | All DB access through repos
+# Factory | Object creation | src/core/Factory.kt | Complex init objects
+# Observer | Events | src/events/Bus.kt | Prefer over callbacks
+# Builder | Config | src/config/Builder.kt | Objects with >3 params
+# Singleton | Globals | src/services/Analytics.kt | Use sparingly
