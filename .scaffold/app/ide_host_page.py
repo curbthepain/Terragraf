@@ -1,6 +1,5 @@
 """IDE host page — launches and embeds a discovered IDE inside Terra."""
 
-import os
 from pathlib import Path
 from urllib.request import urlopen
 from urllib.error import URLError
