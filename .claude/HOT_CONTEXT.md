@@ -1,8 +1,8 @@
 # Hot Context — Terragraf
 
-## Status: TCP Bridge + Socket IPC Done — 193 Tests Passing
+## Status: Qt Container App Started — 195 Tests Passing
 
-All work through socket IPC is complete and tested. 193 tests pass across 9 suites.
+Qt container shell is scaffolded. Dependency packaging decided (requirements files, no vendoring).
 
 ## What's Done
 
@@ -29,20 +29,40 @@ All work through socket IPC is complete and tested. 193 tests pass across 9 suit
 - `MANIFEST.toml` — ipc mode changed from "filesystem" to "auto"
 - 16 transport tests passing (protocol, server/client, manager integration)
 
-### Tests — 193 Total
+### Qt Container App — In Progress
+- `.scaffold/app/` — main.py, window.py, theme.py
+- Dark CI aesthetic, monospace, fluid maximize/fullscreen (F10/F11)
+- Landing page with centered title + status
+- `terra app` command wired in CLI
+- PySide6 dependency in `requirements-app.txt`
+- 2 theme smoke tests passing
+
+### Dependency Packaging — Done
+- `requirements.txt` — core (numpy, scipy)
+- `requirements-dev.txt` — core + pytest
+- `requirements-ml.txt` — core + torch
+- `requirements-app.txt` — core + PySide6
+- CI updated to use `requirements-dev.txt`
+- No vendoring — all deps are compiled C extensions, not vendorable
+
+### Tests — 195 Total
 - `test_algebra.py` — 10 | `test_fft.py` — 15 | `test_generators.py` — 10
 - `test_linalg.py` — 13 | `test_spectral.py` — 10 | `test_stats.py` — 15
 - `test_transforms.py` — 10 | `test_tuning.py` — 82
-- `test_transport.py` — 16 (protocol, server/client, manager integration)
-- Dependencies: numpy, scipy, pytest, pytest-timeout
+- `test_transport.py` — 16 | `test_app.py` — 2
+- Dependencies: numpy, scipy, pytest (via requirements-dev.txt)
 
-## Next Goal
+## Next Goals
 
-**Qt container app** — build the CLI entry point as a Qt application. Replaces the `terra` bash script as the primary interface. Start in a new session.
+- **Qt container app** — add panels, embed ImGui viewer, wire terra commands into the GUI
+- **ImGui end-to-end debug** — compile + run with bridge.py on a machine with GLFW/Vulkan
 
 ## Key Files
 
 ```
+.scaffold/app/main.py              — Qt app entry point
+.scaffold/app/window.py            — main window (container shell)
+.scaffold/app/theme.py             — dark CI theme + stylesheet
 .scaffold/imgui/bridge_client.h    — C++ TCP client header
 .scaffold/imgui/bridge_client.cpp  — C++ TCP client impl
 .scaffold/imgui/bridge.py          — Python TCP server
@@ -52,8 +72,10 @@ All work through socket IPC is complete and tested. 193 tests pass across 9 suit
 .scaffold/instances/transport.py   — socket IPC transport layer
 .scaffold/instances/manager.py     — instance manager (socket + filesystem)
 .scaffold/instances/instance.py    — instance lifecycle (socket + filesystem)
-.scaffold/tests/test_transport.py  — 16 transport tests
-.scaffold/tests/test_tuning.py     — 82 tuning tests
+requirements.txt                   — core deps (numpy, scipy)
+requirements-dev.txt               — dev deps (+ pytest)
+requirements-ml.txt                — ML deps (+ torch)
+requirements-app.txt               — GUI deps (+ PySide6)
 ```
 
 ## Debug Notes (for home session)

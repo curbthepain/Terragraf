@@ -560,6 +560,27 @@ cmd_tune() {
     $(python_cmd) "$SCAFFOLD/tuning/cli.py" "$action" "${@:2}"
 }
 
+# ── app ──────────────────────────────────────────────────────────────
+
+cmd_app() {
+    if ! has_python; then
+        echo -e "${RED}python not found${RESET}"
+        exit 1
+    fi
+    local py
+    py=$(python_cmd)
+
+    # Check PySide6 is available
+    if ! "$py" -c "import PySide6" 2>/dev/null; then
+        echo -e "${YELLOW}PySide6 not installed.${RESET}"
+        echo -e "  pip install -r requirements-app.txt"
+        exit 1
+    fi
+
+    cd "$SCAFFOLD"
+    "$py" -m app.main "$@"
+}
+
 # ── help ─────────────────────────────────────────────────────────────
 
 cmd_help() {
@@ -580,6 +601,7 @@ cmd_help() {
     echo -e "  ${CYAN}terra math${RESET} <action>      math operations"
     echo -e "  ${CYAN}terra sharpen${RESET} [action]   self-sharpening analytics"
     echo -e "  ${CYAN}terra tune${RESET} [action]      thematic calibration"
+    echo -e "  ${CYAN}terra app${RESET}                Qt container app"
     echo -e "  ${CYAN}terra help${RESET}               this"
     echo ""
     echo -e "  ${DIM}Routes:  .scaffold/routes/*.route${RESET}"
@@ -604,6 +626,7 @@ case "${1:-}" in
     math)     shift; cmd_math "$@" ;;
     sharpen)  shift; cmd_sharpen "$@" ;;
     tune)     shift; cmd_tune "$@" ;;
+    app)      shift; cmd_app "$@" ;;
     help|-h|--help) cmd_help ;;
     *)        cmd_help ;;
 esac
