@@ -1,4 +1,4 @@
-# Tests — 302 Passing
+# Tests — 343 Passing
 
 [![CI](https://github.com/curbthepain/Terragraf/actions/workflows/ci.yml/badge.svg)](https://github.com/curbthepain/Terragraf/actions/workflows/ci.yml)
 
@@ -29,11 +29,12 @@ python -m pytest .scaffold/tests/ --cov=.scaffold --cov-report=term-missing
 | test_transforms.py | 10 | compute/math/transforms.py | DCT roundtrip, energy concentration, Hilbert analytic signal, wavelet, z_transform, laplace_transform |
 | test_tuning.py | 82 | tuning/ | schema, loader, engine (profiles, zones, axes, knobs, directives, instructions), state persistence, CLI integration |
 | test_transport.py | 16 | instances/ | wire protocol, server/client, broadcast, unicast, multiple clients, heartbeat, disconnect, manager socket integration |
+| test_modes.py | 41 | modes/ | Mode enum, ModeInfo (is_ci/is_app, can, blocked_reason, frozen), capability sets (subset, disjoint, core/gui), explicit env (ci/app/uppercase/empty/missing/invalid), CI env vars (GitHub/GitLab/Jenkins/generic), display heuristics (X11/Wayland/offscreen/none), full detection (explicit override, CI env, display fallback), require_app guard |
 | test_app.py | 17 | app/, imgui/bridge.py | theme constants/stylesheet/selectors, bridge_client init/log, settings defaults, page imports, bridge debug handlers, ping/pong/echo |
 | test_sharpen.py | 30 | sharpen/ | config defaults, error normalization (paths/lines/hex), analytics IO, record_hit, record_outcome, unmatched errors, locking, engine passes (stale/hot/errors/low-confidence), file modification (comment-out/annotate/add-error), route/table parsing |
 | test_viz.py | 17 | viz/ | heatmap (basic, labels, params), annotated_heatmap, figure export (PNG/SVG), figure_to_buffer, spectrogram rendering, mel spectrogram, stream plotter, dataset_to_volume (shape, normalization, feature dims) |
 | test_viz3d.py | 45 | viz/3d/ | transfer_function (interpolation, clamping, presets, apply), mesh (surface gen, point cloud, rendering), node_graph (add/edge, spring layout, rendering), camera (view/projection matrix, orbit), light (direction, directional), scene (objects, bounds, auto_camera, rendering), volume_renderer (sample, interpolation, render output), 3D export (OBJ vertices/faces/normals, PLY vertices/colors/faces) |
-| **Total** | **302** | | |
+| **Total** | **343** | | |
 
 ---
 
@@ -101,6 +102,7 @@ matplotlib                 for viz tests (installed separately)
 | sharpen/ | Good | config, tracker (IO, locking, normalization), engine (4 passes, file modification) |
 | viz/ | Good | heatmap, export, spectrogram, ultrasound volume generation |
 | viz/3d/ | Good | transfer_function, mesh, nodes, scene, volume, export (OBJ/PLY) |
+| modes/ | Full | Mode enum, ModeInfo, detection priority, env vars, display heuristics, require_app guard |
 | app/ | Moderate | theme, bridge_client, settings, page imports, bridge handlers |
 | imgui/ | Moderate | bridge.py debug handlers (ping/pong/echo) |
 
@@ -115,5 +117,6 @@ The GitHub Actions CI workflow runs:
 - python -m pytest .scaffold/tests/ -v
 ```
 
-Qt-dependent tests are skipped in CI if PySide6 is not installed.
-Viz tests require matplotlib (add to CI if needed).
+The CI workflow sets `TERRAGRAF_MODE=ci` so mode detection tests
+can verify CI-specific behavior. Qt-dependent tests require PySide6
+and `QT_QPA_PLATFORM=offscreen`. Viz tests require matplotlib.
