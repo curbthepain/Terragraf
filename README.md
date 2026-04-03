@@ -35,7 +35,7 @@ cd Terragraf
 
 The `terra` CLI wires hooks, checks your environment, and gives the AI
 a single entry point. See [COMMANDS.md](COMMANDS.md) for the full
-command reference.
+command reference. Or Look below. 
 
 ---
 
