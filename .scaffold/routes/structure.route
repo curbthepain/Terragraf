@@ -49,6 +49,10 @@ fft               -> compute/fft/                # FFT utilities
 vulkan            -> compute/vulkan/             # Vulkan code
 shaders           -> compute/shaders/            # GPU shaders
 
+# ── Mode Detection ───────────────────────────────────────────────────
+modes             -> modes/                      # Mode detection system
+mode contract     -> headers/modes.h             # CI vs App mode rules
+
 # ── Tests ────────────────────────────────────────────────────────────
 tests             -> tests/                      # Test root
 test fixtures     -> tests/fixtures/             # Shared test data

@@ -25,6 +25,8 @@ jobs:
 
       - name: Run tests
         working-directory: .scaffold
+        env:
+          TERRAGRAF_MODE: ci
         run: python -m pytest tests/ -v --tb=short
 
   lint:
@@ -38,4 +40,6 @@ jobs:
 
       - name: Check syntax
         working-directory: .scaffold
+        env:
+          TERRAGRAF_MODE: ci
         run: python -m py_compile compute/math/linalg.py compute/math/algebra.py compute/math/stats.py compute/math/transforms.py compute/fft/fft.py compute/fft/spectral.py generators/gen_model.py generators/gen_shader.py

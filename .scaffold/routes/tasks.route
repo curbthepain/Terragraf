@@ -65,6 +65,12 @@ thematic calibration   -> tuning/engine.py          # Full calibration workflow
 reaction signature     -> includes/reactions/       # Composable reaction fragments
 tune knobs             -> tuning/cli.py             # Adjust custom knobs
 
+# ─── Mode Detection ───────────────────────────────────────────────────
+check mode             -> modes/detector.py          # Detect CI vs App mode
+mode capabilities      -> headers/modes.h            # What each mode allows
+mode config            -> MANIFEST.toml              # [modes] section
+mode guard             -> modes/detector.py          # require_app() guard
+
 # ─── Refactoring ──────────────────────────────────────────────────────
 refactor             -> headers/conventions.h       # Re-read conventions
 rename               -> headers/project.h          # Module boundaries

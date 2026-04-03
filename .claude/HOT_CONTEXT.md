@@ -1,8 +1,8 @@
 # Hot Context — Terragraf
 
-## Status: Qt Container App Wired — 302 Tests Passing
+## Status: CI/App Mode Detection Added — 343 Tests Passing
 
-Full Qt container shell with sidebar navigation, debug page, tuning page, viewer page, and settings page. ImGui app updated with debug panel and settings window.
+Full Qt container shell with sidebar navigation, debug page, tuning page, viewer page, and settings page. ImGui app updated with debug panel and settings window. CI vs App mode detection system added — AI can now differentiate between headless CI and interactive app sessions.
 
 ## What's Done
 
@@ -43,6 +43,20 @@ Full Qt container shell with sidebar navigation, debug page, tuning page, viewer
 - `terra app` command wired in CLI
 - 10 tests passing (+ 7 skipped without PySide6)
 
+### CI/App Mode Detection — Complete
+- `.scaffold/modes/detector.py` — detects CI vs App mode via env vars + heuristics
+- `TERRAGRAF_MODE` env var for explicit override ("ci" or "app")
+- Auto-detects: `CI`, `GITHUB_ACTIONS`, `GITLAB_CI`, `JENKINS_URL`, etc.
+- Falls back to display server heuristics (DISPLAY, WAYLAND_DISPLAY)
+- `ModeInfo` dataclass with `can()`, `blocked_reason()`, `is_ci`, `is_app`
+- `require_app("system")` guard — raises RuntimeError in CI mode
+- `terra mode` CLI command (show, check, can)
+- `.scaffold/headers/modes.h` — contract declaring what each mode permits
+- CI workflow updated with `TERRAGRAF_MODE=ci` env var
+- `on_enter.sh` reports detected mode at session start
+- Routes added for mode navigation
+- 41 tests passing
+
 ### Dependency Packaging — Done
 - `requirements.txt` — core (numpy, scipy)
 - `requirements-dev.txt` — core + pytest
@@ -50,12 +64,13 @@ Full Qt container shell with sidebar navigation, debug page, tuning page, viewer
 - `requirements-app.txt` — core + PySide6
 - CI updated to use `requirements-dev.txt`
 
-### Tests — 302 Total
+### Tests — 343 Total
 - `test_algebra.py` — 10 | `test_fft.py` — 15 | `test_generators.py` — 10
 - `test_linalg.py` — 13 | `test_spectral.py` — 10 | `test_stats.py` — 15
 - `test_transforms.py` — 10 | `test_tuning.py` — 82
 - `test_transport.py` — 16 | `test_app.py` — 17
 - `test_sharpen.py` — 30 | `test_viz.py` — 17 | `test_viz3d.py` — 45
+- `test_modes.py` — 41
 - See TESTS.md for full reference
 - Dependencies: numpy, scipy, pytest, matplotlib, PySide6 (via requirements-dev.txt + requirements-app.txt)
 
@@ -91,6 +106,8 @@ requirements.txt                   — core deps (numpy, scipy)
 requirements-dev.txt               — dev deps (+ pytest)
 requirements-ml.txt                — ML deps (+ torch)
 requirements-app.txt               — GUI deps (+ PySide6)
+.scaffold/modes/detector.py        — CI vs App mode detection
+.scaffold/headers/modes.h          — mode contract (what's allowed per mode)
 ```
 
 ## Debug Notes (for home session)

@@ -82,6 +82,20 @@ vulkan_api = "1.3"
 fft_backend = "numpy"       # "numpy", "scipy", "fftw", "cufft", "vulkan"
 shader_lang = "glsl"        # "glsl", "hlsl", "wgsl"
 
+# Operational mode configuration (CI vs App)
+[modes]
+detection = "auto"              # "auto", "ci", "app" — override via TERRAGRAF_MODE env var
+ci_blocked = [                  # Systems blocked in CI mode
+    "gui", "qt_app", "imgui", "bridge",
+    "viz_interactive", "vulkan",
+    "tuning_ui", "settings_ui",
+]
+ci_allowed = [                  # Systems allowed in CI mode
+    "tests", "lint", "syntax_check", "generators",
+    "routes", "tables", "sharpen", "math",
+    "queue", "hooks",
+]
+
 # Multi-instancing configuration (replaces traditional agents)
 [instances]
 max_concurrent = 4          # Max parallel AI instances
