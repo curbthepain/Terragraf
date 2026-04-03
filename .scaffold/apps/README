@@ -1,0 +1,13 @@
+IDE Host Directory
+==================
+
+Drop any IDE into a subfolder here with an app.toml manifest.
+Terragraf will auto-discover it and add a page to the sidebar.
+
+Structure:
+  apps/
+    <ide-name>/
+      app.toml        <- required manifest
+      bin/             <- IDE binaries (optional, can reference system paths)
+
+See apps/void/app.toml for a reference manifest.

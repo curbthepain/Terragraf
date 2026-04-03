@@ -21,6 +21,8 @@ from .debug_page import DebugPage
 from .tuning_page import TuningPage
 from .viewer_page import ViewerPage
 from .settings_page import SettingsPage, _load_settings
+from .app_host import AppHostManager
+from .ide_host_page import IDEHostPage
 
 
 class MainWindow(QMainWindow):
@@ -64,7 +66,38 @@ class MainWindow(QMainWindow):
         self._add_page("debug", "Debug", DebugPage(self._bridge))
         self._add_page("settings", "Settings", SettingsPage(self._bridge))
 
+        # --- Discover and add installed IDEs ---
+        self._app_host = AppHostManager()
+        self._ide_pages = {}
+        for ide_key, manifest in self._app_host.manifests.items():
+            page = IDEHostPage(manifest, self._app_host)
+            page_key = f"ide_{ide_key}"
+            self._add_page(page_key, manifest.label, page)
+            self._ide_pages[page_key] = page
+
         self._select_page("home")
+
+        # Add IDE buttons to landing page
+        for page_key, page in self._ide_pages.items():
+            btn = QPushButton(page.manifest.label)
+            btn.setFixedWidth(100)
+            btn.clicked.connect(
+                lambda checked, k=page_key: self._select_page(k)
+            )
+            self._landing_ide_nav.addWidget(btn)
+
+        # Add IDE shortcuts to View menu
+        if self._ide_pages:
+            self._view_menu.addSeparator()
+            for page_key, page in self._ide_pages.items():
+                m = page.manifest
+                action = QAction(f"&{m.label}", self)
+                if m.shortcut:
+                    action.setShortcut(QKeySequence(m.shortcut))
+                action.triggered.connect(
+                    lambda checked, k=page_key: self._select_page(k)
+                )
+                self._view_menu.addAction(action)
 
         # --- Status bar ---
         self._status = QStatusBar()
@@ -190,6 +223,9 @@ class MainWindow(QMainWindow):
             action.triggered.connect(lambda checked, k=key: self._select_page(k))
             view_menu.addAction(action)
 
+        # IDE shortcuts (added after IDEs are discovered)
+        self._view_menu = view_menu
+
     # ── Landing page ────────────────────────────────────────────────
 
     def _build_landing(self) -> QWidget:
@@ -235,6 +271,12 @@ class MainWindow(QMainWindow):
             nav.addWidget(btn)
         outer.addLayout(nav)
 
+        # IDE quick nav (populated after discovery)
+        self._landing_ide_nav = QHBoxLayout()
+        self._landing_ide_nav.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        outer.addSpacing(8)
+        outer.addLayout(self._landing_ide_nav)
+
         return page
 
     # ── Bridge status ───────────────────────────────────────────────
@@ -277,5 +319,8 @@ class MainWindow(QMainWindow):
             _, widget = viewer_page
             if hasattr(widget, 'cleanup'):
                 widget.cleanup()
+        # Cleanup IDE host pages
+        for page in self._ide_pages.values():
+            page.cleanup()
         self._bridge.disconnect_from_bridge()
         super().closeEvent(event)
