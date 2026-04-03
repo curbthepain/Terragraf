@@ -22,6 +22,10 @@ except ImportError:
 
 needs_qt = pytest.mark.skipif(not HAS_PYSIDE6, reason="PySide6 not installed")
 
+# Widget tests need a live display — detect if one exists
+_HAS_DISPLAY = HAS_PYSIDE6 and os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")
+needs_display = pytest.mark.skipif(not _HAS_DISPLAY, reason="No display server available")
+
 
 # ── Fixtures ──────────────────────────────────────────────────────────
 
@@ -333,7 +337,10 @@ class TestIDEHostPage:
         from app.ide_host_page import IDEHostPage
         assert IDEHostPage is not None
 
+    @needs_display
     def test_manifest_property(self, tmp_path):
+        from PySide6.QtWidgets import QApplication
+        app = QApplication.instance() or QApplication([])
         from app.ide_host_page import IDEHostPage
         d = _write_toml(tmp_path, "prop", MINIMAL_TOML)
         m = IDEManifest.from_toml(d / "app.toml")
@@ -342,7 +349,10 @@ class TestIDEHostPage:
         assert page.manifest is m
         assert page.manifest.name == "TestIDE"
 
+    @needs_display
     def test_cleanup_is_safe_when_not_started(self, tmp_path):
+        from PySide6.QtWidgets import QApplication
+        app = QApplication.instance() or QApplication([])
         from app.ide_host_page import IDEHostPage
         d = _write_toml(tmp_path, "safe", MINIMAL_TOML)
         m = IDEManifest.from_toml(d / "app.toml")
@@ -350,7 +360,10 @@ class TestIDEHostPage:
         page = IDEHostPage(m, mgr)
         page.cleanup()  # should not raise
 
+    @needs_display
     def test_on_page_shown_is_safe(self, tmp_path):
+        from PySide6.QtWidgets import QApplication
+        app = QApplication.instance() or QApplication([])
         from app.ide_host_page import IDEHostPage
         d = _write_toml(tmp_path, "shown", MINIMAL_TOML)
         m = IDEManifest.from_toml(d / "app.toml")
@@ -358,7 +371,10 @@ class TestIDEHostPage:
         page = IDEHostPage(m, mgr)
         page.on_page_shown()  # should not raise
 
+    @needs_display
     def test_webview_type_has_ready_label(self, tmp_path):
+        from PySide6.QtWidgets import QApplication
+        app = QApplication.instance() or QApplication([])
         from app.ide_host_page import IDEHostPage
         d = _write_toml(tmp_path, "wv", MINIMAL_TOML)
         m = IDEManifest.from_toml(d / "app.toml")
@@ -367,7 +383,10 @@ class TestIDEHostPage:
         assert hasattr(page, "_ready_label")
         assert page._ready_label.text() == "Not started"
 
+    @needs_display
     def test_process_type_no_ready_label(self, tmp_path):
+        from PySide6.QtWidgets import QApplication
+        app = QApplication.instance() or QApplication([])
         from app.ide_host_page import IDEHostPage
         d = _write_toml(tmp_path, "proc", PROCESS_TOML)
         m = IDEManifest.from_toml(d / "app.toml")
