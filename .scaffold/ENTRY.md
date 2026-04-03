@@ -3,7 +3,7 @@
 
 ## What This Is
 
-Terraformer scaffolding. Not a project generator — this IS the project.
+Terragraf scaffolding. Not a project generator — this IS the project.
 You work from inside this structure. Any AI can slot in.
 CLI entry point: `./terra help`
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(TerraformerImGui LANGUAGES CXX)
+project(TerragrafImGui LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -51,9 +51,9 @@ set(SOURCES
 
 # ── Build ───────────────────────────────────────────────────────────
 
-add_executable(terraformer_imgui ${SOURCES})
+add_executable(terragraf_imgui ${SOURCES})
 
-target_include_directories(terraformer_imgui PRIVATE
+target_include_directories(terragraf_imgui PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     # ${IMGUI_DIR}
     # ${IMGUI_DIR}/backends
@@ -61,7 +61,7 @@ target_include_directories(terraformer_imgui PRIVATE
     # ${IMNODES_DIR}
 )
 
-target_link_libraries(terraformer_imgui PRIVATE
+target_link_libraries(terragraf_imgui PRIVATE
     glfw
     OpenGL::GL
     glm::glm
@@ -73,9 +73,9 @@ target_link_libraries(terraformer_imgui PRIVATE
 # No platform-specific flags needed.
 
 if(UNIX AND NOT APPLE)
-    target_link_libraries(terraformer_imgui PRIVATE dl)
+    target_link_libraries(terragraf_imgui PRIVATE dl)
 endif()
 
 # ── Install ─────────────────────────────────────────────────────────
 
-install(TARGETS terraformer_imgui RUNTIME DESTINATION bin)
+install(TARGETS terragraf_imgui RUNTIME DESTINATION bin)

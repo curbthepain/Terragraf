@@ -102,6 +102,8 @@ class Instance:
             "status": status,
             "result": result,
             "files_modified": self.ctx.files_modified,
+            "routes_consulted": self.ctx.routes_consulted,
+            "headers_read": self.ctx.headers_read,
             "duration": time.time() - self.ctx.started_at,
             "completed_at": time.time(),
         }

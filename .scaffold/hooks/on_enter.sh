@@ -8,7 +8,7 @@ set -euo pipefail
 
 SCAFFOLD_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-echo "=== Terraformer — Session Start ==="
+echo "=== Terragraf — Session Start ==="
 echo ""
 
 # Platform

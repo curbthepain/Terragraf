@@ -1,6 +1,6 @@
 /**
  * .scaffold/imgui/main.cpp
- * Terraformer ImGui application entry point.
+ * Terragraf ImGui application entry point.
  *
  * GLFW + OpenGL 4.5 + Dear ImGui + ImPlot + ImNodes.
  * Platform: Linux (Wayland via GLFW 3.4+) and Windows (Win32).
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
     // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // GLFWwindow* window = glfwCreateWindow(1600, 900,
-    //     "Terraformer — Math Modeling", nullptr, nullptr);
+    //     "Terragraf — Math Modeling", nullptr, nullptr);
     // if (!window) {
     //     glfwTerminate();
     //     return 1;
@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
     // glfwDestroyWindow(window);
     // glfwTerminate();
 
-    printf("Terraformer ImGui scaffold ready.\n");
+    printf("Terragraf ImGui scaffold ready.\n");
     printf("Uncomment code and link dependencies to build.\n");
     printf("See CMakeLists.txt for build instructions.\n");
 

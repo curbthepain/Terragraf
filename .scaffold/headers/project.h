@@ -8,7 +8,7 @@
 // ─── Project Declaration ─────────────────────────────────────────────
 
 #project {
-    name: "terraformer",
+    name: "terragraf",
     lang: "python, c++, glsl, javascript, bash",
     type: "scaffolding-system"
 }
