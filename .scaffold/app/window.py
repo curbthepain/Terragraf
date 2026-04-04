@@ -66,6 +66,10 @@ class MainWindow(QMainWindow):
         self._add_page("debug", "Debug", DebugPage(self._bridge))
         self._add_page("settings", "Settings", SettingsPage(self._bridge))
 
+        # --- Status bar (must exist before _select_page) ---
+        self._status = QStatusBar()
+        self.setStatusBar(self._status)
+
         # --- Discover and add installed IDEs ---
         self._app_host = AppHostManager()
         self._ide_pages = {}
@@ -99,9 +103,7 @@ class MainWindow(QMainWindow):
                 )
                 self._view_menu.addAction(action)
 
-        # --- Status bar ---
-        self._status = QStatusBar()
-        self.setStatusBar(self._status)
+        # --- Status bar ready message ---
         self._status.showMessage("ready")
 
         # --- Bridge status in statusbar ---
