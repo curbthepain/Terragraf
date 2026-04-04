@@ -170,14 +170,21 @@ See [ROADMAP.md](ROADMAP.md) for the full phased plan.
 
 ---
 
-## Tests — 302 Passing
+## Tests — 343 Passing
 
 See [TESTS.md](TESTS.md) for the full test reference — what's covered,
 how to run, coverage by module.
 
 ```bash
+# Run all tests
 pip install -r requirements-dev.txt
-python -m pytest .scaffold/tests/ -v
+QT_QPA_PLATFORM=offscreen python -m pytest .scaffold/tests/ -v
+
+# Run a specific test file
+python -m pytest .scaffold/tests/test_tuning.py -v
+
+# Run with coverage
+python -m pytest .scaffold/tests/ --cov=.scaffold --cov-report=term-missing
 ```
 
 ---
