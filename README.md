@@ -81,7 +81,7 @@ descriptions.
 ├── imgui/                  — ImGui viewer (7 panels, TCP bridge to Python)
 ├── ml/                     — PyTorch models, datasets, training
 ├── hooks/                  — lifecycle hooks (enter, commit, generate)
-└── tests/                  — pytest suite (302 tests)
+└── tests/                  — pytest suite (382 tests)
 ```
 
 ### Headers
@@ -163,14 +163,12 @@ terra imgui bridge         # start Python bridge server
 
 - **End-to-end debug** — compile and run ImGui + bridge.py + Qt on a
   machine with GLFW/Vulkan to verify the full loop.
-- **Language-aware output** — generators adapt conventions and tooling
-  per project language without separate configurations.
 
 See [ROADMAP.md](ROADMAP.md) for the full phased plan.
 
 ---
 
-## Tests — 343 Passing
+## Tests — 382 Passing
 
 See [TESTS.md](TESTS.md) for the full test reference — what's covered,
 how to run, coverage by module.
@@ -191,12 +189,11 @@ python -m pytest .scaffold/tests/ --cov=.scaffold --cov-report=term-missing
 
 ## Platforms
 
-**Linux (Wayland) and Soon Windows 10/11.**
+**Linux (Wayland) and Windows 10/11 (native).**
 
-*PSA:* Currently windows support is being worked on. It'll take some time to get 
-the tooling running native inside Windows, but it will happen. The original plan was to just 
-run it through WSL2, but I'm seeing the limits of WSL already, once the project is fleshed out
-on linux it will get more effort towards the Windows tooling.
+Python CLI (`terra.py`) and all core functionality run natively on both
+platforms. No WSL required. C++ build system (CMake + FetchContent)
+handles Windows/Linux transparently. Socket IPC works cross-platform.
 
 ## Contributors
 

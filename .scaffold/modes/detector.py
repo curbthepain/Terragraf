@@ -130,17 +130,34 @@ def _check_ci_env() -> Optional[str]:
     return None
 
 
+def _is_wsl() -> bool:
+    """Check if running under Windows Subsystem for Linux."""
+    try:
+        from pathlib import Path
+        proc_version = Path("/proc/version")
+        if proc_version.exists():
+            text = proc_version.read_text().lower()
+            return "microsoft" in text or "wsl" in text
+    except Exception:
+        pass
+    return False
+
+
 def _has_display() -> bool:
     """Check if a display server is available."""
+    # QT_QPA_PLATFORM=offscreen means headless (check first)
+    if os.environ.get("QT_QPA_PLATFORM") == "offscreen":
+        return False
+    # Windows always has a display in interactive sessions
+    if os.name == "nt":
+        return True
+    # X11 or Wayland display
     if os.environ.get("DISPLAY"):
         return True
     if os.environ.get("WAYLAND_DISPLAY"):
         return True
-    # Windows always has a display in interactive sessions
-    if os.name == "nt":
-        return True
-    # QT_QPA_PLATFORM=offscreen means headless
-    if os.environ.get("QT_QPA_PLATFORM") == "offscreen":
+    # WSL without X11 forwarding has no display
+    if _is_wsl():
         return False
     return False
 

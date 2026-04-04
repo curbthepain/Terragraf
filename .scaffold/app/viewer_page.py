@@ -3,6 +3,7 @@
 import os
 import subprocess
 import signal
+import sys
 from pathlib import Path
 
 from PySide6.QtCore import Qt, QTimer, QProcess
@@ -35,7 +36,8 @@ class ViewerPage(QWidget):
         scaffold_dir = Path(__file__).parent.parent
         self._imgui_dir = scaffold_dir / "imgui"
         self._bridge_script = scaffold_dir / "imgui" / "bridge.py"
-        self._imgui_binary = scaffold_dir / "imgui" / "build" / "terragraf_imgui"
+        _binary_name = "terragraf_imgui.exe" if sys.platform == "win32" else "terragraf_imgui"
+        self._imgui_binary = scaffold_dir / "imgui" / "build" / _binary_name
 
         self._init_ui()
 
@@ -139,13 +141,23 @@ class ViewerPage(QWidget):
         # ── Build instructions ──
         build_box = QGroupBox("Build Instructions")
         build_layout = QVBoxLayout(build_box)
-        instructions = QLabel(
-            "To build the ImGui viewer:\n"
-            "  cd .scaffold/imgui\n"
-            "  mkdir -p build && cd build\n"
-            "  cmake .. && make -j$(nproc)\n\n"
-            "Requires: GLFW, OpenGL 4.5, C++17 compiler"
-        )
+        if sys.platform == "win32":
+            build_cmds = (
+                "To build the ImGui viewer:\n"
+                "  cd .scaffold\\imgui\n"
+                "  mkdir build && cd build\n"
+                "  cmake .. && cmake --build . --parallel\n\n"
+                "Requires: GLFW, OpenGL 4.5, C++17 compiler (VS2022)"
+            )
+        else:
+            build_cmds = (
+                "To build the ImGui viewer:\n"
+                "  cd .scaffold/imgui\n"
+                "  mkdir -p build && cd build\n"
+                "  cmake .. && make -j$(nproc)\n\n"
+                "Requires: GLFW, OpenGL 4.5, C++17 compiler"
+            )
+        instructions = QLabel(build_cmds)
         instructions.setObjectName("mono")
         instructions.setWordWrap(True)
         build_layout.addWidget(instructions)
@@ -171,7 +183,7 @@ class ViewerPage(QWidget):
             )
         )
         self._bridge_process.finished.connect(self._on_bridge_finished)
-        self._bridge_process.start("python3", [str(self._bridge_script)])
+        self._bridge_process.start(sys.executable, [str(self._bridge_script)])
         self._bridge_log.appendPlainText("[qt] starting bridge.py...")
         self._start_bridge_btn.setEnabled(False)
         self._stop_bridge_btn.setEnabled(True)

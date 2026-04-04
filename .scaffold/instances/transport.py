@@ -118,7 +118,12 @@ class TransportServer:
     def start(self):
         """Start listening for instance connections."""
         self._server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
+            # Windows: prevent multiple binds to the same port
+            self._server.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        else:
+            # Linux/macOS: reuse port after close
+            self._server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._server.bind((self.host, self.port))
         self._server.listen(16)
         self._server.settimeout(1.0)

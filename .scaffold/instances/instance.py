@@ -211,8 +211,19 @@ class Instance:
         """Detect which target platform we're running on."""
         import platform as plat
         import os
+        from pathlib import Path
         system = plat.system()
         if system == "Linux":
+            # Check for WSL before classifying as native Linux
+            try:
+                proc_version = Path("/proc/version")
+                if proc_version.exists():
+                    text = proc_version.read_text().lower()
+                    if "microsoft" in text or "wsl" in text:
+                        self.ctx.platform = "wsl"
+                        return
+            except Exception:
+                pass
             if os.environ.get("WAYLAND_DISPLAY"):
                 self.ctx.platform = "linux_wayland"
             else:

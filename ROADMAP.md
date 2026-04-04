@@ -1,6 +1,6 @@
 # Terragraf Feature Roadmap
 
-**Status:** Phases 0-7 complete. 302 tests passing.
+**Status:** Phases 0-10 complete. 382 tests passing.
 
 ---
 
@@ -61,7 +61,7 @@
 
 ---
 
-## Test Summary — 302 Total
+## Test Summary — 382 Total
 
 See [TESTS.md](TESTS.md) for the full test reference.
 
@@ -77,9 +77,32 @@ See [TESTS.md](TESTS.md) for the full test reference.
 | test_tuning.py | 82 | schema, loader, engine, knobs, zones, CLI |
 | test_transport.py | 16 | protocol, server/client, manager integration |
 | test_app.py | 17 | theme, bridge client, page imports, bridge handlers |
+| test_app_host.py | 12 | app host manager, IDE manifests, host page |
 | test_sharpen.py | 30 | config, tracker IO/locking, engine 4 passes, file modification |
 | test_viz.py | 17 | heatmap, export, spectrogram, ultrasound volume |
 | test_viz3d.py | 45 | transfer function, mesh, nodes, scene, volume renderer, OBJ/PLY export |
+| test_modes.py | 41 | CI/App detection, capabilities, guards |
+| test_lang_detect.py | 22 | language detection, conventions, edge cases |
+
+### Phase 9: Language Detection + Platform-Agnostic CLI
+- `.scaffold/generators/lang_detect.py` — auto-detect project language from file patterns
+- Supports: Python, JavaScript/TypeScript, C++, Rust, Go, Java, C#
+- Returns: naming conventions, test framework, test patterns, entry file, import style, confidence
+- `terra.py` — full Python port of all 15 CLI commands (replaces bash dependency)
+- `terra.cmd` — Windows batch wrapper
+- `terra gen module` auto-detects language, `terra init` shows detected language
+- `transport.py` — `SO_EXCLUSIVEADDRUSE` on Windows for correct port binding
+- Test timing: retry loops replace fixed sleeps for cross-platform reliability
+- 22 lang_detect tests, 16 transport tests (all fixed for Windows)
+
+### Phase 10: Windows Native Polish
+- Converted all `.sh` hooks to Python: `on_enter.py`, `on_commit.py`, `on_generate.py`, `on_instance.py`
+- Converted `generators/scaffold.sh` to `scaffold.py` — full Python orchestrator
+- `terra.py` hook dispatch: `.py` first, `.sh` fallback (already wired from Phase 9)
+- Fixed `viewer_page.py`: `.exe` suffix on Windows, `sys.executable` instead of `python3`, platform-appropriate build instructions
+- Fixed `detector.py`: WSL detection via `/proc/version`, `QT_QPA_PLATFORM=offscreen` checked first
+- Fixed `instance.py`: WSL platform detection (`"wsl"` as distinct platform)
+- Added `windows-latest` to CI matrix (Ubuntu + Windows, Python 3.11 + 3.12)
 
 ---
 
@@ -88,10 +111,6 @@ See [TESTS.md](TESTS.md) for the full test reference.
 ### End-to-End Debug
 - Compile and run ImGui + bridge.py + Qt on a machine with GLFW/Vulkan
 - Verify the full loop: Qt launches bridge -> bridge accepts ImGui -> tuning panel populates -> knob changes flow back
-
-### Language-Aware Output
-- Generators adapt conventions and tooling per project language
-- No separate configuration files per language
 
 ### Polish
 - Error handling and reconnection logic in bridge clients
