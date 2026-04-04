@@ -4,33 +4,33 @@
 SKILLS = [
     ("GENERATORS", [
         ("scaffold_project", "scaffold a new project"),
-        ("generate", "module, model, shader with lang detection"),
+        ("generate", "module, model, shader"),
     ]),
     ("ANALYZERS", [
-        ("signal_analyze", "FFT, spectral features, spectrogram export"),
-        ("math_solve", "linalg, algebra, stats, transforms"),
+        ("signal_analyze", "FFT + spectral analysis"),
+        ("math_solve", "linalg, algebra, stats"),
     ]),
     ("VALIDATORS", [
-        ("consistency_scan", "verify headers, routes, tables integrity"),
-        ("test_suite", "discover, run, report tests by subsystem"),
+        ("consistency_scan", "verify structure integrity"),
+        ("test_suite", "run + report tests"),
     ]),
     ("WORKFLOWS", [
-        ("git_flow", "branch, commit, PR with conventions"),
+        ("git_flow", "branch, commit, PR"),
     ]),
     ("OPTIMIZERS", [
-        ("sharpen_run", "self-sharpening: analyze, preview, apply"),
-        ("tune_session", "thematic calibration: profiles, zones, knobs"),
+        ("sharpen_run", "self-sharpening engine"),
+        ("tune_session", "thematic calibration"),
     ]),
     ("LAUNCHERS", [
-        ("viewer", "ImGui viewer: build, bridge, launch"),
-        ("render_3d", "surfaces, volumes, node graphs, point clouds"),
+        ("viewer", "ImGui viewer lifecycle"),
+        ("render_3d", "3D surfaces + volumes"),
     ]),
     ("PIPELINES", [
-        ("train_model", "ML training: dataset, model, evaluation"),
-        ("instance_dispatch", "parallel instance orchestration"),
+        ("train_model", "ML training pipeline"),
+        ("instance_dispatch", "parallel orchestration"),
     ]),
     ("UTILITIES", [
-        ("hot_context", "read, display, update session context"),
+        ("hot_context", "session context manager"),
         ("health_check", "full system diagnostic"),
     ]),
 ]

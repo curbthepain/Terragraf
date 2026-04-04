@@ -11,45 +11,45 @@
   <text x="30" y="106" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">scaffold_project</text>
   <text x="193" y="106" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">scaffold a new project</text>
   <text x="30" y="128" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">generate</text>
-  <text x="193" y="128" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">module, model, shader with lang detection</text>
+  <text x="193" y="128" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">module, model, shader</text>
   <text x="226" y="163" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#d2a8ff" letter-spacing="1.2">ANALYZERS</text>
   <line x1="195" y1="167" x2="257" y2="167" stroke="#d2a8ff" stroke-width="1" opacity="0.25" />
   <text x="30" y="190" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">signal_analyze</text>
-  <text x="193" y="190" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">FFT, spectral features, spectrogram export</text>
+  <text x="193" y="190" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">FFT + spectral analysis</text>
   <text x="30" y="212" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">math_solve</text>
-  <text x="193" y="212" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">linalg, algebra, stats, transforms</text>
+  <text x="193" y="212" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">linalg, algebra, stats</text>
   <text x="226" y="247" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#d2a8ff" letter-spacing="1.2">VALIDATORS</text>
   <line x1="191" y1="251" x2="261" y2="251" stroke="#d2a8ff" stroke-width="1" opacity="0.25" />
   <text x="30" y="274" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">consistency_scan</text>
-  <text x="193" y="274" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">verify headers, routes, tables integrity</text>
+  <text x="193" y="274" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">verify structure integrity</text>
   <text x="30" y="296" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">test_suite</text>
-  <text x="193" y="296" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">discover, run, report tests by subsystem</text>
+  <text x="193" y="296" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">run + report tests</text>
   <text x="654" y="79" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#d2a8ff" letter-spacing="1.2">WORKFLOWS</text>
   <line x1="623" y1="83" x2="685" y2="83" stroke="#d2a8ff" stroke-width="1" opacity="0.25" />
   <text x="458" y="106" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">git_flow</text>
-  <text x="621" y="106" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">branch, commit, PR with conventions</text>
+  <text x="621" y="106" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">branch, commit, PR</text>
   <text x="654" y="141" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#d2a8ff" letter-spacing="1.2">OPTIMIZERS</text>
   <line x1="619" y1="145" x2="689" y2="145" stroke="#d2a8ff" stroke-width="1" opacity="0.25" />
   <text x="458" y="168" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">sharpen_run</text>
-  <text x="621" y="168" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">self-sharpening: analyze, preview, apply</text>
+  <text x="621" y="168" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">self-sharpening engine</text>
   <text x="458" y="190" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">tune_session</text>
-  <text x="621" y="190" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">thematic calibration: profiles, zones, knobs</text>
+  <text x="621" y="190" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">thematic calibration</text>
   <text x="654" y="225" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#d2a8ff" letter-spacing="1.2">LAUNCHERS</text>
   <line x1="623" y1="229" x2="685" y2="229" stroke="#d2a8ff" stroke-width="1" opacity="0.25" />
   <text x="458" y="252" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">viewer</text>
-  <text x="621" y="252" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">ImGui viewer: build, bridge, launch</text>
+  <text x="621" y="252" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">ImGui viewer lifecycle</text>
   <text x="458" y="274" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">render_3d</text>
-  <text x="621" y="274" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">surfaces, volumes, node graphs, point clouds</text>
+  <text x="621" y="274" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">3D surfaces + volumes</text>
   <text x="654" y="309" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#d2a8ff" letter-spacing="1.2">PIPELINES</text>
   <line x1="623" y1="313" x2="685" y2="313" stroke="#d2a8ff" stroke-width="1" opacity="0.25" />
   <text x="458" y="336" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">train_model</text>
-  <text x="621" y="336" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">ML training: dataset, model, evaluation</text>
+  <text x="621" y="336" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">ML training pipeline</text>
   <text x="458" y="358" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">instance_dispatch</text>
-  <text x="621" y="358" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">parallel instance orchestration</text>
+  <text x="621" y="358" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">parallel orchestration</text>
   <text x="440" y="393" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#d2a8ff" letter-spacing="1.2">UTILITIES</text>
   <line x1="409" y1="397" x2="471" y2="397" stroke="#d2a8ff" stroke-width="1" opacity="0.25" />
   <text x="244" y="420" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">hot_context</text>
-  <text x="407" y="420" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">read, display, update session context</text>
+  <text x="407" y="420" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">session context manager</text>
   <text x="244" y="442" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">health_check</text>
   <text x="407" y="442" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">full system diagnostic</text>
 </svg>
