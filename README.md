@@ -170,6 +170,9 @@ See [ROADMAP.md](ROADMAP.md) for the full phased plan.
 
 ## Tests — 382 Passing
 
+All 382 tests pass on Windows native, Linux native, and Linux via WSL2.
+CI runs on every push across Ubuntu and Windows with Python 3.11 and 3.12.
+
 See [TESTS.md](TESTS.md) for the full test reference — what's covered,
 how to run, coverage by module.
 
@@ -185,15 +188,26 @@ python -m pytest .scaffold/tests/test_tuning.py -v
 python -m pytest .scaffold/tests/ --cov=.scaffold --cov-report=term-missing
 ```
 
+| Environment | Python | Result |
+|---|---|---|
+| Windows 11 native | 3.14.3 | 382 passed, 13 skipped |
+| Linux WSL2 (EndeavourOS/Arch) | 3.14.3 | 382 passed, 13 skipped |
+| GitHub Actions (ubuntu-latest) | 3.11, 3.12 | 382 passed, 13 skipped |
+| GitHub Actions (windows-latest) | 3.11, 3.12 | 382 passed, 13 skipped |
+
+13 skips are PySide6/Qt widget tests — expected when Qt is not installed.
+
 ---
 
 ## Platforms
 
-**Linux (Wayland) and Windows 10/11 (native).**
+**Windows 11 (native) and Linux (native + WSL2) — fully tested.**
 
-Python CLI (`terra.py`) and all core functionality run natively on both
-platforms. No WSL required. C++ build system (CMake + FetchContent)
-handles Windows/Linux transparently. Socket IPC works cross-platform.
+Python CLI (`terra.py`) and all 382 tests run natively on both platforms.
+No WSL required on Windows. Verified on Windows 11 IoT Enterprise,
+EndeavourOS (Arch) via WSL2, and Ubuntu via GitHub Actions CI. C++ build
+system (CMake + FetchContent) handles Windows/Linux transparently.
+Socket IPC works cross-platform.
 
 ## Contributors
 
