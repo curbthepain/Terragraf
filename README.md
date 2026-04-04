@@ -5,12 +5,12 @@
 [![CI](https://github.com/curbthepain/Terragraf/actions/workflows/ci.yml/badge.svg)](https://github.com/curbthepain/Terragraf/actions/workflows/ci.yml)
 
 Terragraf is the working directory any AI reads on entry. It provides
-structure, navigation, composition, and execution — everything an AI
+structure, navigation, composition, and execution; everything an AI
 needs to orient itself in a codebase and start producing immediately.
 
 Tools like Claude Code, Cursor, and Aider burn context window on
 rediscovering project structure every session. Terragraf eliminates
-that tax — the AI reads headers, follows routes, and consults tables
+that tax, the AI reads headers, follows routes, and consults tables
 instead of scanning every file or relying on summarization.
 
 ---
@@ -193,8 +193,8 @@ python -m pytest .scaffold/tests/ --cov=.scaffold --cov-report=term-missing
 
 **Linux (Wayland) and Soon Windows 10/11.**
 
-*PSA:* Currently windows support is being worked on. It'll take some time to get all 
-the tooling native in windows but it will happen. The original plan was to just 
+*PSA:* Currently windows support is being worked on. It'll take some time to get 
+the tooling running native inside Windows, but it will happen. The original plan was to just 
 run through WSL2 but I'm seeing the limits of WSL already.
 
 ## Contributors
