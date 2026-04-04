@@ -17,6 +17,22 @@ Human commands. Fits on one card.
   terra hook commit     run the commit hook
   terra queue           show the task queue
   terra queue add <t>   add a task to the queue
+  terra analyze <input> signal/audio FFT analysis
+  terra solve <op>      math computation router
+  terra branch <t> <n>  create conventional branch
+  terra commit <msg>    structured commit
+  terra pr --preview    PR template/preview
+  terra generate <t> <n> generate module/model/shader
+  terra train <dir>     ML training pipeline
+  terra viewer          ImGui viewer lifecycle
+  terra render <t> <in> 3D visualization
+  terra test [module]   run test suite
+  terra dispatch <task> parallel instances
+  terra health          system diagnostic
+  terra hot [action]    session hot context
+  terra skill list      list registered skills
+  terra skill run <n>   execute a skill
+  terra project new <n> scaffold a new project
   terra init            wire hooks into git, check env
   terra help            print this
 """
@@ -744,6 +760,103 @@ def cmd_app(args):
 
     subprocess.run([sys.executable, "-m", "app.main"] + args, cwd=str(SCAFFOLD))
 
+# ── skill shortcuts ──────────────────────────────────────────────
+
+def _run_skill(name, args):
+    """Helper: run a skill and exit with its return code."""
+    sys.path.insert(0, str(SCAFFOLD))
+    from skills.runner import run_skill
+    sys.exit(run_skill(name, args))
+
+def cmd_hot(args):
+    _run_skill("hot_context", args)
+
+def cmd_analyze(args):
+    _run_skill("signal_analyze", args)
+
+def cmd_solve(args):
+    _run_skill("math_solve", args)
+
+def cmd_branch(args):
+    _run_skill("git_flow", ["branch"] + args)
+
+def cmd_commit(args):
+    _run_skill("git_flow", ["commit"] + args)
+
+def cmd_pr(args):
+    _run_skill("git_flow", ["pr"] + args)
+
+def cmd_generate(args):
+    _run_skill("generate", args)
+
+def cmd_train(args):
+    _run_skill("train_model", args)
+
+def cmd_viewer(args):
+    _run_skill("viewer", args)
+
+def cmd_render(args):
+    _run_skill("render_3d", args)
+
+def cmd_test(args):
+    _run_skill("test_suite", args)
+
+def cmd_dispatch(args):
+    _run_skill("instance_dispatch", args)
+
+def cmd_health(args):
+    _run_skill("health_check", args)
+
+# ── skill ─────────────────────────────────────────────────────────
+
+def cmd_skill(args):
+    if not args:
+        print("Usage: terra skill <list|run <name> [args...]>")
+        return
+
+    action = args[0]
+
+    sys.path.insert(0, str(SCAFFOLD))
+    from skills.runner import print_skills, run_skill, list_skills
+
+    if action == "list":
+        print(f"{BOLD}Skills{RESET}")
+        print()
+        print_skills()
+
+    elif action == "run":
+        if len(args) < 2:
+            print("Usage: terra skill run <name> [args...]")
+            return
+        name = args[1]
+        rest = args[2:]
+        code = run_skill(name, rest)
+        sys.exit(code)
+
+    else:
+        print(f"  {RED}unknown skill action: {action}{RESET}")
+        print("Usage: terra skill <list|run <name>>")
+
+# ── project ───────────────────────────────────────────────────────
+
+def cmd_project(args):
+    if not args:
+        print("Usage: terra project new <name> [--type qt-app|cli|lib|test]")
+        return
+
+    action = args[0]
+
+    if action == "new":
+        # Delegate to scaffold_project skill
+        rest = args[1:]
+        sys.path.insert(0, str(SCAFFOLD))
+        from skills.runner import run_skill
+        code = run_skill("scaffold_project", rest)
+        sys.exit(code)
+    else:
+        print(f"  {RED}unknown project action: {action}{RESET}")
+        print("Usage: terra project new <name> [--type qt-app|cli|lib|test]")
+
 # ── help ──────���─────────────────────────────────────────────────────
 
 def cmd_help():
@@ -765,9 +878,25 @@ def cmd_help():
     print(f"  {CYAN}terra sharpen{RESET} [action]   self-sharpening analytics")
     print(f"  {CYAN}terra tune{RESET} [action]      thematic calibration")
     print(f"  {CYAN}terra mode{RESET} [action]      detect CI vs App mode")
-    print(f"  {CYAN}terra app{RESET}                Qt container app")
-    print(f"  {CYAN}terra help{RESET}               this")
+    print(f"  {CYAN}terra analyze{RESET} <input>     signal/audio analysis (FFT, spectrogram)")
+    print(f"  {CYAN}terra solve{RESET} <op> [opts]   math: eigenvalues, svd, fit, stats, dct")
+    print(f"  {CYAN}terra branch{RESET} <type> <n>   create conventional branch")
+    print(f"  {CYAN}terra commit{RESET} <msg>        structured commit (--auto for AI)")
+    print(f"  {CYAN}terra pr{RESET} [--preview]      PR template/preview")
+    print(f"  {CYAN}terra generate{RESET} <type> <n> generate module/model/shader")
+    print(f"  {CYAN}terra train{RESET} <dir> [opts]  ML training pipeline")
+    print(f"  {CYAN}terra viewer{RESET} [action]     ImGui viewer lifecycle")
+    print(f"  {CYAN}terra render{RESET} <type> <in>  3D visualization (surface/volume/nodes)")
+    print(f"  {CYAN}terra test{RESET} [module]       run test suite")
+    print(f"  {CYAN}terra dispatch{RESET} <task>     parallel instance orchestration")
+    print(f"  {CYAN}terra health{RESET} [--quick]    system diagnostic (grade A-F)")
+    print(f"  {CYAN}terra hot{RESET} [action]        session hot context")
+    print(f"  {CYAN}terra skill{RESET} <action>      skill system (list, run)")
+    print(f"  {CYAN}terra project{RESET} new <n>     scaffold a new project")
+    print(f"  {CYAN}terra app{RESET}                 Qt container app")
+    print(f"  {CYAN}terra help{RESET}                this")
     print()
+    print(f"  {DIM}Skills:  .scaffold/skills/ (15 registered){RESET}")
     print(f"  {DIM}Routes:  .scaffold/routes/*.route{RESET}")
     print(f"  {DIM}Tables:  .scaffold/tables/*.table{RESET}")
     print(f"  {DIM}Headers: .scaffold/headers/*.h{RESET}")
@@ -790,6 +919,21 @@ COMMANDS = {
     "sharpen": cmd_sharpen,
     "tune": cmd_tune,
     "mode": cmd_mode,
+    "hot": cmd_hot,
+    "analyze": cmd_analyze,
+    "solve": cmd_solve,
+    "branch": cmd_branch,
+    "commit": cmd_commit,
+    "pr": cmd_pr,
+    "generate": cmd_generate,
+    "train": cmd_train,
+    "viewer": cmd_viewer,
+    "render": cmd_render,
+    "test": cmd_test,
+    "dispatch": cmd_dispatch,
+    "health": cmd_health,
+    "skill": cmd_skill,
+    "project": cmd_project,
     "app": cmd_app,
     "help": lambda args: cmd_help(),
     "-h": lambda args: cmd_help(),

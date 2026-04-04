@@ -1,0 +1,14 @@
+[skill]
+name = "tune_session"
+version = "0.1"
+description = "Guided thematic calibration: profiles, zones, knobs, behavioral instructions"
+entry = "run.py"
+type = "calibrator"
+
+[triggers]
+intents = ["tune session", "thematic calibration", "load universe", "calibrate behavior"]
+commands = ["terra tune"]
+
+[deps]
+python = [">=3.11"]
+modules = []

@@ -1,0 +1,21 @@
+# .scaffold/skills/registry.table
+# Skill registry — lists all available skills.
+# AI reads this to discover what skills exist without scanning directories.
+#
+# Format: NAME | TYPE | ENTRY | TRIGGERS | DESCRIPTION
+
+scaffold_project    | generator    | scaffold_project/run.py    | new project, create project         | Scaffold a new project into projects/
+consistency_scan    | validator    | consistency_scan/run.py    | scan, check integrity, consistency  | Verify headers, routes, tables, and skills integrity
+hot_context         | utility      | hot_context/run.py         | hot context, session status         | Read, display, or update the session hot context
+signal_analyze      | analyzer     | signal_analyze/run.py      | analyze signal, run fft, spectrogram| End-to-end signal/audio analysis: FFT, spectral features, export
+math_solve          | analyzer     | math_solve/run.py          | solve math, eigenvalues, statistics | Math computation router: linalg, algebra, stats, transforms
+git_flow            | workflow     | git_flow/run.py            | create branch, commit, create pr    | Git workflow orchestrator: branch, commit, PR with conventions
+generate            | generator    | generate/run.py            | generate module, generate model     | Unified code generation: module, model, shader with lang detection
+sharpen_run         | optimizer    | sharpen_run/run.py         | sharpen, self-sharpen, analytics    | Self-sharpening with feedback loop: analyze, preview, apply, validate
+tune_session        | calibrator   | tune_session/run.py        | tune session, load universe         | Guided thematic calibration: profiles, zones, knobs, instructions
+train_model         | pipeline     | train_model/run.py         | train model, ml pipeline            | ML training pipeline: dataset, model selection, training, evaluation
+viewer              | launcher     | viewer/run.py              | launch viewer, imgui                | ImGui viewer lifecycle: build, bridge, launch, cleanup
+render_3d           | renderer     | render_3d/run.py           | render 3d, volume render, mesh      | 3D visualization: surfaces, volumes, node graphs, point clouds
+test_suite          | validator    | test_suite/run.py          | run tests, test suite, validate     | Test orchestration: discover, run, categorize, report by subsystem
+instance_dispatch   | orchestrator | instance_dispatch/run.py   | dispatch task, parallel instances   | Parallel instance orchestration: enqueue, spawn, monitor, collect
+health_check        | diagnostic   | health_check/run.py        | health check, system health         | Full system diagnostic: structure, tests, analytics, environment

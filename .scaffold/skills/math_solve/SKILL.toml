@@ -1,0 +1,14 @@
+[skill]
+name = "math_solve"
+version = "0.1"
+description = "Math computation router: linalg, algebra, statistics, transforms"
+entry = "run.py"
+type = "analyzer"
+
+[triggers]
+intents = ["solve math", "linear algebra", "statistics", "curve fit", "eigenvalues", "matrix"]
+commands = ["terra solve"]
+
+[deps]
+python = [">=3.11"]
+modules = ["numpy", "scipy"]

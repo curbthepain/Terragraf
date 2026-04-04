@@ -93,11 +93,25 @@
     #desc "Modular IDE host — discovers IDEs in apps/ via app.toml manifests, embeds via QWebEngineView or manages as child process"
 }
 
+#module skills {
+    #path "skills"
+    #exports [list_skills, match_skill, run_skill, print_skills]
+    #depends []
+    #desc "Skill system — plugin discovery, intent matching, execution (SKILL.toml manifests)"
+}
+
+#module projects {
+    #path "../projects"
+    #exports []
+    #depends [skills]
+    #desc "User projects directory — scaffolded by skills/scaffold_project"
+}
+
 #module tests {
     #path "tests"
     #exports []
     #depends [math, fft, generators]
-    #desc "Pytest test suite — 95 tests covering math, FFT, spectral, generators"
+    #desc "Pytest test suite — 382 tests covering math, FFT, spectral, tuning, transport, generators"
 }
 
 #endif // PROJECT_H

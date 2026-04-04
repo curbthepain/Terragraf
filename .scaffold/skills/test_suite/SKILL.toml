@@ -1,0 +1,14 @@
+[skill]
+name = "test_suite"
+version = "0.1"
+description = "Test orchestration: discover, run, categorize, report by subsystem"
+entry = "run.py"
+type = "validator"
+
+[triggers]
+intents = ["run tests", "test suite", "check tests", "validate"]
+commands = ["terra test"]
+
+[deps]
+python = [">=3.11"]
+modules = ["pytest"]
