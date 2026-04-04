@@ -19,8 +19,38 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
+#include <string>
+
+#ifdef _WIN32
+#include <shlobj.h>
+#pragma comment(lib, "shell32.lib")
+#else
+#include <pwd.h>
+#include <unistd.h>
+#endif
 
 #include "bridge_client.h"
+
+// Layout ini path — persists docking state across sessions
+static std::string g_ini_path;
+
+static std::string get_layout_path() {
+    std::string base;
+#ifdef _WIN32
+    char path[MAX_PATH];
+    if (SUCCEEDED(SHGetFolderPathA(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, path))) {
+        base = std::string(path) + "\\Terragraf";
+    } else {
+        base = ".";
+    }
+#else
+    const char* home = getenv("HOME");
+    if (!home) home = getpwuid(getuid())->pw_dir;
+    base = std::string(home) + "/.config/terragraf";
+#endif
+    return base + "/layout.ini";
+}
 
 // Global bridge client — panels use this to send/receive
 BridgeClient* g_bridge = nullptr;
@@ -51,6 +81,15 @@ bool settings_vsync();
 float settings_ui_scale();
 bool settings_is_open();
 void settings_set_open(bool open);
+
+// Layout persistence — exposed for settings panel
+const char* layout_ini_path() { return g_ini_path.c_str(); }
+
+void reset_layout() {
+    ImGui::ClearIniSettings();
+    // Delete the file so defaults are used on next launch
+    std::remove(g_ini_path.c_str());
+}
 
 
 /**
@@ -93,6 +132,10 @@ int main(int argc, char** argv) {
 
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+    // Persistent layout — save/restore docking state
+    g_ini_path = get_layout_path();
+    io.IniFilename = g_ini_path.c_str();
 
     // Dark theme
     ImGui::StyleColorsDark();

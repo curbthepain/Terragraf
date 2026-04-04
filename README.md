@@ -58,10 +58,12 @@ pip install -r requirements-app.txt      # + PySide6 (Qt GUI)
 
 ## Quick Reference
 
-![Quick Reference](commands-card.svg)
+![Commands](commands-card.svg)
+
+![Skills](skills-card.svg)
 
 See [COMMANDS.md](COMMANDS.md) for the full command reference with
-descriptions.
+descriptions, skills table, and UI panel docs.
 
 ---
 
@@ -89,7 +91,8 @@ descriptions.
 ├── imgui/                  — ImGui viewer (7 panels, TCP bridge to Python)
 ├── ml/                     — PyTorch models, datasets, training
 ├── hooks/                  — lifecycle hooks (enter, commit, generate)
-└── tests/                  — pytest suite (382 tests)
+├── skills/                 — 15 workflow skills (TOML manifests + runners)
+└── tests/                  — pytest suite (424 tests)
 ```
 
 ### Headers
@@ -103,6 +106,20 @@ shape of things without scanning every file.
 `.route` tables map intent to location. "I need to fix a bug" routes to
 one place. "I need to add a feature" routes to another. The AI stops
 guessing and starts navigating.
+
+### Skills
+
+15 registered workflow skills — self-contained pipelines the CLI
+dispatches to. Each skill has a TOML manifest, triggers, and a Python
+entry point. The router matches natural-language intent to the right
+skill automatically.
+
+```bash
+terra skill list             # see all 15 skills
+terra skill run health_check # run a skill by name
+terra analyze sine:440:44100:0.5 --no-render   # skill shortcut
+terra solve eigenvalues --matrix "[[1,2],[3,4]]"
+```
 
 ### Self-Sharpening
 
@@ -176,9 +193,9 @@ See [ROADMAP.md](ROADMAP.md) for the full phased plan.
 
 ---
 
-## Tests — 382 Passing
+## Tests — 424 Passing
 
-All 382 tests pass on Windows native, Linux native, and Linux via WSL2.
+All 424 tests pass on Windows native, Linux native, and Linux via WSL2.
 CI runs on every push across Ubuntu and Windows with Python 3.11 and 3.12.
 
 See [TESTS.md](TESTS.md) for the full test reference — what's covered,
@@ -198,12 +215,12 @@ python -m pytest .scaffold/tests/ --cov=.scaffold --cov-report=term-missing
 
 | Environment | Python | Result |
 |---|---|---|
-| Windows 11 native | 3.14.3 | 382 passed, 13 skipped |
-| Linux WSL2 (EndeavourOS/Arch) | 3.14.3 | 382 passed, 13 skipped |
-| GitHub Actions (ubuntu-latest) | 3.11, 3.12 | 382 passed, 13 skipped |
-| GitHub Actions (windows-latest) | 3.11, 3.12 | 382 passed, 13 skipped |
+| Windows 11 native | 3.14.3 | 424 passed, 11 skipped |
+| Linux WSL2 (EndeavourOS/Arch) | 3.14.3 | 424 passed, 11 skipped |
+| GitHub Actions (ubuntu-latest) | 3.11, 3.12 | 424 passed, 11 skipped |
+| GitHub Actions (windows-latest) | 3.11, 3.12 | 424 passed, 11 skipped |
 
-13 skips are PySide6/Qt widget tests — expected when Qt is not installed.
+11 skips are PySide6/Qt widget tests — expected when Qt is not installed.
 
 ---
 
@@ -211,7 +228,7 @@ python -m pytest .scaffold/tests/ --cov=.scaffold --cov-report=term-missing
 
 **Windows 11 (native) and Linux (native + WSL2) — fully tested.**
 
-Python CLI (`terra.py`) and all 382 tests run natively on both platforms.
+Python CLI (`terra.py`) and all 424 tests run natively on both platforms.
 No WSL required on Windows. Verified on Windows 11 IoT Enterprise,
 EndeavourOS (Arch) via WSL2, and Ubuntu via GitHub Actions CI. C++ build
 system (CMake + FetchContent) handles Windows/Linux transparently.

@@ -159,7 +159,7 @@ def cli():
                         help="Skip spectrogram rendering")
     args = parser.parse_args()
 
-    if args.synthetic or ":" in args.input:
+    if args.synthetic or (":" in args.input and not Path(args.input).exists()):
         signal, sr = generate_synthetic(args.input)
     else:
         signal, sr = load_signal(args.input)

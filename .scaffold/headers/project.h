@@ -79,6 +79,20 @@
     #desc "Git workflow scripts — branch, commit, PR, CI/CD templates"
 }
 
+#module imgui {
+    #path "imgui"
+    #exports [render_math_panel, render_spectrogram_panel, render_volume_panel, render_settings_panel, render_debug_panel]
+    #depends [viz, tuning]
+    #desc "ImGui viewer panels — math, spectrogram, volume, settings, debug (C++/OpenGL)"
+}
+
+#module sharpen {
+    #path "sharpen"
+    #exports []
+    #depends []
+    #desc "Self-sharpening feedback loop — post-validation optimization"
+}
+
 #module tuning {
     #path "tuning"
     #exports [ThematicEngine, UniverseProfile, Knob, Zone, load_profile, list_profiles]

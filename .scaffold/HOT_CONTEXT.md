@@ -1,56 +1,53 @@
 # Hot Context — Terragraf
 
-## Status: Skills System Complete — 15 Workflow Skills, Projects Infra, Music Viz
+## Status: Session 5 Complete — Health Grade A, Music Viz Polish, Layout Persistence, Skill Tests
 
-Sessions 1-4 complete. Full skills infrastructure with 15 registered workflow skills, projects directory, music visualizer, and CLI shortcuts for everything.
+Sessions 1-5 complete. Full skills infrastructure, clean scaffold integrity, polished music visualizer, ImGui layout persistence, and comprehensive skill tests.
 
-## What's Done (Session 4)
+## What's Done (Session 5)
 
-### Skills Infrastructure (15 skills)
-- `.scaffold/skills/` — SKILL.toml manifests, runner.py discovery/execution, registry.table, router.route
-- Each skill is a **workflow** composing multiple modules, not a function wrapper
+### 1. Stale Routes/Tables Cleanup (Grade D -> A)
+- **bugs.route**: Removed 8 phantom `src/` references (models, main, config, native, services)
+- **structure.route**: Removed 14 stale entries (src/, build.gradle.kts, .github/workflows/, checkpoints/, runs/, tests/fixtures/, tests/conftest.*)
+- **deps.table**: Replaced undeclared modules (ui, core, models, services, config, compute) with correct declared module dependencies
+- **project.h**: Added `#module imgui` and `#module sharpen` declarations (both dirs existed but were undeclared)
+- **Result**: `terra health` -> Grade A, 0 structure issues
 
-| # | Skill | Type | CLI | What it does |
-|---|-------|------|-----|-------------|
-| 1 | scaffold_project | generator | `terra project new` | Scaffold projects (cli/qt-app/lib/test) |
-| 2 | consistency_scan | validator | `terra skill run consistency_scan` | Validate headers/routes/tables/skills integrity |
-| 3 | hot_context | utility | `terra hot` | Read/update/reset session hot context |
-| 4 | signal_analyze | analyzer | `terra analyze` | FFT → spectral features → spectrogram → export |
-| 5 | math_solve | analyzer | `terra solve` | Eigenvalues, SVD, fit, regression, t-test, DCT |
-| 6 | git_flow | workflow | `terra branch/commit/pr` | Conventional branches, structured commits, PR preview |
-| 7 | generate | generator | `terra generate` | Module/model/shader gen with lang detection + validation |
-| 8 | sharpen_run | optimizer | `terra sharpen` | Self-sharpening with post-validation feedback loop |
-| 9 | tune_session | calibrator | `terra tune` | Guided thematic calibration: profiles, zones, knobs |
-| 10 | train_model | pipeline | `terra train` | ML pipeline: dataset → model → training → eval |
-| 11 | viewer | launcher | `terra viewer` | ImGui lifecycle: build → bridge → launch → cleanup |
-| 12 | render_3d | renderer | `terra render` | Surfaces, volumes, node graphs, point clouds |
-| 13 | test_suite | validator | `terra test` | Discover/run/categorize tests by subsystem |
-| 14 | instance_dispatch | orchestrator | `terra dispatch` | Enqueue tasks, monitor instances, collect results |
-| 15 | health_check | diagnostic | `terra health` | System grade A-F: structure + tests + env + queue |
+### 2. Music Viz Polish
+- **MP3 support** (player.py): pydub fallback when soundfile can't read a format; AudioSegment -> numpy float32 mono conversion
+- **Spectrogram heatmap** (visualizer.py): New `SpectrogramHeatmapWidget` — OpenGL 2D time-frequency heatmap with theme-aware color ramp (BG -> CYAN -> ACCENT -> YELLOW -> RED)
+- **Toggle** (main.py): Spectrogram button swaps between spectrum bars and heatmap view
+- **requirements.txt**: Added pydub>=0.25
 
-### Projects Directory
-- `projects/` at repo root (gitignored)
-- `projects/music-viz/` — first test project: Qt + sounddevice + Terragraf FFT + OpenGL spectrum bars
+### 3. ImGui Panel Layout Persistence
+- **main.cpp**: `io.IniFilename` set to platform-specific config path (`%LOCALAPPDATA%/Terragraf/layout.ini` on Windows, `~/.config/terragraf/layout.ini` on Linux)
+- **settings_panel.cpp**: New "Layout" section with Reset Layout button (clears ini + deletes file)
+- ImGui auto-saves/restores docking layout, panel positions, sizes, collapsed state
 
-### CLI Expansion (terra.py)
-- 12 new shortcut commands: analyze, solve, branch, commit, pr, generate, train, viewer, render, test, dispatch, health
-- All delegate to skills via runner.py
+### 4. Skill Tests (29 new tests)
+- **test_skills.py** (11 tests): list_skills, match_skill, _load_manifest, run_skill — discovery, matching, entry point validation, error handling
+- **test_signal_analyze.py** (8 tests): synthetic sine/chirp/noise/square, bandpass, CSV/NPY input (Windows-skipped), PNG export
+- **test_math_solve.py** (12 tests): eigenvalues, SVD, solve, roots, describe, regression, ttest, DCT, hilbert, error handling
 
-## What Was Done (Sessions 1-3)
+### Verification Results (Session 5)
+- `terra health` -> Grade A (0 structure issues, 424 tests discoverable)
+- `pytest .scaffold/tests/` -> 424 passed, 2 skipped
+- Consistency scan -> all checks passed
+
+## What Was Done (Sessions 1-4)
+
+### Session 4: Skills System (15 skills)
+- `.scaffold/skills/` — SKILL.toml manifests, runner.py, registry, router
+- 15 workflow skills, 12 CLI shortcuts, projects directory
 
 ### Session 3: End-to-End Bridge Polish
-- bridge.py: `__main__` entrypoint, signal handling, auto-reconnect
-- main.cpp: reconnect timer every ~3s
-- tuning_panel.cpp: reconnect button resets state
-- viewer_page.py: auto-start bridge, binary path search
+- bridge.py auto-reconnect, signal handling, viewer auto-launch
 
 ### Session 2: Windows-Native Polish
-- All hooks/generators converted to Python
-- App code fixed for Windows, CI matrix: Ubuntu + Windows
+- All hooks/generators converted to Python, CI matrix
 
 ### Session 1: Socket Transport + CLI
-- transport.py: SO_EXCLUSIVEADDRUSE on Windows
-- terra.py: full Python CLI, 382+ tests passing
+- transport.py, terra.py CLI, 382+ tests passing
 
 ## Key Files
 
@@ -58,69 +55,56 @@ Sessions 1-4 complete. Full skills infrastructure with 15 registered workflow sk
 terra.py                                — Python CLI (30+ commands)
 .scaffold/skills/runner.py              — Skill discovery + execution engine
 .scaffold/skills/registry.table         — 15-skill registry
-.scaffold/skills/router.route           — Intent → skill routing (50+ mappings)
-.scaffold/skills/signal_analyze/run.py  — FFT + spectral + spectrogram workflow
-.scaffold/skills/math_solve/run.py      — Math computation router (12 operations)
-.scaffold/skills/health_check/run.py    — System diagnostic with grading
-.scaffold/skills/test_suite/run.py      — Test orchestration by subsystem
-.scaffold/headers/project.h             — Module declarations (now incl. skills, projects)
-.scaffold/routes/tasks.route            — Intent routing (now incl. all skill routes)
-projects/music-viz/                     — Real-time music visualizer
+.scaffold/skills/router.route           — Intent -> skill routing (50+ mappings)
+.scaffold/headers/project.h             — Module declarations (16 modules incl. imgui, sharpen)
+.scaffold/routes/bugs.route             — Bug symptom routing (cleaned)
+.scaffold/routes/structure.route        — Concept -> directory mapping (cleaned)
+.scaffold/tables/deps.table             — Module dependency matrix (cleaned)
+.scaffold/imgui/main.cpp                — ImGui app with layout persistence
+.scaffold/imgui/settings_panel.cpp      — Settings with Reset Layout button
+projects/music-viz/player.py            — Audio player with MP3 support (pydub)
+projects/music-viz/visualizer.py        — Spectrum bars + spectrogram heatmap
+projects/music-viz/main.py              — Qt app with spectrogram toggle
+.scaffold/tests/test_skills.py          — Skill runner unit tests
+.scaffold/tests/test_signal_analyze.py  — Signal analysis integration tests
+.scaffold/tests/test_math_solve.py      — Math solver integration tests
 ```
 
-## Verification Results (Session 4)
-- `terra skill list` — all 15 skills displayed
-- `terra analyze sine:440:44100:0.5 --no-render` — FFT analysis works
-- `terra solve eigenvalues --matrix "[[1,2],[3,4]]"` — returns [-0.372, 5.372]
-- `terra test fft` — 27 passed, 0 failed
-- `terra health` — Grade D (39 pre-existing structure issues from stale src/ routes)
-- `pytest .scaffold/tests/` — 395 passed
-
 ## Debug Notes
-- `terra skill list` → shows all 15 registered skills
-- `terra analyze <input>` → signal analysis (WAV/CSV/NPY or synthetic)
-- `terra solve <op> --data/--matrix` → math computation
-- `terra test [module]` → run tests (fft, math, tuning, viz, etc.)
-- `terra health [--quick]` → system diagnostic grade
-- `terra hot` → this file, formatted
-- `terra viewer` → build + bridge + launch ImGui
-- `terra dispatch enqueue <desc>` → add task to parallel queue
+- `terra health` -> Grade A (all checks pass)
+- `pytest .scaffold/tests/` -> 424 passed
+- `terra skill list` -> 15 skills
+- `terra analyze sine:440:44100:0.5 --no-render` -> FFT analysis
+- `terra solve eigenvalues --matrix "[[1,2],[3,4]]"` -> [-0.372, 5.372]
 
 ---
 
 ## Plan: Next Session Ideas
 
-### Clean Up Stale Routes/Tables (Priority)
-- health_check reports Grade D due to 39 pre-existing issues
-- Mostly stale `src/` references in bugs.route and structure.route
-- Also undeclared modules in deps.table (ui, core, services, config, compute, imgui, sharpen)
-- Fix would raise grade to A/B
+### Music Viz Enhancements
+- Mel-scale spectrogram heatmap option (mel filterbank already exists)
+- Peak frequency annotation on spectrum bars
+- Keyboard shortcuts (space=play/pause, left/right=seek)
 
-### Music Viz Polish
-- Add MP3 support (pydub fallback for soundfile)
-- Spectrogram heatmap view
-- Theme-aware color palette from tuning profiles
+### Panel Layout Defaults
+- Ship a default `layout.ini` with sensible panel arrangement
+- First-run detection to set initial docking layout programmatically
 
-### Panel Layout Persistence
-- ImGui docking state save/restore
-- Remember which panels are open/closed
+### Expand Skill Tests
+- Test `run_skill()` with real skills (health_check, consistency_scan)
+- Test skill routing via router.route
+- Add benchmark tests for FFT performance
 
-### Skill Tests
-- Add pytest tests for skills/runner.py (discovery, matching, execution)
-- Add integration tests for signal_analyze, math_solve
-
-## Decisions Made (Session 4)
-- Skills are workflows, not wrappers — each composes multiple modules
-- SKILL.toml uses [skill], [triggers], [deps] sections
-- Skills discovered by scanning subdirs of .scaffold/skills/ for SKILL.toml
-- terra.py shortcuts delegate to skills via _run_skill() helper
-- Projects in projects/ are gitignored (user output, not scaffold code)
-- health_check grades A-F based on structure issues, test collectability, env
-- Signal analysis uses --synthetic for test signals (sine:freq:sr:duration)
+## Decisions Made (Session 5)
+- Declared imgui and sharpen as modules in project.h (both had existing dirs)
+- deps.table now only references declared modules (removed phantom ui/core/models/services/config/compute)
+- structure.route stripped of all non-existent template paths
+- Spectrogram heatmap uses theme color ramp (dark->cyan->blue->yellow->red)
+- Layout persistence uses platform-specific config dirs (not project-local)
+- File input tests now pass on Windows (fixed path-colon detection in cli())
 
 ## Backlog
 - Source all dependencies locally into `src/` (~25-30GB)
 - Qt app rendering artifacts on drag/resize
-- Panel layout persistence in ImGui
-- Clean up stale route/table entries
-- Add skill tests to test suite
+- Ship default ImGui layout.ini
+- Mel-scale spectrogram heatmap in music viz

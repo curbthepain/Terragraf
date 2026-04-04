@@ -67,6 +67,10 @@ bool settings_is_open()           { return settings_open; }
 
 extern BridgeClient* g_bridge;
 
+// Layout persistence (from main.cpp)
+const char* layout_ini_path();
+void reset_layout();
+
 void render_settings_panel() {
     if (!settings_open) return;
 
@@ -140,6 +144,18 @@ void render_settings_panel() {
         ImGui::Separator();
         ImGui::Checkbox("Debug Panel", &settings.show_debug_panel);
         ImGui::Checkbox("FPS Overlay", &settings.show_fps_overlay);
+    }
+
+    ImGui::Separator();
+
+    // ── Layout ──
+    if (ImGui::CollapsingHeader("Layout")) {
+        ImGui::TextWrapped("Layout file: %s", layout_ini_path());
+        if (ImGui::Button("Reset Layout")) {
+            reset_layout();
+        }
+        ImGui::SameLine();
+        ImGui::TextDisabled("(restores default panel positions)");
     }
 
     ImGui::Separator();
