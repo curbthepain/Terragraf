@@ -1,7 +1,7 @@
 """
 hot_context — Read, display, or update the session hot context.
 
-The hot context file (.claude/HOT_CONTEXT.md) captures what was done in recent
+The hot context file (.scaffold/HOT_CONTEXT.md) captures what was done in recent
 sessions, what's in progress, key files, debug notes, and next steps. It lets
 a new AI session orient itself instantly instead of re-exploring the codebase.
 
@@ -28,7 +28,7 @@ if sys.platform == "win32":
         pass
 
 TERRA_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-HOT_CONTEXT = TERRA_ROOT / ".claude" / "HOT_CONTEXT.md"
+HOT_CONTEXT = TERRA_ROOT / ".scaffold" / "HOT_CONTEXT.md"
 
 # ANSI
 BOLD = "\033[1m"
