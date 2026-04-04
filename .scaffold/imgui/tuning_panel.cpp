@@ -207,9 +207,14 @@ void render_tuning_panel() {
     // Connection status
     if (!g_bridge->is_connected()) {
         ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f),
-            "Bridge disconnected");
-        if (ImGui::Button("Reconnect")) {
-            g_bridge->connect();
+            "Bridge disconnected (auto-reconnecting...)");
+        if (ImGui::Button("Reconnect Now")) {
+            if (g_bridge->connect()) {
+                // Reset state so profile list is re-requested
+                state.profiles_loaded = false;
+                state.list_requested = false;
+                state.profile_active = false;
+            }
         }
         ImGui::End();
         return;

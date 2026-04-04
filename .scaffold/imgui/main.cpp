@@ -110,6 +110,7 @@ int main(int argc, char** argv) {
     }
 
     // ── Main loop ──────────────────────────────────────────────────
+    int reconnect_counter = 0;
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
@@ -120,6 +121,16 @@ int main(int argc, char** argv) {
 
         // Dockspace
         ImGui::DockSpaceOverViewport();
+
+        // Auto-reconnect to bridge every ~3 seconds if disconnected
+        if (!g_bridge_instance.is_connected()) {
+            if (++reconnect_counter >= 180) {
+                reconnect_counter = 0;
+                g_bridge_instance.connect();
+            }
+        } else {
+            reconnect_counter = 0;
+        }
 
         // Poll bridge messages (dispatches to handlers on main thread)
         g_bridge_instance.poll();

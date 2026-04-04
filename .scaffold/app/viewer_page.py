@@ -145,8 +145,9 @@ class ViewerPage(QWidget):
             build_cmds = (
                 "To build the ImGui viewer:\n"
                 "  cd .scaffold\\imgui\n"
-                "  mkdir build && cd build\n"
-                "  cmake .. && cmake --build . --parallel\n\n"
+                "  mkdir build; cd build\n"
+                "  cmake ..; cmake --build . --parallel\n\n"
+                "Or from project root:  .\\terra imgui build\n\n"
                 "Requires: GLFW, OpenGL 4.5, C++17 compiler (VS2022)"
             )
         else:
@@ -203,11 +204,29 @@ class ViewerPage(QWidget):
 
     # ── ImGui process ───────────────────────────────────────────────
 
+    def _bridge_is_running(self):
+        return (self._bridge_process is not None
+                and self._bridge_process.state() != QProcess.ProcessState.NotRunning)
+
     def _start_imgui(self):
         if self._imgui_process and self._imgui_process.state() != QProcess.ProcessState.NotRunning:
             return
         if not self._imgui_binary.exists():
             self._imgui_log.appendPlainText("[qt] binary not found — build first")
+            return
+
+        # Auto-start bridge if not running
+        if not self._bridge_is_running():
+            self._imgui_log.appendPlainText("[qt] auto-starting bridge...")
+            self._start_bridge()
+            # Delay viewer launch so bridge port is ready
+            QTimer.singleShot(1000, self._launch_imgui_process)
+            return
+
+        self._launch_imgui_process()
+
+    def _launch_imgui_process(self):
+        if self._imgui_process and self._imgui_process.state() != QProcess.ProcessState.NotRunning:
             return
         self._imgui_process = QProcess(self)
         self._imgui_process.setWorkingDirectory(str(self._imgui_dir))

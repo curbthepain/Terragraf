@@ -131,11 +131,16 @@ class Bridge:
         return data
 
     def _server_loop(self):
-        """Accept connection then receive messages."""
+        """Accept connections and receive messages. Re-accepts after disconnect."""
         while self._running:
             try:
-                self._client, addr = self._server.accept()
+                client, addr = self._server.accept()
+                self._client = client
+                print(f"[bridge] client connected from {addr[0]}:{addr[1]}")
                 self._receive_loop()
+                # Client disconnected — clean up so send() doesn't write to dead socket
+                self._client = None
+                print("[bridge] client disconnected, waiting for new connection...")
             except socket.timeout:
                 continue
 
@@ -147,7 +152,10 @@ class Bridge:
                 break
             msg_type = msg.get("type", "")
             if msg_type in self._handlers:
-                self._handlers[msg_type](msg)
+                try:
+                    self._handlers[msg_type](msg)
+                except Exception as e:
+                    print(f"[bridge] handler error for '{msg_type}': {e}")
 
     # ── Tuning Integration ──────────────────────────────────────────
 
@@ -273,3 +281,24 @@ class Bridge:
 
         self.on("ping", handle_ping)
         self.on("debug_echo", handle_debug_echo)
+
+
+if __name__ == "__main__":
+    import signal
+
+    shutdown = threading.Event()
+
+    bridge = Bridge()
+    bridge.start(as_server=True)
+    bridge.register_tuning_handlers()
+    bridge.register_debug_handlers()
+
+    print(f"Bridge server listening on {bridge.host}:{bridge.port}")
+    print("Press Ctrl+C to stop.")
+
+    signal.signal(signal.SIGINT, lambda *_: shutdown.set())
+    signal.signal(signal.SIGTERM, lambda *_: shutdown.set())
+
+    shutdown.wait()
+    bridge.stop()
+    print("Bridge stopped.")
