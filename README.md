@@ -191,7 +191,10 @@ python -m pytest .scaffold/tests/ --cov=.scaffold --cov-report=term-missing
 
 ## Platforms
 
-Linux (Wayland) and Windows 10/11.
+Linux (Wayland) and Soon Windows 10/11.
+PSA: Currently windows support is being worked on. It'll take some time to get all 
+the tooling native in windows but it will happen. The original plan was to just 
+run through WSL2 but I'm seeing the limits of WSL already.
 
 ## Contributors
 
