@@ -195,7 +195,8 @@ python -m pytest .scaffold/tests/ --cov=.scaffold --cov-report=term-missing
 
 *PSA:* Currently windows support is being worked on. It'll take some time to get 
 the tooling running native inside Windows, but it will happen. The original plan was to just 
-run through WSL2 but I'm seeing the limits of WSL already.
+run it through WSL2, but I'm seeing the limits of WSL already, once the project is fleshed out
+on linux it will get more effort towards the Windows tooling.
 
 ## Contributors
 
