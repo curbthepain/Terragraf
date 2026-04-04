@@ -16,6 +16,7 @@ instead of scanning every file or relying on summarization.
 ---
 
 ## Known Issues 
+  - The app implement is broken as of now. Essentially pre alpha. Things are mislabeled, and most things don't work otb.
   - QT widget rendering causes improper scaling inside the app.
   - Elements that are undesirable, such as 302 Tests Pass, from AI "vibing" do exist. Those will be ironed out.
   - UI/UX needs much polishing. It is experimental at best for now.
