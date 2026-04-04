@@ -1,4 +1,4 @@
-# Terragraf
+# Terragraf - (Alpha)
 
 **This is not a code generator. This is the environment the AI operates inside of.**
 
@@ -12,6 +12,13 @@ Tools like Claude Code, Cursor, and Aider burn context window on
 rediscovering project structure every session. Terragraf eliminates
 that tax, the AI reads headers, follows routes, and consults tables
 instead of scanning every file or relying on summarization.
+
+---
+
+## Known Issues 
+  - QT widget rendering causes improper scaling inside the app.
+  - Elements that are undesirable, such as 302 Tests Pass, from AI "vibing" do exist. Those will be ironed out.
+  - UI/UX needs much polishing. It is experimental at best for now.
 
 ---
 
