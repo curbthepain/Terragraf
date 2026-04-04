@@ -1,123 +1,91 @@
 # Hot Context — Terragraf
 
-## Status: CI/App Mode Detection Added — 343 Tests Passing
+## Status: Windows-Native Polish Complete — 382 Tests Passing
 
-Full Qt container shell with sidebar navigation, debug page, tuning page, viewer page, and settings page. ImGui app updated with debug panel and settings window. CI vs App mode detection system added — AI can now differentiate between headless CI and interactive app sessions.
+Sessions 1-2 of the Windows-native plan are complete. All hooks and generators converted to Python. App code fixed for Windows. CI runs on both Ubuntu and Windows. No bash dependency remains for core functionality.
 
-## What's Done
+## What's Done (Session 2)
 
-### Python Tuning Engine — Complete
-- `.scaffold/tuning/` — schema, loader, engine, config, tracker, CLI
-- 8 universe profiles, 6 reaction signatures
-- 82 tests passing
+### Phase 3B: Hooks & Generators Converted to Python
+- `hooks/on_enter.py` — platform detection, runtime checks, GPU info, mode detection (all via Python stdlib)
+- `hooks/on_commit.py` — pre-commit file checks (temp files, large files), post-commit log
+- `hooks/on_generate.py` — auto-format generated files (black/ruff/prettier/clang-format/glslangValidator)
+- `hooks/on_instance.py` — instance lifecycle events, sharpen analytics capture
+- `generators/scaffold.py` — full Python orchestrator (resolve, module, model, shader, status, instance)
+- `.sh` files kept as fallback — `terra.py` tries `.py` first, `.sh` second
 
-### ImGui App — Complete (TCP Bridge + Debug + Settings)
-- 7 panels: math, spectrogram, node editor, volume slicer, tuning, **debug**, **settings**
-- `bridge_client.h/cpp` — C++ TCP client, background recv thread, main-thread dispatch
-- `tuning_panel.cpp` — all bridge_send calls wired
-- `debug_panel.cpp` — message log, connection status, FPS/RTT graphs, test message sender
-- `settings_panel.cpp` — bridge config, render settings, theme selection, panel visibility
-- `main.cpp` — bridge connect on startup, panel visibility via settings, FPS overlay
-- `CMakeLists.txt` — all 7 panels + bridge linked
-- **Needs debug at home**: compile + run with bridge.py to verify end-to-end
+### Phase 3C: App Code Fixed for Windows
+- `viewer_page.py:38` — binary path uses `.exe` suffix on Windows
+- `viewer_page.py:146` — build instructions show `cmake --build` on Windows, `make` on Linux
+- `viewer_page.py:174` — `sys.executable` replaces hardcoded `python3`
+- `detector.py` — WSL detection via `/proc/version`, `QT_QPA_PLATFORM=offscreen` checked first
+- `instance.py` — WSL detected as distinct `"wsl"` platform (not `"linux"`)
 
-### Python Bridge Server — Complete
-- `bridge.py` — TCP server, 7 tune_* handlers + ping/pong + debug_echo
+### Phase 3D: CI — Windows Runner Added
+- `.github/workflows/ci.yml` — matrix now includes `ubuntu-latest` + `windows-latest`
+- Python 3.11 + 3.12 on both platforms
+- `TERRAGRAF_MODE=ci` set on all runners
 
-### Socket IPC for Instances — Complete
-- `transport.py` — TransportServer + TransportClient, same wire protocol
-- `manager.py` — "auto"/"socket"/"filesystem" IPC modes
-- `instance.py` — socket transport, wait_for_task(), cleanup()
-- 16 transport tests passing
+### Phase 3E: Documentation Updated
+- `ROADMAP.md` — Phase 10 added, "Windows Native Polish" section removed from "What's Next"
+- `README.md` — "What's next" trimmed (Windows polish done), test count fixed (382)
 
-### Qt Container App — Complete
-- `.scaffold/app/` — full container shell with 5 pages
-- **window.py** — sidebar navigation, page stack, bridge status in statusbar, Ctrl+1-5 shortcuts
-- **bridge_client.py** — Qt-native TCP client with signals/slots, message log, stats
-- **debug_page.py** — bridge monitor, connection controls, stats, message log with filter
-- **tuning_page.py** — profile selector, metadata display, zone buttons, knob widgets (slider/dropdown/toggle/text), behavioral instructions
-- **viewer_page.py** — launch/manage bridge.py and ImGui processes, build instructions
-- **settings_page.py** — bridge host/port, paths, panel visibility, persistent settings
-- **theme.py** — comprehensive dark CI theme (sidebar, buttons, inputs, sliders, combos, tabs, groups, tables, scroll bars, status labels)
-- Dark CI aesthetic, monospace, fluid maximize/fullscreen (F10/F11)
-- `terra app` command wired in CLI
-- 10 tests passing (+ 7 skipped without PySide6)
+## What Was Done (Session 1)
 
-### CI/App Mode Detection — Complete
-- `.scaffold/modes/detector.py` — detects CI vs App mode via env vars + heuristics
-- `TERRAGRAF_MODE` env var for explicit override ("ci" or "app")
-- Auto-detects: `CI`, `GITHUB_ACTIONS`, `GITLAB_CI`, `JENKINS_URL`, etc.
-- Falls back to display server heuristics (DISPLAY, WAYLAND_DISPLAY)
-- `ModeInfo` dataclass with `can()`, `blocked_reason()`, `is_ci`, `is_app`
-- `require_app("system")` guard — raises RuntimeError in CI mode
-- `terra mode` CLI command (show, check, can)
-- `.scaffold/headers/modes.h` — contract declaring what each mode permits
-- CI workflow updated with `TERRAGRAF_MODE=ci` env var
-- `on_enter.sh` reports detected mode at session start
-- Routes added for mode navigation
-- 41 tests passing
+### Socket Transport — Windows Fixed
+- `transport.py` — `SO_EXCLUSIVEADDRUSE` on Windows prevents double-bind
+- Test timing: retry loops replace fixed `time.sleep()` for cross-platform reliability
+- All 16 transport tests pass on Windows
 
-### Dependency Packaging — Done
-- `requirements.txt` — core (numpy, scipy)
-- `requirements-dev.txt` — core + pytest
-- `requirements-ml.txt` — core + torch
-- `requirements-app.txt` — core + PySide6
-- CI updated to use `requirements-dev.txt`
+### Language-Aware Output — Complete
+- `.scaffold/generators/lang_detect.py` — detects primary language from file patterns
+- 22 tests passing
 
-### Tests — 343 Total
-- `test_algebra.py` — 10 | `test_fft.py` — 15 | `test_generators.py` — 10
-- `test_linalg.py` — 13 | `test_spectral.py` — 10 | `test_stats.py` — 15
-- `test_transforms.py` — 10 | `test_tuning.py` — 82
-- `test_transport.py` — 16 | `test_app.py` — 17
-- `test_sharpen.py` — 30 | `test_viz.py` — 17 | `test_viz3d.py` — 45
-- `test_modes.py` — 41
-- See TESTS.md for full reference
-- Dependencies: numpy, scipy, pytest, matplotlib, PySide6 (via requirements-dev.txt + requirements-app.txt)
+### Python CLI (`terra.py`) — Complete
+- Full port of all 15 commands from bash `terra` script
+- `terra.cmd` — Windows batch wrapper
+- Platform detection via `platform.system()`, `sys.executable` for Python invocations
 
-## Next Goals
+### Tests — 382 Total
+- All passing on Windows native (no WSL)
 
-- **ImGui end-to-end debug** — compile + run with bridge.py on a machine with GLFW/Vulkan
-- Verify Qt ↔ bridge ↔ ImGui full loop on a GUI-capable machine
-- Polish: error handling, reconnection logic, panel layout persistence
+## What's Next (Session 3)
+
+### End-to-End Debug
+- Compile and run ImGui + bridge.py + Qt on a machine with GLFW/Vulkan
+- Verify the full loop: Qt launches bridge -> bridge accepts ImGui -> tuning panel populates -> knob changes flow back
+
+### Polish
+- Error handling and reconnection logic in bridge clients
+- Panel layout persistence in ImGui (save/restore docking state)
+- Qt container process management hardening
 
 ## Key Files
 
 ```
-.scaffold/app/main.py              — Qt app entry point
-.scaffold/app/window.py            — main window + sidebar navigation
-.scaffold/app/bridge_client.py     — Qt-side TCP bridge client
-.scaffold/app/debug_page.py        — debug/monitor page
-.scaffold/app/tuning_page.py       — tuning controls page
-.scaffold/app/viewer_page.py       — ImGui viewer launcher page
-.scaffold/app/settings_page.py     — settings page (persistent)
-.scaffold/app/theme.py             — dark CI theme + full stylesheet
-.scaffold/imgui/bridge_client.h    — C++ TCP client header
-.scaffold/imgui/bridge_client.cpp  — C++ TCP client impl
-.scaffold/imgui/bridge.py          — Python TCP server (tune + debug handlers)
-.scaffold/imgui/main.cpp           — ImGui app entry (all panels + settings/debug)
-.scaffold/imgui/debug_panel.cpp    — ImGui debug panel
-.scaffold/imgui/settings_panel.cpp — ImGui settings window
-.scaffold/imgui/tuning_panel.cpp   — tuning panel (bridge calls live)
-.scaffold/imgui/CMakeLists.txt     — build config (9 source files)
-.scaffold/instances/transport.py   — socket IPC transport layer
-.scaffold/instances/manager.py     — instance manager
-.scaffold/instances/instance.py    — instance lifecycle
-requirements.txt                   — core deps (numpy, scipy)
-requirements-dev.txt               — dev deps (+ pytest)
-requirements-ml.txt                — ML deps (+ torch)
-requirements-app.txt               — GUI deps (+ PySide6)
-.scaffold/modes/detector.py        — CI vs App mode detection
-.scaffold/headers/modes.h          — mode contract (what's allowed per mode)
+terra.py                               — Python CLI entry point (all 15 commands)
+terra.cmd                              — Windows batch wrapper
+terra                                  — Bash CLI (Linux backwards compat)
+.scaffold/hooks/on_enter.py            — session start hook (Python)
+.scaffold/hooks/on_commit.py           — git commit hook (Python)
+.scaffold/hooks/on_generate.py         — post-generate hook (Python)
+.scaffold/hooks/on_instance.py         — instance lifecycle hook (Python)
+.scaffold/generators/scaffold.py       — Python orchestrator (replaces scaffold.sh)
+.scaffold/generators/lang_detect.py    — project language detection
+.scaffold/instances/transport.py       — socket IPC (Windows SO_EXCLUSIVEADDRUSE fix)
+.scaffold/app/viewer_page.py           — ImGui viewer launcher (Windows-fixed)
+.scaffold/modes/detector.py            — CI vs App mode detection (WSL-aware)
+.scaffold/instances/instance.py        — instance lifecycle (WSL platform detection)
+.github/workflows/ci.yml              — CI matrix (Ubuntu + Windows)
 ```
 
-## Debug Notes (for home session)
+## Decisions Made
+- Python hooks alongside `.sh` originals — gradual migration, `.sh` kept as fallback
+- WSL is a distinct platform (`"wsl"`) not `"linux"` — different capabilities and display behavior
+- `QT_QPA_PLATFORM=offscreen` checked before Windows display assumption in detector
+- CI matrix uses `${{ matrix.os }}` for both Ubuntu and Windows runners
 
-The C++ TCP bridge client + debug/settings panels are written but not compiled yet (no GLFW/ImGui on this machine). To test end-to-end:
-
-1. `cd .scaffold/imgui && mkdir build && cd build && cmake .. && make`
-2. In one terminal: `python .scaffold/imgui/bridge.py` (or run via terra)
-3. In another: `./build/terragraf_imgui`
-4. Debug panel: check connection status, send pings, view RTT graph, monitor message log
-5. Settings panel: toggle panels, change theme, configure bridge host/port
-6. Tuning panel: profile load, zone switching, knob adjustment
-7. Qt app: `python -m app` from .scaffold/ — test sidebar nav, all pages, bridge connect
+## Debug Notes (for next session)
+- ImGui compile still needs a GUI machine with cmake + C++ toolchain
+- 13 tests skipped (7 need PySide6 + libEGL, 6 need display server)
+- `terra app` needs PySide6: `pip install -r requirements-app.txt`

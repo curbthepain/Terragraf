@@ -1,4 +1,4 @@
-# Tests — 343 Passing
+# Tests — 382 Passing
 
 [![CI](https://github.com/curbthepain/Terragraf/actions/workflows/ci.yml/badge.svg)](https://github.com/curbthepain/Terragraf/actions/workflows/ci.yml)
 
@@ -34,7 +34,8 @@ python -m pytest .scaffold/tests/ --cov=.scaffold --cov-report=term-missing
 | test_sharpen.py | 30 | sharpen/ | config defaults, error normalization (paths/lines/hex), analytics IO, record_hit, record_outcome, unmatched errors, locking, engine passes (stale/hot/errors/low-confidence), file modification (comment-out/annotate/add-error), route/table parsing |
 | test_viz.py | 17 | viz/ | heatmap (basic, labels, params), annotated_heatmap, figure export (PNG/SVG), figure_to_buffer, spectrogram rendering, mel spectrogram, stream plotter, dataset_to_volume (shape, normalization, feature dims) |
 | test_viz3d.py | 45 | viz/3d/ | transfer_function (interpolation, clamping, presets, apply), mesh (surface gen, point cloud, rendering), node_graph (add/edge, spring layout, rendering), camera (view/projection matrix, orbit), light (direction, directional), scene (objects, bounds, auto_camera, rendering), volume_renderer (sample, interpolation, render output), 3D export (OBJ vertices/faces/normals, PLY vertices/colors/faces) |
-| **Total** | **343** | | |
+| test_lang_detect.py | 22 | generators/lang_detect.py | language detection (Python, JS, TS, C++, Rust, Go, Java, C#), conventions, confidence, empty/mixed projects, skip dirs, max depth, read_project_lang |
+| **Total** | **382** | | |
 
 ---
 
@@ -105,6 +106,7 @@ matplotlib                 for viz tests (installed separately)
 | modes/ | Full | Mode enum, ModeInfo, detection priority, env vars, display heuristics, require_app guard |
 | app/ | Moderate | theme, bridge_client, settings, page imports, bridge handlers |
 | imgui/ | Moderate | bridge.py debug handlers (ping/pong/echo) |
+| generators/lang_detect | Full | detection, conventions, edge cases, project.h reading |
 
 ---
 

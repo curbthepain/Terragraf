@@ -319,18 +319,23 @@ class TestManagerSocketIntegration:
         """Manager dispatches task to connected instance."""
         from instances.manager import InstanceManager
         mgr = InstanceManager(ipc="socket")
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         client = TransportClient(port=9877)
         received = []
         client.on("task_assign", lambda msg: received.append(msg))
         client.connect(instance_id="dispatch-test")
-        time.sleep(0.2)
+        time.sleep(0.3)
 
         mgr.enqueue("test task", context={"file": "foo.py"})
         mgr.run()
-        time.sleep(0.3)
-        client.poll()
+
+        # Retry polling — Windows socket dispatch can be slower
+        for _ in range(20):
+            time.sleep(0.1)
+            client.poll()
+            if received:
+                break
 
         assert len(received) == 1
         assert received[0]["data"]["description"] == "test task"
@@ -342,15 +347,15 @@ class TestManagerSocketIntegration:
         """Instance sends result back through socket to manager."""
         from instances.manager import InstanceManager
         mgr = InstanceManager(ipc="socket")
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         task_id = mgr.enqueue("socket report test")
         mgr.run()
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         client = TransportClient(port=9877)
         client.connect(instance_id="reporter")
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         client.send({
             "type": "task_result",
@@ -360,10 +365,15 @@ class TestManagerSocketIntegration:
                 "result": "all good"
             }
         })
-        time.sleep(0.3)
-        mgr.poll()
 
+        # Retry polling — Windows socket dispatch can be slower
         task = next(t for t in mgr.tasks if t.id == task_id)
+        for _ in range(20):
+            time.sleep(0.1)
+            mgr.poll()
+            if task.status == "completed":
+                break
+
         assert task.status == "completed"
         assert task.result == "all good"
 
