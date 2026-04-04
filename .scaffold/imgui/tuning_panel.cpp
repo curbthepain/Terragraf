@@ -18,7 +18,7 @@
 #include <algorithm>
 #include <cstring>
 
-extern BridgeClient g_bridge;
+extern BridgeClient* g_bridge;
 
 namespace {
 
@@ -205,11 +205,11 @@ void render_tuning_panel() {
     ImGui::Begin("Thematic Calibration");
 
     // Connection status
-    if (!g_bridge.is_connected()) {
+    if (!g_bridge->is_connected()) {
         ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f),
             "Bridge disconnected");
         if (ImGui::Button("Reconnect")) {
-            g_bridge.connect();
+            g_bridge->connect();
         }
         ImGui::End();
         return;
@@ -221,7 +221,7 @@ void render_tuning_panel() {
         ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f),
             "Waiting for profile list from bridge...");
         if (!state.list_requested) {
-            g_bridge.send("tune_list");
+            g_bridge->send("tune_list");
             state.list_requested = true;
         }
         ImGui::End();
@@ -241,7 +241,7 @@ void render_tuning_panel() {
                      combo_items.c_str());
         ImGui::SameLine();
         if (ImGui::Button("Load")) {
-            g_bridge.send("tune_load",
+            g_bridge->send("tune_load",
                 json_obj({{"name", json_str(state.profile_names[state.selected_profile])}}));
         }
     }
@@ -314,9 +314,9 @@ void render_tuning_panel() {
             }
             if (ImGui::Button(state.zones[i].name.c_str())) {
                 if (is_active) {
-                    g_bridge.send("tune_zone_exit");
+                    g_bridge->send("tune_zone_exit");
                 } else {
-                    g_bridge.send("tune_zone",
+                    g_bridge->send("tune_zone",
                         json_obj({{"zone", json_str(state.zones[i].name)}}));
                 }
             }
@@ -331,7 +331,7 @@ void render_tuning_panel() {
         if (state.active_zone >= 0) {
             ImGui::SameLine();
             if (ImGui::SmallButton("Exit Zone")) {
-                g_bridge.send("tune_zone_exit");
+                g_bridge->send("tune_zone_exit");
             }
         }
 
@@ -357,7 +357,7 @@ void render_tuning_panel() {
                         if (ImGui::SliderFloat(knob.label.c_str(),
                                 &knob.slider_value,
                                 knob.min_val, knob.max_val)) {
-                            g_bridge.send("tune_set_knob",
+                            g_bridge->send("tune_set_knob",
                                 json_obj({{"id", json_str(knob.id)},
                                           {"value", std::to_string(knob.slider_value)}}));
                         }
@@ -365,7 +365,7 @@ void render_tuning_panel() {
                     else if (knob.knob_type == "toggle") {
                         if (ImGui::Checkbox(knob.label.c_str(),
                                 &knob.toggle_value)) {
-                            g_bridge.send("tune_set_knob",
+                            g_bridge->send("tune_set_knob",
                                 json_obj({{"id", json_str(knob.id)},
                                           {"value", knob.toggle_value ? "true" : "false"}}));
                         }
@@ -380,7 +380,7 @@ void render_tuning_panel() {
                         if (ImGui::Combo(knob.label.c_str(),
                                 &knob.dropdown_index,
                                 opts.c_str())) {
-                            g_bridge.send("tune_set_knob",
+                            g_bridge->send("tune_set_knob",
                                 json_obj({{"id", json_str(knob.id)},
                                           {"value", json_str(knob.options[knob.dropdown_index])}}));
                         }
@@ -409,7 +409,7 @@ void render_tuning_panel() {
                         if (ImGui::InputText(knob.label.c_str(),
                                 buf, sizeof(buf))) {
                             knob.text_value = buf;
-                            g_bridge.send("tune_set_knob",
+                            g_bridge->send("tune_set_knob",
                                 json_obj({{"id", json_str(knob.id)},
                                           {"value", json_str(knob.text_value)}}));
                         }
@@ -432,7 +432,7 @@ void render_tuning_panel() {
         }
 
         if (ImGui::Button("Reset All Knobs")) {
-            g_bridge.send("tune_reset_knobs");
+            g_bridge->send("tune_reset_knobs");
         }
 
         ImGui::Separator();
@@ -443,7 +443,7 @@ void render_tuning_panel() {
     if (ImGui::CollapsingHeader("Behavioral Instructions",
             ImGuiTreeNodeFlags_DefaultOpen)) {
         if (ImGui::Button("Refresh")) {
-            g_bridge.send("tune_get_instructions");
+            g_bridge->send("tune_get_instructions");
         }
         ImGui::BeginChild("InstructionsScroll", ImVec2(0, 300),
             ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar);
