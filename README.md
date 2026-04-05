@@ -26,32 +26,33 @@ instead of scanning every file or relying on summarization.
 ## Quickstart
 
 ```bash
-# Clone and enter
+# Clone and enter:
 git clone https://github.com/curbthepain/Terragraf.git
 cd Terragraf
 
-# Install dependencies
+# Install dependencies:
 pip install -r requirements.txt          # core (numpy, scipy)
 pip install -r requirements-dev.txt      # + pytest
 pip install -r requirements-ml.txt       # + torch
 pip install -r requirements-app.txt      # + PySide6 (Qt GUI)
 
-# Initialize in your project
+# Initialize in your project:
 ./terra init
 
-# See what's here
+# See what's here:
 ./terra status
 
-# Route an intent
+# Route an intent:
 ./terra route bug        # -> routes/bugs.route
 ./terra route feature    # -> headers/project.h
 
-# Launch the Qt container app
+# Launch the Qt container app:
 ./terra app
 
-# Build and run the ImGui viewer
+# Build and run the ImGui viewer:
 ./terra imgui build
 ./terra imgui run
+
 ```
 
 ---
