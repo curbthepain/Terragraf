@@ -21,7 +21,6 @@ Usage:
 
 import torch
 import torch.nn as nn
-from pathlib import Path
 
 
 class ScaffoldModel(nn.Module):
@@ -48,26 +47,13 @@ class ScaffoldModel(nn.Module):
         print(f"  Device: {next(self.parameters()).device}")
 
     def save_checkpoint(self, path, optimizer=None, epoch=None, **extra):
-        checkpoint = {
-            "model_state": self.state_dict(),
-            "model_class": self.__class__.__name__,
-            "num_parameters": self.num_parameters,
-        }
-        if optimizer is not None:
-            checkpoint["optimizer_state"] = optimizer.state_dict()
-        if epoch is not None:
-            checkpoint["epoch"] = epoch
-        checkpoint.update(extra)
-
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        torch.save(checkpoint, path)
+        from ..model_io import save_checkpoint as _save_ckpt
+        _save_ckpt(self, path, optimizer=optimizer, epoch=epoch, **extra)
         print(f"Checkpoint saved: {path}")
 
     def load_checkpoint(self, path, optimizer=None):
-        checkpoint = torch.load(path, weights_only=False)
-        self.load_state_dict(checkpoint["model_state"])
-        if optimizer is not None and "optimizer_state" in checkpoint:
-            optimizer.load_state_dict(checkpoint["optimizer_state"])
+        from ..model_io import load_checkpoint as _load_ckpt
+        checkpoint = _load_ckpt(path, self, optimizer=optimizer)
         print(f"Checkpoint loaded: {path} (epoch {checkpoint.get('epoch', '?')})")
         return checkpoint
 

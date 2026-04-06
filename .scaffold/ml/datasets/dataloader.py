@@ -6,7 +6,7 @@ DataLoader factory with sensible defaults.
 from torch.utils.data import DataLoader, random_split
 
 
-def create_loaders(dataset, batch_size=32, val_split=0.2, num_workers=4, seed=42):
+def create_dataloader(dataset, batch_size=32, val_split=0.2, num_workers=4, seed=42):
     """Split a dataset and return train/val DataLoaders."""
     import torch
 
@@ -32,7 +32,8 @@ def create_loaders(dataset, batch_size=32, val_split=0.2, num_workers=4, seed=42
         pin_memory=True,
     )
 
-    print(f"Train: {train_size} samples, Val: {val_size} samples")
-    print(f"Batch size: {batch_size}, Workers: {num_workers}")
-
     return train_loader, val_loader
+
+
+# Backward compat alias
+create_loaders = create_dataloader
