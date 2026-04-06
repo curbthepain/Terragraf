@@ -1,8 +1,13 @@
 # Hot Context — Terragraf
 
-## Status: Session 16 Complete — Local Dependency Sourcing
+## Status: Session 27 Complete — Workspace Layout Rework
 
-Sessions 1-16 complete. All dependencies sourced locally into src/. Python via pip --target, C++ via git clone. CMake auto-detects local sources. 723 tests passing.
+Sessions 1-27 complete. S25 first-pushed Sessions 9-24 to `origin/Yibb`
+with CI green. S26 landed the Kohala theme foundation + bundled fonts
++ `additions/terragraf_preview.py` as the visual target. S27 migrated
+`MainWindow`, `WorkspaceTabWidget`, and `WelcomeTab` to match that
+preview — floating-card chrome, pill-strip tab bar, two-panel welcome.
+864 tests passing on PySide6 6.11.
 
 ## Session Roadmap
 | Session | Phase | Deliverable | Tests |
@@ -446,6 +451,249 @@ projects/KNOWLEDGE.toml                  — NEW (registry seed)
   prefer running pytest under at least one matching version locally
   before pushing — or trust CI as the only source of truth for the
   matrix
+
+## What's Done (Session 26)
+
+### Kohala theme foundation + bundled fonts + preview target
+
+Monolithic `theme.py` (~1600 lines of Python-generated QSS) split into
+`.scaffold/app/themes/kohala.qss` (798 lines, authored by hand against
+the Kohala brand) plus a thin `theme.py` shim that loads the QSS file
+at app startup. `themes/legacy_objectnames.qss` added as a compat shim
+so widgets still styled via `objectName` keep working while the class
+migration proceeds.
+
+- **Bundled fonts**: `.scaffold/app/fonts/` ships Barlow, Barlow
+  Condensed, and JetBrains Mono. `fonts/__init__.py::load_bundled_fonts`
+  registers them with `QFontDatabase` before the first widget is
+  created. `main.py` calls it. License notes in
+  `THIRD_PARTY_LICENSES.md`.
+- **Preview target**: `additions/terragraf_preview.py` (350 lines)
+  renders a standalone PySide6 window styled after the Kohala brand —
+  sidebar card, floating top bar, ws-tab pill, health + sessions
+  panels, centered red-mono footer. This is the reference layout that
+  Sessions 27-28 migrate `MainWindow` toward. `additions/kohala_theme.qss`
+  is byte-identical to the shipped `themes/kohala.qss`; both get edited
+  in lockstep.
+- Tests: `test_fonts.py` (8) confirms the three font families register.
+  `test_app.py` theme assertions updated for the new stylesheet source.
+
+## What's Done (Session 27)
+
+### Workspace layout rework — floating-card chrome + pill tabs
+
+Migrates `MainWindow`, `WorkspaceTabWidget`, and `WelcomeTab` to the
+layout in `additions/terragraf_preview.py` (S26). Replaces the
+`QSplitter` + `QStatusBar` + `QTabBar` chrome with floating warm-glass
+cards, a custom pill strip, and a centered footer ticker. 864 tests
+passing with PySide6 6.11 on Linux offscreen.
+
+Branch: `claude/branch-yibb-to-yibbmw-QcMUd` (base: `YibbMW`). PR #14
+open. Commits: `b16fc6f` (feature), `ea1f246` (test-run artifacts),
+`6fb54bc` (test-lifetime fix — see §CI rescue below).
+
+#### 1. New widgets
+- **`.scaffold/app/widgets/top_bar.py` — rewritten**. Exports
+  `TopBar(QFrame)` (58px floating card; hamburger `iconbtn` + sidebar
+  toggle `iconbtn` + `WorkspaceTabStrip` + stretch + TERRA/GRAF
+  `brand-mark` labels) and `Footer(QFrame)` (44px warm-glass strip with
+  a single centered `QLabel[class="brand-footer"]` ticker). Removes
+  the pre-S27 `TabCornerChrome` class.
+- **`.scaffold/app/widgets/tab_strip.py` — new**. `WorkspaceTabStrip`
+  is a horizontal pill strip replacing `QTabBar`. Each pill is a
+  `_TabPill` (QWidget holding a `QPushButton[class="ws-tab"]` +
+  inline `×` close button). Signals `current_changed(int)` and
+  `close_requested(int)`. API mirrors what `MainWindow` needs from a
+  tab bar: `add_tab / remove_tab / set_label / set_current / count`.
+- **`.scaffold/app/widgets/panel.py` — new**. Small helpers:
+  `make_panel(title) -> (QFrame, QVBoxLayout)` returns a
+  `QFrame[class="panel"]` warm-glass card with a `section-sub` header
+  and a `ws-divider` rule. `stat_row(key, val)` returns a compact
+  `stat-key`/`stat-compact` row for the 3×3 health grid.
+
+#### 2. `WorkspaceTabWidget` refactor (`app/tab_widget.py`)
+- Base class changed from `QTabWidget` to `QWidget`. Internals are now
+  a `QStackedWidget` for the tab bodies; there is no built-in tab bar.
+- Public API preserved unchanged: `register_tab_type / create_tab /
+  close_tab / session_for_tab / tab_for_session / active_session_id /
+  setCurrentIndex / currentIndex / count / widget / currentWidget`,
+  plus `tab_session_created / _closed / _activated` signals. Call
+  sites in `window.py`, `test_workspace.py`, and `test_integration.py`
+  did not need to change.
+- New signals consumed by `WorkspaceTabStrip`: `tab_added(int, str)`,
+  `tab_removed(int)`, `tab_label_changed(int, str)`, `current_changed(int)`.
+  `MainWindow` wires them bidirectionally with the strip.
+- **First-insertion activation race**: `QStackedWidget.addWidget`
+  emits `currentChanged(0)` synchronously on the very first insertion,
+  before `_tab_sessions[idx] = session.id` was previously set. That
+  made `_on_stack_changed(0)` look up an empty session ID and skip
+  activation. Fix: pre-compute `idx = self._stack.count()` and set
+  `_tab_sessions[idx]` / `_tab_labels[idx]` BEFORE `addWidget`, with
+  an assert that the returned index matches.
+- `close_tab` explicitly refuses to close welcome tabs
+  (`session.tab_type == "welcome"`) in addition to pinned tabs.
+
+#### 3. `MainWindow` restructure (`app/window.py`)
+- Dropped the 3-column `QSplitter` (`Sidebar | WorkspaceTabWidget |
+  ImGuiPanel`). New central widget is a `QWidget` with
+  `contentsMargins(16, 14, 16, 6)` and a `QVBoxLayout` that stacks:
+  - **body** `QHBoxLayout` (spacing 14) = `Sidebar` (258px) +
+    right-column `QVBoxLayout` (spacing 12) = `TopBar` (58) + `_tabs`
+    (stretch 1)
+  - **footer** `Footer` (44px)
+- `ImGuiPanel` still gets constructed for its cleanup hooks but is not
+  added to any layout. TODO(s28): re-expose as a `QDockWidget` if we
+  want the in-window panel back. ImGui still runs in its own OS window
+  via `ImGuiDock`.
+- `QStatusBar` removed entirely. Bridge/session/coherence state now
+  feed `Footer.set_bridge_state / set_session_count /
+  set_coherence_warning`, which rewrite a single centered ticker:
+  `BRIDGE: OFFLINE · N SESSION · PATENT PENDING`. A coherence warning
+  replaces the `PATENT PENDING` tail while active.
+- `TopBar.tab_strip` wired to `WorkspaceTabWidget` signals inside
+  `__init__` (before the initial welcome tab is created). The
+  `_on_tab_added_to_strip` helper looks up the session via
+  `session_for_tab(index)` and passes `closable=False` for welcome
+  tabs so their pill has no `×`.
+- `_toggle_sidebar` no longer pokes splitter sizes (no splitter);
+  `Sidebar.set_expanded()` alone resizes the fixed-width card.
+- `_maybe_warn_hot_context` / `_on_sharpen_suggested` / various error
+  paths that used to `self._status.showMessage(...)` now either no-op
+  or surface through `Footer.set_coherence_warning`.
+
+#### 4. `WelcomeTab` rewrite (`app/welcome_tab.py`)
+- Full rewrite (117 → ~180 lines). Root layout is a `QHBoxLayout` of
+  two `QFrame[class="panel"]` cards with stretch 3 (Scaffold Health)
+  and stretch 2 (Recent Tabs), built via `make_panel()`.
+- **Scaffold Health**: 3×3 `QGridLayout` of `stat_row()` entries,
+  nine keys unchanged from S26 (`header_files`, `modules`,
+  `route_files`, `routes`, `table_files`, `queue_pending`,
+  `queue_running`, `hot_context_lines`, `recent_events`). Keeps
+  `self._health_labels: dict[str, QLabel]` so test accessors still
+  work. `self._state.state_changed.connect(self._refresh)` unchanged.
+- **Recent Tabs**: rows built by local `_tab_row(name, slug, state,
+  dot_color)` — colored `●` dot, uppercase name, `tab_type · id[:6]`
+  slug hint, right-aligned state tag. Active session gets
+  `ACTIVE` + `#6EE0B0`; others `RECENT` + `#8FA0B6`. Top 5 by
+  `created_at desc`. Keeps `self._no_sessions_label` as a sentinel at
+  index 0 of `_sessions_layout` so the S13 integration tests
+  (`.isVisible() is False`, `.count() > 1`) still match.
+- The "Use the sidebar..." hint label was dropped — the sidebar
+  already covers every entry point (commit note on this was already
+  in the old file).
+
+#### 5. Sidebar alignment (`app/widgets/sidebar.py`)
+- Root frame tagged `setProperty("class", "sidebar")`. Each nav
+  `IconButton` gets `setProperty("class", "nav-item")` in
+  `_rebuild_buttons`. The legacy `objectName="sidebar_v2"` stays for
+  the `legacy_objectnames.qss` shim.
+- `WIDTH_EXPANDED = 258` (was `theme.SIDEBAR_WIDTH_EXPANDED == 240`)
+  to match the preview card. `WIDTH_COLLAPSED` unchanged at 56.
+- New bottom row: `ws-divider` + `— WORKSPACE //` header + `v0.4.2`
+  hint label above the existing bridge dot. Version is hardcoded
+  with a `TODO(s28)` since no single-source-of-truth version exists
+  in the codebase yet.
+
+#### 6. QSS (`app/themes/kohala.qss`)
+- Added one rule: `QLabel[class="brand-footer"]` — red `#E83030`
+  JetBrains Mono 10px, letter-spacing 1.5px, transparent background.
+  This promotes the inline style from the preview's footer label to a
+  proper QSS class consumed by `Footer.center_label`.
+- All other classes the new widgets need (`sidebar`, `topbar`,
+  `iconbtn`, `ws-tab`, `brand-mark[-red]`, `panel`, `section-sub`,
+  `stat-key`, `stat-compact`, `hint`, `ws-divider`, `nav-item`,
+  `sidebar-header`) already existed in the S26 stylesheet.
+
+#### 7. Tests (`tests/test_layout.py` new, others updated)
+- `tests/test_layout.py` (new, 28 tests) covers:
+  - TopBar: `height() == 58`, `class == "topbar"`, two direct-child
+    `iconbtn` buttons, a `WorkspaceTabStrip`, TERRA/GRAF `brand-mark`
+    labels.
+  - Footer: `height() == 44`, default text, bridge state update
+    (bool + str), singular/plural `N SESSION`, coherence replaces
+    `PATENT PENDING`, `brand-footer` label class.
+  - WorkspaceTabStrip: add/remove, set_current emission,
+    close_clicked emission, set_label upper-cases.
+  - Sidebar S27: class prop, expanded width == 258, nav-items tagged,
+    version label present in footer.
+  - WelcomeTab S27: two panel frames, nine health keys, stretch
+    ratio 3:2.
+  - TabStripMirroring: `WorkspaceTabWidget ↔ WorkspaceTabStrip`
+    bidirectional signal path.
+  - MainWindowChrome: central widget margins, TopBar/Footer presence,
+    absence of `_bridge_indicator / _session_indicator /
+    _coherence_indicator / _splitter`, footer reflects session count,
+    welcome pill exists.
+- `tests/test_sidebar_chrome.py::TestTopBar`: retargeted from
+  `TabCornerChrome` to the new `TopBar` (icons are now `≡` / `▣`
+  instead of `☰` / `▤`).
+- `tests/test_integration.py::test_welcome_tab_has_hint_not_broken_buttons`
+  renamed to `test_welcome_tab_has_two_panels_not_broken_buttons` and
+  rewritten to assert two `QFrame[class="panel"]` frames instead of
+  the old sidebar-hint label.
+
+#### 8. CI rescue — `6fb54bc`
+First push passed locally (where PySide6 isn't installed, so every Qt
+test skipped) but failed 4/4 CI matrix jobs. Root cause was in the
+new test_layout helper, not in app code:
+
+`TestTabStripMirroring._make` built a `WorkspaceTabStrip` via
+`bar = TopBar(QMenu())` and returned only `(tabs, strip)`. The
+`bar` reference died when the helper returned; shiboken collected the
+underlying C++ `QWidget`, and because the tab_strip was parented to
+the TopBar, it got deleted alongside. The very next
+`tabs.tab_added.emit(...)` called `strip.add_tab(...)` on a dead
+object and raised `RuntimeError: Internal C++ object
+(WorkspaceTabStrip) already deleted`.
+
+Fix: drop the TopBar wrapper from the mirroring helper (the test only
+needed a bare `WorkspaceTabStrip`) and pin `mgr / tabs / strip` on a
+class-level `_alive: list = []` so Python + shiboken don't collect
+them mid-test. Added a one-line sanity test
+(`test_topbar_owns_tab_strip`) so the `TopBar → WorkspaceTabStrip`
+wiring surface still gets exercised.
+
+**Lesson**: `pip install PySide6` locally before pushing any Qt test
+changes. The "all skipped" green baseline in the sandbox without Qt is
+not a proxy for "passing CI". The `/root/.local/share/uv/tools/pytest`
+environment also needed `uv pip install --python … PySide6 numpy
+matplotlib` because pytest runs out of a separate uv-managed venv, not
+the system Python. After that, `xvfb-run -a pytest tests/` (or
+`QT_QPA_PLATFORM=offscreen pytest tests/`) reproduces CI exactly.
+
+### Files touched
+```
+ .scaffold/app/tab_widget.py                    ~260 lines rewritten
+ .scaffold/app/themes/kohala.qss                 +7 (brand-footer rule)
+ .scaffold/app/welcome_tab.py                    full rewrite
+ .scaffold/app/widgets/panel.py                  new
+ .scaffold/app/widgets/sidebar.py                class prop + footer row
+ .scaffold/app/widgets/tab_strip.py              new
+ .scaffold/app/widgets/top_bar.py                full rewrite (TopBar + Footer)
+ .scaffold/app/window.py                         chrome restructure
+ .scaffold/tests/test_integration.py             welcome tab assertion
+ .scaffold/tests/test_layout.py                  new (28 tests)
+ .scaffold/tests/test_sidebar_chrome.py          TopBar API refresh
+```
+
+### S28 follow-ups
+- Re-expose `ImGuiPanel` as a toggleable `QDockWidget` (right now
+  Ctrl+I pops it as a detached floating window because it's no longer
+  in the central layout)
+- Replace the hardcoded `v0.4.2` in `Sidebar` with a real version
+  source (probably `pyproject.toml` → `app/__init__.py.__version__`)
+- Animate `Sidebar.set_expanded` via `QPropertyAnimation` — the
+  transition is currently an instant jump
+- Footer coherence warning truncation (very long `CONFLICTS: …`
+  strings overflow the fixed-44px strip; needs ellipsis)
+- `WorkspaceTabStrip` drag-to-reorder (old `QTabBar.setMovable(True)`
+  dropped with the refactor)
+- Context menu on `_TabPill` right-click (close / close-others /
+  duplicate / pin) — right now
+  `WorkspaceTabWidget.show_tab_context_menu` exists but nothing wires
+  it to the pill
+- Worktree tests fail in the sandbox because there's no git HEAD;
+  they pass in CI. Not a regression — leaving as-is
 
 ## Backlog
 - End-to-end ImGui + bridge + Qt debug on a Vulkan machine (the build now
