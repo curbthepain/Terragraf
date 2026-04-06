@@ -1,7 +1,8 @@
 """Tests for ml/training/ — Trainer, EarlyStopping, scheduling, metrics."""
 
 import pytest
-import torch
+
+torch = pytest.importorskip("torch")
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
 

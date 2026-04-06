@@ -14,6 +14,8 @@ Usage:
     mgr.gc(max_age_hours=24)
 """
 
+from __future__ import annotations
+
 import shutil
 import subprocess
 import time

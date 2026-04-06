@@ -1,7 +1,8 @@
 """Tests for ml/export.py — ONNX, safetensors, TorchScript round-trips."""
 
 import pytest
-import torch
+
+torch = pytest.importorskip("torch")
 import tempfile
 from pathlib import Path
 

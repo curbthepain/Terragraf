@@ -1,6 +1,9 @@
 """Tests for ml/config.py — TrainConfig and load_config."""
 
 import pytest
+
+pytest.importorskip("torch")  # ml/__init__.py re-exports modules that import torch
+
 from pathlib import Path
 from ml.config import TrainConfig, load_config
 

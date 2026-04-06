@@ -1,7 +1,8 @@
 """Tests for ml/datasets/ — dataloader factory, transforms."""
 
 import pytest
-import torch
+
+torch = pytest.importorskip("torch")
 from torch.utils.data import TensorDataset
 
 from ml.datasets.dataloader import create_dataloader, create_loaders

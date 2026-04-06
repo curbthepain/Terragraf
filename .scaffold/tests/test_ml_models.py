@@ -1,7 +1,8 @@
 """Tests for ml/models/ — forward pass, checkpointing, parameter counting."""
 
 import pytest
-import torch
+
+torch = pytest.importorskip("torch")
 import tempfile
 from pathlib import Path
 
