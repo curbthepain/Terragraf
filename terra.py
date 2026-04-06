@@ -48,6 +48,14 @@ from pathlib import Path
 TERRA_ROOT = Path(__file__).parent.resolve()
 SCAFFOLD = TERRA_ROOT / ".scaffold"
 
+# ── Local dependency sourcing (src/) ──────────────────────────────
+SRC_DIR = TERRA_ROOT / "src"
+SRC_PYTHON = SRC_DIR / "python"
+SRC_CPP = SRC_DIR / "cpp"
+
+if SRC_PYTHON.is_dir():
+    sys.path.insert(0, str(SRC_PYTHON))
+
 # ── Colors ──────────────────────────────────────────────────────────
 
 def _supports_color():
@@ -748,7 +756,126 @@ def cmd_mode(args):
         print(f"    {CYAN}check{RESET}          exit 0 if app mode, exit 1 if CI")
         print(f"    {CYAN}can{RESET} <cap>      check if a capability is available")
 
-# ── app ─���──────────────────────────���────────────────────────────────
+# ── model ───────────────────────────────────────────────────────────
+
+def cmd_model(args):
+    """terra model — inspect/switch the active LLM harness + provider."""
+    action = args[0] if args else "show"
+
+    sys.path.insert(0, str(SCAFFOLD))
+    try:
+        from llm.harness import detect, detect_and_persist, read_current
+        from llm.capabilities import lookup as lookup_caps
+    except Exception as e:
+        print(f"  {RED}llm package unavailable: {e}{RESET}")
+        return
+
+    if action in ("show", "status"):
+        info = read_current() or detect_and_persist()
+        print(f"  harness     {BOLD}{info.name}{RESET}")
+        print(f"  provider    {info.provider}")
+        print(f"  model       {info.model}")
+        print(f"  source      {info.source}")
+        print()
+        print(f"  Capabilities:")
+        caps = info.capabilities or {}
+        for k in ("streaming", "tools", "vision", "context_tokens", "output_tokens"):
+            if k in caps:
+                v = caps[k]
+                mark = (
+                    f"{GREEN}✓{RESET}" if v is True
+                    else f"{RED}✗{RESET}" if v is False
+                    else str(v)
+                )
+                print(f"    {k:18s} {mark}")
+        print()
+        print(f"  {DIM}cached: .scaffold/llm/CURRENT.json{RESET}")
+
+    elif action == "detect":
+        info = detect_and_persist()
+        print(f"  {GREEN}✓{RESET} detected: {info.name} ({info.provider}:{info.model})")
+        print(f"  source: {info.source}")
+
+    elif action == "list":
+        print(f"  {BOLD}Available providers{RESET}")
+        from llm.base import LLMConfig
+        from llm.factory import make_provider
+        candidates = [
+            ("anthropic", "claude-opus-4-6"),
+            ("openai", "gpt-4o-mini"),
+            ("ollama", "llama3"),
+            ("huggingface", "sshleifer/tiny-gpt2"),
+        ]
+        for prov, mod in candidates:
+            cfg = LLMConfig(provider=prov, api_key="placeholder", model=mod, base_url="")
+            try:
+                p = make_provider(cfg)
+                ok = p is not None and p.validate()
+            except Exception:
+                ok = False
+            mark = f"{GREEN}✓{RESET}" if ok else f"{RED}✗{RESET}"
+            caps = lookup_caps(prov, mod)
+            ctx = caps.get("context_tokens", "?")
+            print(f"    {mark} {prov:14s} {mod:30s} ctx={ctx}")
+
+    elif action == "set":
+        if len(args) < 2:
+            print(f"  Usage: terra model set <provider>:<model>")
+            return
+        spec = args[1]
+        if ":" not in spec:
+            print(f"  {RED}expected provider:model, got {spec}{RESET}")
+            return
+        provider, model = spec.split(":", 1)
+        settings_file = ROOT / ".terragraf_settings.json"
+        try:
+            data = json.loads(settings_file.read_text()) if settings_file.exists() else {}
+        except Exception:
+            data = {}
+        data.setdefault("llm", {})
+        data["llm"]["provider"] = provider
+        data["llm"]["model"] = model
+        if "api_key" not in data["llm"]:
+            data["llm"]["api_key"] = "placeholder"
+        settings_file.write_text(json.dumps(data, indent=2))
+        info = detect_and_persist()
+        print(f"  {GREEN}✓{RESET} set {provider}:{model}")
+        print(f"  detected as: {info.name} ({info.provider}:{info.model})")
+
+    elif action == "use":
+        if len(args) < 2:
+            print(f"  Usage: terra model use <preset>")
+            print(f"  Presets: claude-opus, gpt-4o, ollama-llama3, hf-tiny")
+            return
+        preset = args[1]
+        presets = {
+            "claude-opus": ("anthropic", "claude-opus-4-6"),
+            "claude-sonnet": ("anthropic", "claude-sonnet-4-6"),
+            "claude-haiku": ("anthropic", "claude-haiku-4-5-20251001"),
+            "gpt-4o": ("openai", "gpt-4o"),
+            "gpt-4o-mini": ("openai", "gpt-4o-mini"),
+            "ollama-llama3": ("ollama", "llama3"),
+            "ollama-qwen": ("ollama", "qwen2.5"),
+            "hf-tiny": ("huggingface", "sshleifer/tiny-gpt2"),
+            "hf-llama3": ("huggingface", "meta-llama/Llama-3-8B-Instruct"),
+            "hf-qwen": ("huggingface", "Qwen/Qwen2.5-7B-Instruct"),
+        }
+        if preset not in presets:
+            print(f"  {RED}unknown preset: {preset}{RESET}")
+            print(f"  Available: {', '.join(presets.keys())}")
+            return
+        provider, model = presets[preset]
+        cmd_model(["set", f"{provider}:{model}"])
+
+    else:
+        print(f"  {BOLD}terra model{RESET}")
+        print(f"    {CYAN}show{RESET}                 active harness + provider + model")
+        print(f"    {CYAN}detect{RESET}               re-run detection, persist to CURRENT.json")
+        print(f"    {CYAN}list{RESET}                 list available providers")
+        print(f"    {CYAN}set{RESET} <prov:model>     write to .terragraf_settings.json")
+        print(f"    {CYAN}use{RESET} <preset>         use a preset (claude-opus, gpt-4o, hf-tiny, ...)")
+
+# ── app ────────────────────────────────────────────────────────────
 
 def cmd_app(args):
     try:
@@ -769,7 +896,10 @@ def _run_skill(name, args):
     sys.exit(run_skill(name, args))
 
 def cmd_hot(args):
-    _run_skill("hot_context", args)
+    if args and args[0] == "decompose":
+        _run_skill("hot_decompose", args[1:])
+    else:
+        _run_skill("hot_context", args)
 
 def cmd_analyze(args):
     _run_skill("signal_analyze", args)
@@ -857,7 +987,391 @@ def cmd_project(args):
         print(f"  {RED}unknown project action: {action}{RESET}")
         print("Usage: terra project new <name> [--type qt-app|cli|lib|test]")
 
-# ── help ──────���─────────────────────────────────────────────────────
+# ── knowledge ─────────────────────────────────────────────────────
+
+def cmd_knowledge(args):
+    action = args[0] if args else "list"
+    reader = TERRA_ROOT / "projects" / "knowledge_reader.py"
+    writer = TERRA_ROOT / "projects" / "knowledge_writer.py"
+
+    if action == "list":
+        subprocess.run([sys.executable, str(reader)])
+    elif action == "search":
+        if len(args) < 2:
+            print("Usage: terra knowledge search <query>")
+            return
+        subprocess.run([sys.executable, str(reader), "--search"] + args[1:])
+    elif action == "add":
+        subprocess.run([sys.executable, str(writer)] + args[1:])
+    else:
+        print(f"  {RED}unknown knowledge action: {action}{RESET}")
+        print("Usage: terra knowledge [list|search <query>|add --id ... --summary ...]")
+
+# ── mcp ──────────────────────────────────────────────────────────
+
+def cmd_mcp(args):
+    if not args:
+        print("Usage: terra mcp <start|stop|status>")
+        return
+
+    action = args[0]
+
+    if action == "status":
+        print(f"{BOLD}MCP Server{RESET}")
+        print(f"  Port: {os.environ.get('TERRA_MCP_PORT', '9878')}")
+        print(f"  {DIM}Use 'terra mcp start' to launch{RESET}")
+
+    elif action == "start":
+        sys.path.insert(0, str(SCAFFOLD))
+        from app.scaffold_state import ScaffoldState
+        from mcp.resources import ResourceRegistry
+        from mcp.server import MCPServer
+
+        state = ScaffoldState()
+        state.load_all()
+        registry = ResourceRegistry(state)
+        server = MCPServer(registry, state)
+        server.start()
+
+        info = server.status()
+        print(f"{BOLD}MCP Server started{RESET}")
+        print(f"  {CYAN}Host:{RESET} {info['host']}")
+        print(f"  {CYAN}Port:{RESET} {info['port']}")
+        print(f"  {DIM}Press Ctrl+C to stop{RESET}")
+
+        try:
+            while server.running:
+                import time as _t
+                _t.sleep(1)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            server.stop()
+            print(f"\n  {GREEN}MCP server stopped{RESET}")
+
+    elif action == "stop":
+        print(f"  {DIM}MCP server runs in foreground — press Ctrl+C in the server terminal{RESET}")
+
+    else:
+        print(f"  {RED}unknown mcp action: {action}{RESET}")
+        print("Usage: terra mcp <start|stop|status>")
+
+# ── worktree ─────────────────────────────────────────────────────
+
+def cmd_worktree(args):
+    if not args:
+        print("Usage: terra worktree <create|list|remove|gc>")
+        return
+
+    action = args[0]
+    sys.path.insert(0, str(SCAFFOLD))
+
+    if action == "create":
+        from worktree.manager import WorktreeManager
+        mgr = WorktreeManager()
+        task_id = args[1] if len(args) > 1 else ""
+        base_ref = args[2] if len(args) > 2 else "HEAD"
+        info = mgr.create(task_id=task_id, base_ref=base_ref)
+        print(f"  {GREEN}Created worktree: {info.worktree_id}{RESET}")
+        print(f"  {CYAN}Branch:{RESET} {info.branch}")
+        print(f"  {CYAN}Path:{RESET}   {info.path}")
+
+    elif action == "list":
+        from worktree.manager import WorktreeManager
+        mgr = WorktreeManager()
+        worktrees = mgr.list()
+        if not worktrees:
+            print("  No worktrees.")
+            return
+        print(f"{BOLD}Worktrees{RESET}")
+        for wt in worktrees:
+            status_color = GREEN if wt.status == "active" else (YELLOW if wt.status == "stale" else DIM)
+            print(f"  {status_color}{wt.worktree_id}{RESET}  {wt.branch}  [{wt.status}]  {wt.path}")
+
+    elif action == "remove":
+        if len(args) < 2:
+            print("Usage: terra worktree remove <id> [--force]")
+            return
+        from worktree.manager import WorktreeManager
+        mgr = WorktreeManager()
+        force = "--force" in args
+        if mgr.remove(args[1], force=force):
+            print(f"  {GREEN}Removed worktree: {args[1]}{RESET}")
+        else:
+            print(f"  {RED}Failed to remove worktree: {args[1]}{RESET}")
+
+    elif action == "gc":
+        from worktree.manager import WorktreeManager
+        mgr = WorktreeManager()
+        max_age = float(args[1]) if len(args) > 1 else 24.0
+        removed = mgr.gc(max_age_hours=max_age)
+        if removed:
+            print(f"  {GREEN}Removed {len(removed)} stale worktree(s):{RESET}")
+            for wid in removed:
+                print(f"    {wid}")
+        else:
+            print("  No stale worktrees to remove.")
+
+    else:
+        print(f"  {RED}unknown worktree action: {action}{RESET}")
+        print("Usage: terra worktree <create|list|remove|gc>")
+
+# ── workspace ────────────────────────────────────────────────────
+
+def cmd_workspace(args):
+    if not args:
+        print("Usage: terra workspace <status|new <native|external>>")
+        return
+
+    action = args[0]
+
+    if action == "status":
+        sys.path.insert(0, str(SCAFFOLD))
+        from app.scaffold_state import ScaffoldState
+        from app.session import SessionManager
+
+        state = ScaffoldState()
+        state.load_all()
+        summary = state.health_summary()
+
+        print(f"{BOLD}Workspace Status{RESET}")
+        print()
+        print(f"  {CYAN}Header files:{RESET}     {summary.get('header_files', 0)}")
+        print(f"  {CYAN}Modules:{RESET}          {summary.get('modules', 0)}")
+        print(f"  {CYAN}Route files:{RESET}      {summary.get('route_files', 0)}")
+        print(f"  {CYAN}Routes:{RESET}           {summary.get('routes', 0)}")
+        print(f"  {CYAN}Table files:{RESET}      {summary.get('table_files', 0)}")
+        print(f"  {CYAN}Queue pending:{RESET}    {summary.get('queue_pending', 0)}")
+        print(f"  {CYAN}Queue running:{RESET}    {summary.get('queue_running', 0)}")
+        print(f"  {CYAN}HOT_CONTEXT:{RESET}      {summary.get('hot_context_lines', 0)} lines")
+        print(f"  {CYAN}Recent events:{RESET}    {summary.get('recent_events', 0)}")
+
+    elif action == "new":
+        if len(args) < 2:
+            print("Usage: terra workspace new <native|external>")
+            return
+        tab_type = args[1]
+        if tab_type not in ("native", "external"):
+            print(f"  {RED}Unknown tab type: {tab_type}{RESET}")
+            print("Usage: terra workspace new <native|external>")
+            return
+        sys.path.insert(0, str(SCAFFOLD))
+        from app.session import SessionManager
+        mgr = SessionManager()
+        session = mgr.create(tab_type)
+        print(f"  {GREEN}Created {tab_type} session: {session.id}{RESET}")
+
+    else:
+        print(f"  {RED}unknown workspace action: {action}{RESET}")
+        print("Usage: terra workspace <status|new <native|external>>")
+
+# ── deps ─────────────────────────────────────────────────────────
+
+CPP_DEPS = [
+    # ── ImGui app (existing) ──────────────────────────────────────
+    ("glfw",    "https://github.com/glfw/glfw.git",      "3.4"),
+    ("glm",     "https://github.com/g-truc/glm.git",      "1.0.1"),
+    ("glad",    "https://github.com/Dav1dde/glad.git",    "v2.0.8"),
+    ("imgui",   "https://github.com/ocornut/imgui.git",   "v1.91.8-docking"),
+    ("implot",  "https://github.com/epezent/implot.git",   "v0.16"),
+    ("imnodes", "https://github.com/Nelarius/imnodes.git", "v0.5"),
+    # ── Vulkan toolchain ──────────────────────────────────────────
+    ("Vulkan-Headers",        "https://github.com/KhronosGroup/Vulkan-Headers.git",                       "v1.3.283"),
+    ("Vulkan-Loader",         "https://github.com/KhronosGroup/Vulkan-Loader.git",                        "v1.3.283"),
+    ("VulkanMemoryAllocator", "https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git",    "v3.1.0"),
+    ("glslang",               "https://github.com/KhronosGroup/glslang.git",                              "15.1.0"),
+    ("SPIRV-Tools",           "https://github.com/KhronosGroup/SPIRV-Tools.git",                          "v2024.1"),
+    ("SPIRV-Headers",         "https://github.com/KhronosGroup/SPIRV-Headers.git",                        "vulkan-sdk-1.3.283.0"),
+    ("SPIRV-Cross",           "https://github.com/KhronosGroup/SPIRV-Cross.git",                          "vulkan-sdk-1.3.283.0"),
+    # ── FFT ───────────────────────────────────────────────────────
+    ("fftw3",   "https://github.com/FFTW/fftw3.git",      "fftw-3.3.10"),
+    # ── Math ──────────────────────────────────────────────────────
+    ("eigen",   "https://gitlab.com/libeigen/eigen.git",   "3.4.0"),
+    ("ceres-solver", "https://github.com/ceres-solver/ceres-solver.git", "2.2.0"),
+    # ── Game dev ──────────────────────────────────────────────────
+    ("json",    "https://github.com/nlohmann/json.git",    "v3.11.3"),
+    ("stb",     "https://github.com/nothings/stb.git",     "master"),
+    ("entt",    "https://github.com/skypjack/entt.git",    "v3.13.2"),
+    ("bullet3", "https://github.com/bulletphysics/bullet3.git", "3.25"),
+    ("assimp",  "https://github.com/assimp/assimp.git",   "v5.4.3"),
+    ("spdlog",  "https://github.com/gabime/spdlog.git",   "v1.14.1"),
+]
+
+CPP_CATEGORIES = {
+    "ImGui app":        ["glfw", "glm", "glad", "imgui", "implot", "imnodes"],
+    "Vulkan toolchain": ["Vulkan-Headers", "Vulkan-Loader", "VulkanMemoryAllocator",
+                         "glslang", "SPIRV-Tools", "SPIRV-Headers", "SPIRV-Cross"],
+    "FFT":              ["fftw3"],
+    "Math":             ["eigen", "ceres-solver"],
+    "Game dev":         ["json", "stb", "entt", "bullet3", "assimp", "spdlog"],
+}
+
+PYTHON_PROBES = [
+    "numpy", "scipy", "pytest", "matplotlib", "PySide6", "torch",
+    "anthropic", "openai",
+    "PIL", "networkx", "trimesh",
+    "sounddevice", "soundfile", "pydub",
+    # ML ecosystem
+    "torchvision", "torchaudio", "sklearn", "pandas",
+    "transformers", "tokenizers", "datasets", "safetensors", "accelerate",
+    "tensorboard", "wandb",
+    "onnx", "onnxruntime", "onnxscript",
+]
+
+EXTRA_PIP_PACKAGES = [
+    "anthropic", "openai",
+    "pillow", "networkx", "trimesh",
+    "sounddevice", "soundfile", "pydub",
+    # ML ecosystem
+    "torchvision", "torchaudio", "scikit-learn", "pandas",
+    "transformers", "tokenizers", "datasets", "safetensors", "accelerate",
+    "tensorboard", "wandb",
+    "onnx", "onnxruntime", "onnxscript",
+]
+
+def _dir_size_mb(path):
+    """Total size of a directory in MB."""
+    total = 0
+    for f in path.rglob("*"):
+        if f.is_file():
+            total += f.stat().st_size
+    return total / (1024 * 1024)
+
+def _deps_status():
+    """Print sourced/missing status for all deps."""
+    print(f"{BOLD}Local dependency status{RESET}  ({SRC_DIR})")
+    print()
+
+    # Python
+    print(f"  {BOLD}Python{RESET}  (src/python/)")
+    if SRC_PYTHON.is_dir():
+        size = _dir_size_mb(SRC_PYTHON)
+        print(f"    {GREEN}sourced{RESET}  {size:,.0f} MB")
+        for pkg in PYTHON_PROBES:
+            pkg_dir = SRC_PYTHON / pkg
+            pkg_dir_low = SRC_PYTHON / pkg.lower()
+            pkg_file = SRC_PYTHON / f"{pkg.lower()}.py"
+            found = pkg_dir.is_dir() or pkg_dir_low.is_dir() or pkg_file.is_file()
+            mark = f"{GREEN}+{RESET}" if found else f"{DIM}-{RESET}"
+            print(f"      {mark} {pkg}")
+    else:
+        print(f"    {DIM}not sourced{RESET}")
+    print()
+
+    # C++
+    dep_tags = {name: tag for name, _, tag in CPP_DEPS}
+    print(f"  {BOLD}C++{RESET}  (src/cpp/)")
+    if SRC_CPP.is_dir():
+        size = _dir_size_mb(SRC_CPP)
+        print(f"    {GREEN}sourced{RESET}  {size:,.0f} MB")
+        for category, names in CPP_CATEGORIES.items():
+            print(f"    {DIM}── {category} ──{RESET}")
+            for name in names:
+                dep_dir = SRC_CPP / name
+                found = dep_dir.is_dir()
+                tag = dep_tags.get(name, "")
+                mark = f"{GREEN}+{RESET}" if found else f"{DIM}-{RESET}"
+                print(f"      {mark} {name} ({tag})")
+    else:
+        print(f"    {DIM}not sourced{RESET}")
+    print()
+
+def _deps_sync_python():
+    """Install all Python deps into src/python/."""
+    SRC_PYTHON.mkdir(parents=True, exist_ok=True)
+    print(f"{BOLD}Syncing Python deps → src/python/{RESET}")
+    print()
+
+    # Gather all requirements files
+    req_files = []
+    for name in ["requirements.txt", "requirements-dev.txt", "requirements-app.txt", "requirements-ml.txt"]:
+        path = TERRA_ROOT / name
+        if path.exists():
+            req_files.append(path)
+
+    # Build pip command
+    cmd = [sys.executable, "-m", "pip", "install", "--target", str(SRC_PYTHON)]
+    for rf in req_files:
+        cmd.extend(["-r", str(rf)])
+    # Add deps declared in deps.h but not in requirements files
+    cmd.extend(EXTRA_PIP_PACKAGES)
+
+    print(f"  {DIM}pip install --target src/python ...{RESET}")
+    result = subprocess.run(cmd)
+    if result.returncode == 0:
+        print()
+        print(f"  {GREEN}Python deps sourced{RESET}")
+    else:
+        print()
+        print(f"  {RED}pip install failed (exit {result.returncode}){RESET}")
+
+def _deps_sync_cpp():
+    """Clone all C++ deps into src/cpp/."""
+    SRC_CPP.mkdir(parents=True, exist_ok=True)
+    print(f"{BOLD}Syncing C++ deps → src/cpp/{RESET}")
+    print()
+
+    git = shutil.which("git")
+    if not git:
+        print(f"  {RED}git not found{RESET}")
+        return
+
+    for name, url, tag in CPP_DEPS:
+        dep_dir = SRC_CPP / name
+        if dep_dir.is_dir():
+            print(f"  {DIM}skip{RESET} {name} (already exists)")
+            continue
+        print(f"  {CYAN}clone{RESET} {name} @ {tag}")
+        result = subprocess.run([git, "clone", "--branch", tag, "--depth", "1", url, str(dep_dir)])
+        if result.returncode != 0:
+            print(f"  {RED}failed to clone {name}{RESET}")
+
+    print()
+    print(f"  {GREEN}C++ deps sourced{RESET}")
+
+def _deps_clean():
+    """Remove src/ entirely."""
+    if not SRC_DIR.is_dir():
+        print(f"  {DIM}src/ does not exist — nothing to clean{RESET}")
+        return
+    size = _dir_size_mb(SRC_DIR)
+    print(f"  Remove src/ ({size:,.0f} MB)? [y/N] ", end="", flush=True)
+    answer = input().strip().lower()
+    if answer == "y":
+        shutil.rmtree(SRC_DIR)
+        print(f"  {GREEN}removed{RESET}")
+    else:
+        print(f"  {DIM}cancelled{RESET}")
+
+def cmd_deps(args):
+    action = args[0] if args else ""
+    target = args[1] if len(args) > 1 else ""
+
+    if action == "sync":
+        if target == "python":
+            _deps_sync_python()
+        elif target == "cpp":
+            _deps_sync_cpp()
+        elif target == "":
+            _deps_sync_python()
+            print()
+            _deps_sync_cpp()
+        else:
+            print(f"  {RED}unknown target: {target}{RESET}")
+            print("Usage: terra deps sync [python|cpp]")
+    elif action == "clean":
+        _deps_clean()
+    elif action == "" or action == "status":
+        _deps_status()
+    else:
+        print(f"  {BOLD}terra deps{RESET}")
+        print(f"    {CYAN}status{RESET}          show sourced/missing deps")
+        print(f"    {CYAN}sync{RESET}            source all deps into src/")
+        print(f"    {CYAN}sync python{RESET}     Python only")
+        print(f"    {CYAN}sync cpp{RESET}        C++ only")
+        print(f"    {CYAN}clean{RESET}           remove src/ entirely")
+
+# ── help ──────────────────────────────────────────────────────────
 
 def cmd_help():
     print(f"{BOLD}terra{RESET} — Terragraf commands")
@@ -892,7 +1406,17 @@ def cmd_help():
     print(f"  {CYAN}terra health{RESET} [--quick]    system diagnostic (grade A-F)")
     print(f"  {CYAN}terra hot{RESET} [action]        session hot context")
     print(f"  {CYAN}terra skill{RESET} <action>      skill system (list, run)")
+    print(f"  {CYAN}terra knowledge{RESET}           list knowledge entries")
+    print(f"  {CYAN}terra knowledge search{RESET} <q> search knowledge by keyword")
+    print(f"  {CYAN}terra knowledge add{RESET} ...    add a knowledge entry")
     print(f"  {CYAN}terra project{RESET} new <n>     scaffold a new project")
+    print(f"  {CYAN}terra mcp{RESET} <action>         MCP resource server (start/stop/status)")
+    print(f"  {CYAN}terra worktree{RESET} <action>   git worktree isolation (create/list/remove/gc)")
+    print(f"  {CYAN}terra workspace{RESET} status   workspace health + session info")
+    print(f"  {CYAN}terra workspace{RESET} new <t>  create native|external session")
+    print(f"  {CYAN}terra deps{RESET}                local dependency status")
+    print(f"  {CYAN}terra deps sync{RESET}          source all deps into src/")
+    print(f"  {CYAN}terra deps clean{RESET}         remove local deps")
     print(f"  {CYAN}terra app{RESET}                 Qt container app")
     print(f"  {CYAN}terra help{RESET}                this")
     print()
@@ -919,6 +1443,7 @@ COMMANDS = {
     "sharpen": cmd_sharpen,
     "tune": cmd_tune,
     "mode": cmd_mode,
+    "model": cmd_model,
     "hot": cmd_hot,
     "analyze": cmd_analyze,
     "solve": cmd_solve,
@@ -934,14 +1459,39 @@ COMMANDS = {
     "health": cmd_health,
     "skill": cmd_skill,
     "project": cmd_project,
+    "knowledge": cmd_knowledge,
+    "mcp": cmd_mcp,
+    "worktree": cmd_worktree,
+    "workspace": cmd_workspace,
+    "deps": cmd_deps,
     "app": cmd_app,
     "help": lambda args: cmd_help(),
     "-h": lambda args: cmd_help(),
     "--help": lambda args: cmd_help(),
 }
 
+def _hot_context_guard():
+    """
+    Universal HOT_CONTEXT threshold check. Runs at the top of every terra
+    invocation. Fail-silent — never blocks terra startup.
+    """
+    try:
+        sys.path.insert(0, str(SCAFFOLD))
+        from hooks.on_hot_threshold import check_threshold
+        check_threshold(auto_decompose=True)
+    except Exception:
+        pass
+
+
 def main():
     args = sys.argv[1:]
+
+    # Universal threshold guard — only runs for non-help commands so
+    # `terra help` stays instant. Skipped for the guard's own subcommand
+    # to avoid recursion.
+    if args and args[0] not in ("help", "-h", "--help"):
+        _hot_context_guard()
+
     if not args:
         cmd_help()
         return

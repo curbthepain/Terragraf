@@ -54,6 +54,8 @@ def create_project(name, project_type="cli"):
     print(f"Project '{name}' created at {project_dir}")
     print(f"  type: {project_type}")
     print(f"  files: PROJECT.toml, main.py, requirements.txt, README.md")
+    print()
+    print(f"  tip: use 'terra knowledge add' to record patterns and decisions as you build")
     return 0
 
 

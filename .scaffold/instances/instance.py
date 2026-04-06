@@ -41,6 +41,9 @@ class InstanceContext:
     headers_read: list = field(default_factory=list)
     routes_consulted: list = field(default_factory=list)
     files_modified: list = field(default_factory=list)
+    worktree_id: str = ""
+    worktree_path: str = ""
+    worktree_branch: str = ""
 
 
 class Instance:

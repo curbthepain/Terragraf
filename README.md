@@ -81,7 +81,8 @@ descriptions, skills table, and UI panel docs.
 ├── git/                    — branch/commit/PR workflows baked in
 ├── sharpen/                — self-sharpening engine (prunes stale, promotes hot)
 ├── tuning/                 — thematic tension calibration (profiles, knobs, zones)
-├── app/                    — Qt container application (PySide6, 5 pages)
+├── app/                    — Qt tabbed workspace (sessions, native/external tabs, ImGui embedding)
+├── query/                  — Structured query engine (intent parser, route/header/skill resolution)
 ├── compute/
 │   ├── fft/                — FFT / spectral analysis (numpy + C++ FFTW)
 │   ├── math/               — linalg, algebra, stats, transforms
@@ -89,11 +90,12 @@ descriptions, skills table, and UI panel docs.
 │   ├── vulkan/             — Vulkan instance, pipeline, memory
 │   └── render/             — OpenGL mesh + volume renderers
 ├── viz/                    — spectrograms, heatmaps, 3D nodes, volumes
-├── imgui/                  — ImGui viewer (7 panels, TCP bridge to Python)
+├── imgui/                  — ImGui viewer (7 panels, TCP bridge, embeddable via --embedded)
 ├── ml/                     — PyTorch models, datasets, training
-├── hooks/                  — lifecycle hooks (enter, commit, generate)
-├── skills/                 — 15 workflow skills (TOML manifests + runners)
-└── tests/                  — pytest suite (424 tests)
+├── hooks/                  — lifecycle hooks (enter, commit, generate, instance)
+├── llm/                    — LLM provider layer (Anthropic + OpenAI-compatible, streaming)
+├── skills/                 — 16 workflow skills (TOML manifests + runners)
+└── tests/                  — pytest suite (825 tests)
 ```
 
 ### Headers
@@ -110,13 +112,13 @@ guessing and starts navigating.
 
 ### Skills
 
-15 registered workflow skills — self-contained pipelines the CLI
+16 registered workflow skills — self-contained pipelines the CLI
 dispatches to. Each skill has a TOML manifest, triggers, and a Python
 entry point. The router matches natural-language intent to the right
 skill automatically.
 
 ```bash
-terra skill list             # see all 15 skills
+terra skill list             # see all 16 skills
 terra skill run health_check # run a skill by name
 terra analyze sine:440:44100:0.5 --no-render   # skill shortcut
 terra solve eigenvalues --matrix "[[1,2],[3,4]]"
@@ -155,17 +157,57 @@ hierarchy. They share the same scaffolding, pull tasks from a shared
 queue, and write results back via socket or filesystem IPC. No context
 window tax. No summarization loss. See [INSTANCES.md](INSTANCES.md).
 
-### Qt Container App
+### Tabbed Workspace
 
-The graphical shell for Terragraf. Five pages: Home (landing + status),
-Viewer (launch/manage ImGui + bridge processes), Tuning (profile
-selector, zone buttons, knob widgets), Debug (bridge monitor, message
-log, ping/RTT), Settings (bridge config, paths, persistence). Dark CI
-terminal aesthetic. Sidebar navigation with Ctrl+1-5 shortcuts.
+The Qt container is a tabbed workspace with independent sessions. Three
+tab types: **Welcome Tab** (health summary, quick actions), **Native
+Tab** (structured query engine + LLM fallback), and **External Tab**
+(read-only observer showing what Claude Code/Cursor is doing to scaffold
+files). ImGui embeds as a dockable panel via Win32/X11 window
+reparenting, routing context from the active tab.
+
+Cross-tab intelligence: **FeedbackLoop** watches activity and suggests
+sharpening routes, pushing to HOT_CONTEXT, or creating knowledge entries
+when patterns emerge. **CoherenceManager** detects same-route conflicts
+and lock contention across sessions, showing warnings in the status bar.
+
+A collapsible contextual **Sidebar** + hamburger menu makes every terra
+command reachable without the CLI: 14 form dialogs, 7 filterable
+browsers (routes/headers/skills/knowledge/worktrees/lookup/patterns), and
+10 status panels (health/queue/deps/mcp/sharpen/hot/tune/mode/status/viewer).
+Long-running commands like Train Model stream stdout into the dialog
+output area line-by-line as they execute.
 
 ```bash
-terra app                  # launch the Qt container
+terra app                  # launch the Qt workspace
 terra app --offscreen      # headless mode (testing)
+terra workspace status     # scaffold health + session info
+terra workspace new native # create a session from CLI
+```
+
+### Query Engine + LLM Fallback
+
+Structured query resolution through routes, headers, and skills. The
+intent parser tokenizes verb/target/modifiers, and the query engine
+resolves through 150+ route mappings with scored matching (exact,
+contains, reverse-contains, path, description).
+
+When no good match is found (score < 0.5), queries fall back to a
+configured LLM provider. Supports **Anthropic** (Claude) and
+**OpenAI-compatible** endpoints (OpenAI, Qwen, DeepSeek, ollama, vllm,
+lmstudio). Responses stream token-by-token into the chat panel. Partial
+route/header matches are included as context for the LLM.
+
+```bash
+# Configure via environment variable
+export ANTHROPIC_API_KEY="sk-ant-..."
+# Or for local models (ollama, vllm, lmstudio):
+export OPENAI_API_KEY="ollama"
+export TERRAGRAF_LLM_BASE_URL="http://localhost:11434/v1"
+export TERRAGRAF_LLM_PROVIDER="openai"
+
+# Or add to .terragraf_settings.json:
+# { "llm": { "provider": "anthropic", "api_key": "...", "model": "..." } }
 ```
 
 ### ImGui Viewer
@@ -176,6 +218,8 @@ Node Editor (visual graph editor), Volume Slicer (orthogonal slice
 viewer), Tuning (thematic calibration via bridge), Debug (message log,
 FPS/RTT graphs), Settings (panel visibility, theme, render config).
 Communicates with Python via TCP bridge using length-prefixed JSON.
+Embeddable into Qt workspace via `--embedded` flag (borderless GLFW
+reparented into QWindow container).
 
 ```bash
 terra imgui build          # cmake + make
@@ -183,10 +227,43 @@ terra imgui run            # launch viewer
 terra imgui bridge         # start Python bridge server
 ```
 
+### HOT_CONTEXT Lifecycle
+
+HOT_CONTEXT.md captures session state — what's done, what's next, open
+bugs. As sessions accumulate, it grows beyond its intended scope. The
+`hot_decompose` skill automatically triages blocks: decisions route to
+KNOWLEDGE.toml, module declarations to project.h, route mappings to
+structure.route, dependencies to deps.table. Only session-scoped
+content remains.
+
+```bash
+terra hot decompose --dry-run  # preview what would move where
+terra hot decompose            # execute triage
+terra hot show                 # display current context
+```
+
+Configurable in MANIFEST.toml (`[hot_context].max_lines`, default 80).
+The on_commit hook warns when the threshold is exceeded.
+
 ---
+
+### Knowledge Registry
+
+Reusable patterns, decisions, and caveats captured from project work.
+Entries are categorized (pattern, decision, integration, domain, caveat)
+and tagged for discovery. The `hot_decompose` skill feeds this
+automatically; entries can also be added manually.
+
+```bash
+terra knowledge list                    # browse entries
+terra knowledge search "fft"            # filter by keyword
+```
 
 ## What's next
 
+- **GPU dogfood** — real `terra train --dataset cifar10 --arch cnn` run
+  on a GPU machine, plus build the ImGui training_panel.cpp with
+  GLFW/Vulkan to verify the bridge receives training events end-to-end.
 - **End-to-end debug** — compile and run ImGui + bridge.py + Qt on a
   machine with GLFW/Vulkan to verify the full loop.
 
@@ -194,9 +271,9 @@ See [ROADMAP.md](ROADMAP.md) for the full phased plan.
 
 ---
 
-## Tests — 424 Passing
+## Tests — 825 Passing
 
-All 424 tests pass on Windows native, Linux native, and Linux via WSL2.
+All 825 tests pass on Windows native, Linux native, and Linux via WSL2.
 CI runs on every push across Ubuntu and Windows with Python 3.11 and 3.12.
 
 See [TESTS.md](TESTS.md) for the full test reference — what's covered,
@@ -216,12 +293,12 @@ python -m pytest .scaffold/tests/ --cov=.scaffold --cov-report=term-missing
 
 | Environment | Python | Result |
 |---|---|---|
-| Windows 11 native | 3.14.3 | 424 passed, 11 skipped |
-| Linux WSL2 (EndeavourOS/Arch) | 3.14.3 | 424 passed, 11 skipped |
-| GitHub Actions (ubuntu-latest) | 3.11, 3.12 | 424 passed, 11 skipped |
-| GitHub Actions (windows-latest) | 3.11, 3.12 | 424 passed, 11 skipped |
+| Windows 11 native | 3.14.3 | 825 passed, 2 skipped |
+| Linux WSL2 (EndeavourOS/Arch) | 3.14.3 | 825 passed, 2 skipped |
+| GitHub Actions (ubuntu-latest) | 3.11, 3.12 | 825 passed, 2 skipped |
+| GitHub Actions (windows-latest) | 3.11, 3.12 | 825 passed, 2 skipped |
 
-11 skips are PySide6/Qt widget tests — expected when Qt is not installed.
+No skips — all tests run on all platforms.
 
 ---
 
@@ -229,7 +306,7 @@ python -m pytest .scaffold/tests/ --cov=.scaffold --cov-report=term-missing
 
 **Windows 11 (native) and Linux (native + WSL2) — fully tested.**
 
-Python CLI (`terra.py`) and all 424 tests run natively on both platforms.
+Python CLI (`terra.py`) and all 825 tests run natively on both platforms.
 No WSL required on Windows. Verified on Windows 11 IoT Enterprise,
 EndeavourOS (Arch) via WSL2, and Ubuntu via GitHub Actions CI. C++ build
 system (CMake + FetchContent) handles Windows/Linux transparently.

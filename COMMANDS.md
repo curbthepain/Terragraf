@@ -88,6 +88,11 @@ SKILLS
   terra hot [action]        session hot context (show/update)
   terra health              full system diagnostic
 
+KNOWLEDGE
+  terra knowledge           list all knowledge entries (summaries)
+  terra knowledge search <q> search knowledge by keyword
+  terra knowledge add ...   add a knowledge entry (--id, --source, --category, --summary, --detail, --tags)
+
 PROJECTS
   terra project new <name>  scaffold a new project into projects/
 
@@ -171,6 +176,7 @@ The ImGui viewer (`terra imgui run`) includes seven dockable panels:
 - **skill** lists and runs registered workflow skills.
 - **hot** manages session hot context — the running log of what's happening now.
 - **health** runs a full system diagnostic: structure, tests, analytics, environment.
+- **knowledge** records and retrieves reusable patterns, decisions, and caveats from project work.
 - **project** scaffolds new projects into the projects/ directory.
 - **train** runs the ML training pipeline end to end.
 - **test** discovers and runs tests by subsystem with reporting.

@@ -86,6 +86,11 @@ COMMANDS = [
         ("terra hot [action]", "session hot context"),
         ("terra health", "full system diagnostic"),
     ]),
+    ("KNOWLEDGE", [
+        ("terra knowledge", "list knowledge entries"),
+        ("terra knowledge search <q>", "search by keyword"),
+        ("terra knowledge add ...", "add a knowledge entry"),
+    ]),
     ("PROJECTS", [
         ("terra project new <name>", "scaffold a new project"),
     ]),

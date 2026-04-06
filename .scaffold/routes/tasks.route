@@ -82,6 +82,9 @@ skill routing          -> skills/router.route          # Intent → skill mappin
 hot context            -> skills/hot_context/run.py      # Read/update session hot context
 session status         -> skills/hot_context/run.py      # Alias
 read context           -> HOT_CONTEXT.md                  # Raw hot context file (scaffold root)
+decompose context      -> skills/hot_decompose/run.py    # Triage HOT_CONTEXT into scaffold
+triage hot context     -> skills/hot_decompose/run.py    # Alias
+clean hot context      -> skills/hot_decompose/run.py    # Alias
 
 # ─── Projects ─────────────────────────────────────────────────────────
 new project            -> skills/scaffold_project/run.py  # Scaffold new project
