@@ -34,6 +34,7 @@ struct SettingsState {
     bool show_node_editor = true;
     bool show_volume = true;
     bool show_tuning = true;
+    bool show_training = true;
 
     // Dirty flag
     bool needs_apply = false;
@@ -53,6 +54,7 @@ bool settings_show_spectrogram()  { return settings.show_spectrogram; }
 bool settings_show_node_editor()  { return settings.show_node_editor; }
 bool settings_show_volume()       { return settings.show_volume; }
 bool settings_show_tuning()       { return settings.show_tuning; }
+bool settings_show_training()     { return settings.show_training; }
 bool settings_vsync()             { return settings.vsync; }
 int  settings_target_fps()        { return settings.target_fps; }
 float settings_ui_scale()         { return settings.ui_scale; }
@@ -141,6 +143,7 @@ void render_settings_panel() {
         ImGui::Checkbox("Node Editor", &settings.show_node_editor);
         ImGui::Checkbox("Volume Slicer", &settings.show_volume);
         ImGui::Checkbox("Tuning", &settings.show_tuning);
+        ImGui::Checkbox("Training Monitor", &settings.show_training);
         ImGui::Separator();
         ImGui::Checkbox("Debug Panel", &settings.show_debug_panel);
         ImGui::Checkbox("FPS Overlay", &settings.show_fps_overlay);
