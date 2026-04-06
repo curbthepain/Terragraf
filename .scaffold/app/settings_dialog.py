@@ -1,11 +1,8 @@
-"""Settings page — bridge config, paths, panel toggles."""
-
-import json
-from pathlib import Path
+"""Settings dialog — replaces the old settings page with a modal dialog (Ctrl+,)."""
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QWidget,
+    QDialog,
     QVBoxLayout,
     QHBoxLayout,
     QLabel,
@@ -14,65 +11,28 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QSpinBox,
     QCheckBox,
-    QComboBox,
     QGridLayout,
-    QFrame,
+    QDialogButtonBox,
 )
 
-from . import theme
-
-_SETTINGS_FILE = Path(__file__).parent.parent.parent / ".terragraf_settings.json"
+from .settings_page import _load_settings, _save_settings, _SETTINGS_FILE
 
 
-def _load_settings() -> dict:
-    defaults = {
-        "bridge_host": "127.0.0.1",
-        "bridge_port": 9876,
-        "auto_connect": False,
-        "imgui_binary": ".scaffold/imgui/build/terragraf_imgui",
-        "bridge_script": ".scaffold/imgui/bridge.py",
-        "auto_launch_bridge": False,
-        "show_debug": True,
-        "show_tuning": True,
-        "show_viewer": True,
-        "sidebar_expanded": True,
-    }
-    if _SETTINGS_FILE.exists():
-        try:
-            with open(_SETTINGS_FILE) as f:
-                saved = json.load(f)
-            defaults.update(saved)
-        except (json.JSONDecodeError, OSError):
-            pass
-    return defaults
+class SettingsDialog(QDialog):
+    """Modal settings dialog. Reads/writes the same settings file as SettingsPage."""
 
-
-def _save_settings(data: dict):
-    try:
-        with open(_SETTINGS_FILE, "w") as f:
-            json.dump(data, f, indent=2)
-    except OSError:
-        pass
-
-
-class SettingsPage(QWidget):
-    """Application settings with persistence."""
-
-    def __init__(self, bridge_client, parent=None):
+    def __init__(self, bridge_client=None, parent=None):
         super().__init__(parent)
         self._bridge = bridge_client
         self._settings = _load_settings()
+        self.setWindowTitle("Settings")
+        self.setMinimumWidth(480)
         self._init_ui()
         self._load_into_ui()
 
     def _init_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(12)
-
-        header = QLabel("Settings")
-        header.setObjectName("section_header")
-        layout.addWidget(header)
 
         # ── Bridge connection ──
         bridge_box = QGroupBox("Bridge Connection")
@@ -110,55 +70,36 @@ class SettingsPage(QWidget):
 
         layout.addWidget(paths_box)
 
-        # ── Panel visibility ──
-        panels_box = QGroupBox("Panel Visibility")
-        panels_layout = QVBoxLayout(panels_box)
+        # ── Workspace ──
+        workspace_box = QGroupBox("Workspace")
+        workspace_layout = QVBoxLayout(workspace_box)
 
-        self._show_debug = QCheckBox("Show Debug page")
-        panels_layout.addWidget(self._show_debug)
+        self._show_debug = QCheckBox("Show Debug panel in sidebars")
+        workspace_layout.addWidget(self._show_debug)
 
-        self._show_tuning = QCheckBox("Show Tuning page")
-        panels_layout.addWidget(self._show_tuning)
+        self._show_tuning = QCheckBox("Show Tuning panel in sidebars")
+        workspace_layout.addWidget(self._show_tuning)
 
-        self._show_viewer = QCheckBox("Show Viewer page")
-        panels_layout.addWidget(self._show_viewer)
-
-        layout.addWidget(panels_box)
-
-        # ── Actions ──
-        btn_row = QHBoxLayout()
-
-        save_btn = QPushButton("Save")
-        save_btn.setObjectName("primary")
-        save_btn.clicked.connect(self._do_save)
-        btn_row.addWidget(save_btn)
-
-        apply_btn = QPushButton("Apply")
-        apply_btn.clicked.connect(self._do_apply)
-        btn_row.addWidget(apply_btn)
-
-        reset_btn = QPushButton("Reset to Defaults")
-        reset_btn.setObjectName("danger")
-        reset_btn.clicked.connect(self._do_reset)
-        btn_row.addWidget(reset_btn)
-
-        btn_row.addStretch()
-        layout.addLayout(btn_row)
+        layout.addWidget(workspace_box)
 
         # ── Info ──
-        info_box = QGroupBox("About")
-        info_layout = QVBoxLayout(info_box)
-        info = QLabel(
-            "Terragraf — scaffolding system\n"
-            "Qt container + ImGui viewer + Python bridge\n\n"
-            f"Settings file: {_SETTINGS_FILE}"
-        )
-        info.setObjectName("mono")
+        info = QLabel(f"Settings file: {_SETTINGS_FILE}")
+        info.setObjectName("dim")
         info.setWordWrap(True)
-        info_layout.addWidget(info)
-        layout.addWidget(info_box)
+        layout.addWidget(info)
 
-        layout.addStretch()
+        # ── Buttons ──
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Save
+            | QDialogButtonBox.StandardButton.Cancel
+            | QDialogButtonBox.StandardButton.RestoreDefaults
+        )
+        buttons.accepted.connect(self._do_save)
+        buttons.rejected.connect(self.reject)
+        buttons.button(QDialogButtonBox.StandardButton.RestoreDefaults).clicked.connect(
+            self._do_reset
+        )
+        layout.addWidget(buttons)
 
     def _load_into_ui(self):
         self._host_input.setText(self._settings["bridge_host"])
@@ -167,9 +108,8 @@ class SettingsPage(QWidget):
         self._imgui_path.setText(self._settings["imgui_binary"])
         self._bridge_path.setText(self._settings["bridge_script"])
         self._auto_bridge_cb.setChecked(self._settings["auto_launch_bridge"])
-        self._show_debug.setChecked(self._settings["show_debug"])
-        self._show_tuning.setChecked(self._settings["show_tuning"])
-        self._show_viewer.setChecked(self._settings["show_viewer"])
+        self._show_debug.setChecked(self._settings.get("show_debug", True))
+        self._show_tuning.setChecked(self._settings.get("show_tuning", True))
 
     def _read_from_ui(self) -> dict:
         return {
@@ -181,21 +121,18 @@ class SettingsPage(QWidget):
             "auto_launch_bridge": self._auto_bridge_cb.isChecked(),
             "show_debug": self._show_debug.isChecked(),
             "show_tuning": self._show_tuning.isChecked(),
-            "show_viewer": self._show_viewer.isChecked(),
         }
 
     def _do_save(self):
         self._settings = self._read_from_ui()
         _save_settings(self._settings)
-        self._do_apply()
-
-    def _do_apply(self):
-        data = self._read_from_ui()
-        self._bridge.host = data["bridge_host"]
-        self._bridge.port = data["bridge_port"]
+        if self._bridge:
+            self._bridge.host = self._settings["bridge_host"]
+            self._bridge.port = self._settings["bridge_port"]
+        self.accept()
 
     def _do_reset(self):
-        self._settings = {
+        self._settings = _load_settings.__wrapped__() if hasattr(_load_settings, '__wrapped__') else {
             "bridge_host": "127.0.0.1",
             "bridge_port": 9876,
             "auto_connect": False,
@@ -204,7 +141,6 @@ class SettingsPage(QWidget):
             "auto_launch_bridge": False,
             "show_debug": True,
             "show_tuning": True,
-            "show_viewer": True,
         }
         self._load_into_ui()
 
