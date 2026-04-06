@@ -3,251 +3,311 @@
 <head>
 <meta charset="UTF-8">
 <title>Terragraf — Kohala preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
+  /* ── Palette constants from .scaffold/app/theme.py ─────────────── */
   :root {
-    --bg-primary: #060D17;
-    --bg-secondary: #0E1A2E;
-    --bg-elevated: #1A2A40;
-    --bg-input: #06121E;
-    --bg-hover: #172841;
-    --bg-pressed: #22344F;
-    --border: #1F2A3C;
-    --border-strong: #2C3A52;
+    --accent: #E83030;
+    --accent-hi: #FF5040;
+    --accent-lo: #C0221F;
     --text: #F0EDE6;
     --text-2: #B6C3D2;
     --text-dim: #6B7D90;
-    --accent: #E83030;
-    --accent-hover: #FF5040;
-    --accent-pressed: #C0221F;
     --green: #6EE0B0;
-    --cyan: #22d3ee;
-    --yellow: #fbbf24;
-    --side-w: 240px;
+    --card-radius: 18px;
+    --topbar-radius: 14px;
+    --font-ui: "Barlow","Segoe UI","Helvetica Neue",system-ui,sans-serif;
+    --font-display: "Barlow Condensed","Barlow",sans-serif;
+    --font-mono: "JetBrains Mono","Consolas",monospace;
   }
+
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0;
-    background: radial-gradient(ellipse at top, #10182a 0%, var(--bg-primary) 55%, #02060d 100%);
-    color: var(--text);
-    font-family: "Barlow","Inter","Segoe UI","Helvetica Neue",system-ui,sans-serif;
     min-height: 100vh;
-    overflow-x: hidden;
+    color: var(--text);
+    font-family: var(--font-ui);
+    /* QMainWindow sunset gradient (top navy → bottom warm basalt) */
+    background: linear-gradient(180deg,
+        #060D17 0%,
+        #060D17 50%,
+        #070E19 68%,
+        #0A0B12 80%,
+        #0E0C11 88%,
+        #130D10 94%,
+        #180E0F 100%);
   }
+
+  /* ── Window shell ──────────────────────────────────────────────── */
   .window {
     width: min(1440px, 96vw);
-    height: min(860px, 92vh);
+    min-height: min(820px, 92vh);
     margin: 3vh auto;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-strong);
-    border-radius: 10px;
-    box-shadow:
-      0 30px 80px rgba(0,0,0,0.6),
-      0 0 0 1px rgba(232,48,48,0.06),
-      inset 0 1px 0 rgba(255,255,255,0.04);
-    overflow: hidden;
-    display: grid;
-    grid-template-rows: 44px 1fr 26px;
-    animation: fadeUp .8s ease both;
+    padding: 14px 16px 6px;
+    display: flex; flex-direction: column; gap: 10px;
+    animation: fadeUp .9s cubic-bezier(.2,.8,.2,1) both;
   }
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
+    from { opacity: 0; transform: translateY(14px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* ── top bar ───────────────────────────────────────────────────── */
-  .topbar {
-    display: flex; align-items: center;
-    padding: 0 14px;
-    background: linear-gradient(180deg, #122036 0%, var(--bg-secondary) 100%);
-    border-bottom: 1px solid var(--border);
-    gap: 12px;
+  .row-body {
+    display: grid;
+    grid-template-columns: 258px 1fr;
+    gap: 14px;
+    flex: 1; min-height: 0;
   }
-  .traffic { display: flex; gap: 6px; }
-  .traffic span {
-    width: 11px; height: 11px; border-radius: 50%;
-    background: var(--border-strong);
+  .col-right {
+    display: flex; flex-direction: column; gap: 12px;
+    min-width: 0;
   }
-  .traffic span:nth-child(1) { background: var(--accent); }
-  .traffic span:nth-child(2) { background: var(--yellow); }
-  .traffic span:nth-child(3) { background: var(--green); }
-  .brand {
-    font-family: "Barlow Condensed","Barlow",sans-serif;
-    font-weight: 700; letter-spacing: 0.18em;
-    font-size: 15px; text-transform: uppercase;
-    color: var(--text);
+
+  /* ── Warm-glass card material (sidebar / topbar / panel) ──────── */
+  .card-material {
+    background: linear-gradient(180deg,
+        rgba(26, 42, 64, 0.88) 0%,
+        rgba(20, 34, 54, 0.87) 4%,
+        rgba(12, 22, 38, 0.84) 55%,
+        rgba(6,  12, 22, 0.82) 100%);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-top: 1px solid rgba(255,240,220,0.22);
+    border-bottom: 1px solid rgba(0,0,0,0.40);
+    box-shadow:
+      0 20px 50px rgba(0,0,0,0.45),
+      inset 0 1px 0 rgba(255,240,220,0.06);
   }
-  .brand .mark { color: var(--accent); }
-  .tabstrip {
-    display: flex; gap: 4px; margin-left: 20px; flex: 1;
+
+  /* ── Sidebar ───────────────────────────────────────────────────── */
+  .sidebar {
+    border-radius: var(--card-radius);
+    padding: 22px 18px 18px 18px;
+    display: flex; flex-direction: column;
+    animation: slideRight .8s cubic-bezier(.2,.8,.2,1) .15s both;
   }
-  .tabchip {
-    padding: 6px 14px;
-    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--text-dim);
+  @keyframes slideRight {
+    from { opacity: 0; transform: translateX(-14px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .sidebar-header {
+    font-family: var(--font-mono);
+    font-size: 10px; font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2.5px;
+    padding: 0 4px 10px;
+  }
+  .nav-gap { height: 8px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%;
+    height: 36px;
+    padding: 10px 14px;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 4px 4px 0 0;
-    border-bottom: 2px solid transparent;
-    animation: slideDown .6s ease both;
-    animation-delay: calc(var(--i,0) * 80ms + .3s);
-  }
-  @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .tabchip.active {
-    color: var(--text);
-    background: rgba(232,48,48,0.08);
-    border-color: rgba(232,48,48,0.35);
-    border-bottom: 2px solid var(--accent);
-    box-shadow: 0 -1px 0 rgba(232,48,48,0.25) inset, 0 0 18px rgba(232,48,48,0.15);
-  }
-  .topbar .spacer { flex: 1; }
-  .chip {
-    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--text-2); padding: 4px 8px;
-    border: 1px solid var(--border-strong); border-radius: 3px;
-    background: rgba(255,255,255,0.02);
-  }
-
-  /* ── body: sidebar + main ─────────────────────────────────────── */
-  .body {
-    display: grid;
-    grid-template-columns: var(--side-w) 1fr;
-    min-height: 0;
-  }
-  .sidebar {
-    background: var(--bg-secondary);
-    border-right: 1px solid var(--border);
-    padding: 14px 0;
-    transition: width .45s cubic-bezier(.4,.8,.2,1);
-    overflow: hidden;
-  }
-  .side-eyebrow {
-    padding: 4px 16px 10px;
-    font-family: "JetBrains Mono",monospace;
-    font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--accent);
-  }
-  .side-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 16px;
+    border-radius: 10px;
     color: var(--text-2);
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.4px;
+    text-align: left;
     cursor: pointer;
-    font-size: 13px;
-    border-left: 2px solid transparent;
-    animation: fadeRight .6s ease both;
-    animation-delay: calc(var(--i,0) * 70ms + .4s);
-    transition: background .15s, color .15s, border-color .15s;
+    animation: fadeLeft .55s ease both;
+    animation-delay: calc(var(--i,0) * 55ms + .4s);
+    transition: background .18s, border-color .18s, color .18s, transform .18s;
   }
-  @keyframes fadeRight {
+  @keyframes fadeLeft {
     from { opacity: 0; transform: translateX(-8px); }
     to   { opacity: 1; transform: translateX(0); }
   }
-  .side-item:hover { background: var(--bg-hover); color: var(--text); }
-  .side-item.active {
-    background: rgba(232,48,48,0.10);
+  .nav-item .nav-ico {
+    display: inline-block;
+    width: 18px; text-align: center;
+    font-family: "Segoe UI Symbol","Segoe UI",sans-serif;
+    font-size: 15px;
+    color: #C6D2E0;
+  }
+  .nav-item:hover {
+    background: linear-gradient(180deg,
+        rgba(28, 44, 66, 0.80) 0%,
+        rgba(10, 20, 36, 0.86) 100%);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-top: 1px solid rgba(255,240,220,0.20);
     color: var(--text);
-    border-left-color: var(--accent);
   }
-  .side-ico {
-    display: inline-block; width: 18px; text-align: center;
-    color: var(--accent); font-size: 12px;
+  .nav-item.checked {
+    background: linear-gradient(180deg,
+        rgba(80, 18, 20, 0.90) 0%,
+        rgba(50, 12, 14, 0.92) 50%,
+        rgba(28, 8,  12, 0.95) 100%);
+    border: 1px solid rgba(232,48,48,0.50);
+    border-top: 1px solid rgba(255,140,120,0.55);
+    color: #FFFFFF;
+    box-shadow: 0 0 24px rgba(232,48,48,0.20);
+  }
+  .nav-item.checked .nav-ico { color: #FFFFFF; }
+
+  .sidebar-stretch { flex: 1; }
+  .ws-divider {
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(232,48,48,0.10) 15%,
+        rgba(232,48,48,0.45) 50%,
+        rgba(232,48,48,0.10) 85%,
+        transparent 100%);
+    margin: 10px 0;
+  }
+  .ws-footer-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 2px;
+  }
+  .ws-footer-row .spacer { flex: 1; }
+  .hint {
+    color: var(--text-dim);
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.5px;
   }
 
-  /* ── main content ─────────────────────────────────────────────── */
-  .main {
-    padding: 22px 26px; min-width: 0; min-height: 0;
-    display: flex; flex-direction: column; gap: 16px;
-    overflow: hidden;
+  /* ── Top bar ──────────────────────────────────────────────────── */
+  .topbar {
+    height: 58px;
+    border-radius: var(--topbar-radius);
+    padding: 10px 24px 10px 14px;
+    display: flex; align-items: center; gap: 10px;
+    animation: fadeDown .8s cubic-bezier(.2,.8,.2,1) .2s both;
   }
-  .page-title {
-    font-family: "Barlow Condensed","Barlow",sans-serif;
-    font-size: 26px; font-weight: 700; letter-spacing: 0.05em;
-    text-transform: uppercase;
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-  .page-title .accent { color: var(--accent); }
-  .eyebrow {
-    font-family: "JetBrains Mono",monospace;
-    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
-    color: var(--accent); margin-bottom: 4px;
+  .iconbtn {
+    width: 38px; height: 32px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: linear-gradient(180deg,
+        rgba(28, 44, 66, 0.86) 0%,
+        rgba(8,  18, 32, 0.91) 100%);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-top: 1px solid rgba(255,240,220,0.22);
+    border-bottom: 1px solid rgba(0,0,0,0.34);
+    border-radius: 10px;
+    color: var(--text-2);
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color .15s, color .15s;
   }
+  .iconbtn:hover {
+    color: #FFFFFF;
+    border-top-color: rgba(255,240,220,0.32);
+  }
+  .ws-tab {
+    min-height: 34px;
+    padding: 8px 22px;
+    background: linear-gradient(180deg,
+        rgba(80, 18, 20, 0.92) 0%,
+        rgba(50, 12, 14, 0.94) 50%,
+        rgba(28, 8, 12, 0.96) 100%);
+    border: 1px solid rgba(232,48,48,0.50);
+    border-top: 1px solid rgba(255,140,120,0.55);
+    border-bottom: 1px solid rgba(40,4,4,0.50);
+    border-radius: 16px;
+    color: #FFFFFF;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 1.8px;
+    cursor: pointer;
+    box-shadow: 0 0 32px rgba(232,48,48,0.28),
+                inset 0 1px 0 rgba(255,180,160,0.35);
+    animation: glowPulse 3.6s ease-in-out infinite;
+  }
+  @keyframes glowPulse {
+    0%,100% { box-shadow: 0 0 26px rgba(232,48,48,0.22),
+                           inset 0 1px 0 rgba(255,180,160,0.30); }
+    50%     { box-shadow: 0 0 40px rgba(232,48,48,0.40),
+                           inset 0 1px 0 rgba(255,200,180,0.45); }
+  }
+  .topbar .spacer { flex: 1; }
+  .brand-mark, .brand-mark-red {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: 2px;
+  }
+  .brand-mark { color: #FFFFFF; }
+  .brand-mark-red { color: var(--accent); margin-left: -6px; }
 
-  .cards {
+  /* ── Main content row (Health + Recent Tabs) ──────────────────── */
+  .hs-row {
     display: grid;
     grid-template-columns: 3fr 2fr;
-    gap: 18px;
+    gap: 14px;
     flex: 1; min-height: 0;
   }
   .panel {
-    position: relative;
-    background:
-      linear-gradient(180deg, rgba(232,48,48,0.04) 0%, rgba(14,26,46,0.0) 25%),
-      var(--bg-elevated);
-    border: 1px solid var(--border-strong);
-    border-radius: 8px;
-    padding: 18px 20px 16px;
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.04) inset,
-      0 20px 50px rgba(0,0,0,0.35);
-    animation: panelIn .9s cubic-bezier(.2,.8,.2,1) both;
-    overflow: hidden;
+    border-radius: var(--card-radius);
+    padding: 20px 24px;
+    display: flex; flex-direction: column;
+    animation: panelIn .95s cubic-bezier(.2,.8,.2,1) both;
+    min-height: 0;
   }
-  .panel::before {
-    content: "";
-    position: absolute; inset: 0 0 auto 0; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(232,48,48,0.8), transparent);
-    opacity: 0.5;
-  }
-  .panel:nth-child(1) { animation-delay: .35s; }
-  .panel:nth-child(2) { animation-delay: .5s; }
+  .panel.p-health   { animation-delay: .40s; }
+  .panel.p-sessions { animation-delay: .55s; }
   @keyframes panelIn {
-    from { opacity: 0; transform: translateY(20px) scale(.98); }
+    from { opacity: 0; transform: translateY(18px) scale(.985); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
   }
-  .panel h3 {
-    margin: 0 0 14px;
-    font-family: "Barlow Condensed","Barlow",sans-serif;
-    font-size: 18px; font-weight: 700; letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text);
+  .section-sub {
+    font-family: var(--font-mono);
+    font-size: 10px; font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2.5px;
+    padding-bottom: 6px;
   }
+  .panel .ws-divider { margin: 0 0 10px; }
 
-  /* Scaffold Health 3x3 grid */
-  .grid {
+  /* Scaffold Health 3×3 grid of stat rows */
+  .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 14px 28px;
+    column-gap: 28px;
+    row-gap: 8px;
+    flex: 1;
   }
-  .stat {
-    display: flex; flex-direction: column; gap: 2px;
-    animation: fadeUp .6s ease both;
-    animation-delay: calc(var(--i,0) * 60ms + .7s);
+  .stat-row {
+    display: flex; align-items: center;
+    padding: 2px 0;
+    animation: fadeUp .55s ease both;
+    animation-delay: calc(var(--i,0) * 55ms + .85s);
   }
-  .stat-key {
-    font-family: "JetBrains Mono",monospace;
-    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--text-dim);
+  .stat-row .stat-key {
+    font-family: var(--font-mono);
+    font-size: 10px; font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1.8px;
   }
-  .stat-val {
-    font-family: "Barlow Condensed","Barlow",sans-serif;
-    font-size: 26px; font-weight: 700;
-    color: var(--text);
+  .stat-row .stat-compact {
+    flex: 1; text-align: right;
+    font-family: var(--font-display);
+    font-size: 15px; font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: 0.5px;
   }
 
   /* Recent Tabs list */
   .tabs-list { display: flex; flex-direction: column; gap: 2px; }
   .tab-row {
     display: grid;
-    grid-template-columns: 14px 1.3fr 1.5fr auto;
+    grid-template-columns: 14px auto 1fr auto;
     align-items: center;
     gap: 12px;
-    padding: 8px 4px;
-    border-bottom: 1px dashed rgba(44,58,82,0.5);
-    animation: fadeRight .6s ease both;
-    animation-delay: calc(var(--i,0) * 80ms + .85s);
+    padding: 6px 0;
+    animation: fadeLeft .55s ease both;
+    animation-delay: calc(var(--i,0) * 80ms + 1.0s);
   }
-  .tab-row:last-child { border-bottom: none; }
   .tab-row .dot {
     width: 10px; height: 10px; border-radius: 50%;
     background: #8FA0B6;
@@ -255,217 +315,201 @@
   }
   .tab-row.active .dot {
     background: var(--green);
-    animation: pulse 1.8s ease-in-out infinite;
+    animation: dotPulse 1.9s ease-in-out infinite;
   }
-  @keyframes pulse {
-    0%,100% { box-shadow: 0 0 0 0 rgba(110,224,176,0.6); }
-    50%     { box-shadow: 0 0 0 6px rgba(110,224,176,0); }
+  @keyframes dotPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(110,224,176,0.55); }
+    50%     { box-shadow: 0 0 0 7px rgba(110,224,176,0); }
   }
-  .tab-name {
-    font-family: "JetBrains Mono",monospace;
-    font-size: 11px; letter-spacing: 0.06em;
-    color: var(--text);
+  .tab-row .tab-name {
+    font-family: var(--font-display);
+    font-size: 15px; font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: 0.5px;
   }
-  .tab-slug {
-    font-family: "JetBrains Mono",monospace;
-    font-size: 10px; color: var(--text-dim);
-  }
-  .tab-state {
-    font-family: "JetBrains Mono",monospace;
-    font-size: 9px; letter-spacing: 0.18em;
+  .tab-row .tab-slug {
+    font-family: var(--font-mono);
+    font-size: 11px;
     color: var(--text-dim);
+    letter-spacing: 0.5px;
+  }
+  .tab-row .tab-state {
+    font-family: var(--font-mono);
+    font-size: 10px; font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1.8px;
   }
   .tab-row.active .tab-state { color: var(--green); }
 
-  /* ── status bar ────────────────────────────────────────────────── */
-  .statusbar {
-    display: flex; align-items: center; gap: 18px;
-    padding: 0 16px;
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border);
-    font-family: "JetBrains Mono",monospace;
-    font-size: 10px; letter-spacing: 0.1em;
-    color: var(--text-dim);
+  /* ── Footer (reuses topbar material) ───────────────────────────── */
+  .footer {
+    height: 44px;
+    border-radius: var(--topbar-radius);
+    padding: 8px 24px;
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeUp .9s ease 1.2s both;
   }
-  .statusbar .sb-accent { color: var(--accent); }
-  .statusbar .sb-ok { color: var(--green); }
-  .statusbar .spacer { flex: 1; }
-  .blink { animation: blink 1.4s steps(2, end) infinite; }
-  @keyframes blink { 50% { opacity: 0.2; } }
+  .footer-text {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-shadow: 0 0 12px rgba(232,48,48,0.45);
+    animation: footerFlicker 5s ease-in-out infinite;
+  }
+  @keyframes footerFlicker {
+    0%, 92%, 100% { opacity: 1; }
+    94% { opacity: 0.55; }
+    96% { opacity: 1; }
+  }
 
-  /* ── controls strip ────────────────────────────────────────────── */
+  /* ── Floating controls ─────────────────────────────────────────── */
   .controls {
     position: fixed; bottom: 18px; right: 22px;
     display: flex; gap: 8px;
-    font-family: "JetBrains Mono",monospace; font-size: 10px;
-    letter-spacing: 0.15em; text-transform: uppercase;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
     z-index: 50;
   }
   .controls button {
-    background: rgba(14,26,46,0.85);
+    background: rgba(14,26,46,0.82);
     color: var(--text-2);
-    border: 1px solid var(--border-strong);
-    padding: 7px 12px; border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-top: 1px solid rgba(255,240,220,0.22);
+    padding: 8px 14px;
+    border-radius: 10px;
     cursor: pointer;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(6px);
+    font-weight: 700;
   }
   .controls button:hover {
-    color: var(--text);
-    border-color: var(--accent);
-    box-shadow: 0 0 12px rgba(232,48,48,0.25);
+    color: #FFFFFF;
+    border-color: rgba(232,48,48,0.45);
+    box-shadow: 0 0 18px rgba(232,48,48,0.30);
   }
-
-  body.collapsed .window { --side-w: 56px; }
-  body.collapsed .side-label { opacity: 0; }
-  .side-label { transition: opacity .25s; }
 </style>
 </head>
 <body>
   <div class="window">
 
-    <!-- ── TOP BAR ─────────────────────────────────────────────── -->
-    <div class="topbar">
-      <div class="traffic"><span></span><span></span><span></span></div>
-      <div class="brand">TERRA<span class="mark">GRAF</span></div>
-      <div class="tabstrip">
-        <div class="tabchip active" style="--i:0">Welcome</div>
-        <div class="tabchip" style="--i:1">HOT_CONTEXT.md</div>
-        <div class="tabchip" style="--i:2">theme.py</div>
-        <div class="tabchip" style="--i:3">terra health</div>
-      </div>
-      <div class="spacer"></div>
-      <div class="chip">Kohala · Session 25</div>
-    </div>
+    <div class="row-body">
 
-    <!-- ── BODY ────────────────────────────────────────────────── -->
-    <div class="body">
-      <div class="sidebar">
-        <div class="side-eyebrow">// Workspace</div>
-        
-        <div class="side-item active" style="--i:0">
-          <span class="side-ico">■</span>
-          <span class="side-label">Workspace</span>
-        </div>
-
-        <div class="side-item " style="--i:1">
-          <span class="side-ico">✱</span>
-          <span class="side-label">Skills</span>
-        </div>
-
-        <div class="side-item " style="--i:2">
-          <span class="side-ico">◆</span>
-          <span class="side-label">Routes</span>
-        </div>
-
-        <div class="side-item " style="--i:3">
-          <span class="side-ico">▲</span>
-          <span class="side-label">Tune</span>
-        </div>
-
-        <div class="side-item " style="--i:4">
-          <span class="side-ico">●</span>
-          <span class="side-label">Health</span>
-        </div>
-
-        <div class="side-item " style="--i:5">
-          <span class="side-ico">⚙</span>
-          <span class="side-label">Settings</span>
+      <!-- ── SIDEBAR ───────────────────────────────────────────── -->
+      <div class="sidebar card-material">
+        <div class="sidebar-header">— WELCOME —</div>
+        <button class="nav-item checked" style="--i:0"><span class="nav-ico">+</span><span class="nav-text">NEW NATIVE</span></button>
+        <button class="nav-item" style="--i:1"><span class="nav-ico">▢</span><span class="nav-text">NEW EXTERNAL</span></button>
+        <button class="nav-item" style="--i:2"><span class="nav-ico">▢</span><span class="nav-text">NEW PROJECT…</span></button>
+        <div class="nav-gap"></div>
+        <button class="nav-item" style="--i:3"><span class="nav-ico">♥</span><span class="nav-text">HEALTH CHECK</span></button>
+        <button class="nav-item" style="--i:4"><span class="nav-ico">◉</span><span class="nav-text">STATUS</span></button>
+        <button class="nav-item" style="--i:5"><span class="nav-ico">◉</span><span class="nav-text">MODE</span></button>
+        <button class="nav-item" style="--i:6"><span class="nav-ico">✓</span><span class="nav-text">SCAN</span></button>
+        <button class="nav-item" style="--i:7"><span class="nav-ico">≡</span><span class="nav-text">KNOWLEDGE</span></button>
+        <div class="nav-gap"></div>
+        <button class="nav-item" style="--i:8"><span class="nav-ico">⚙</span><span class="nav-text">SETTINGS</span></button>
+        <div class="sidebar-stretch"></div>
+        <div class="ws-divider"></div>
+        <div class="ws-footer-row">
+          <span class="sidebar-header" style="padding:0;">— WORKSPACE //</span>
+          <span class="spacer"></span>
+          <span class="hint">v0.4.2</span>
         </div>
       </div>
-      <div class="main">
-        <div>
-          <div class="eyebrow">// Welcome</div>
-          <div class="page-title">
-            <span class="accent">Terragraf</span> Workspace
-          </div>
+
+      <!-- ── RIGHT COLUMN ──────────────────────────────────────── -->
+      <div class="col-right">
+
+        <!-- Top bar -->
+        <div class="topbar card-material">
+          <button class="iconbtn">≡</button>
+          <button class="iconbtn">▣</button>
+          <button class="ws-tab">WELCOME</button>
+          <div class="spacer"></div>
+          <span class="brand-mark">TERRA</span>
+          <span class="brand-mark-red">GRAF</span>
         </div>
-        <div class="cards">
-          <div class="panel">
-            <h3>Scaffold Health</h3>
-            <div class="grid">
+
+        <!-- Health + Recent Tabs -->
+        <div class="hs-row">
+          <div class="panel p-health card-material">
+            <div class="section-sub">— SCAFFOLD HEALTH</div>
+            <div class="ws-divider"></div>
+            <div class="stats-grid">
               
-        <div class="stat" style="--i:0">
-          <div class="stat-key">Header files</div>
-          <div class="stat-val" data-target="27">0</div>
+        <div class="stat-row" style="--i:0">
+          <span class="stat-key">— HEADER FILES</span>
+          <span class="stat-compact" data-target="12">0</span>
         </div>
 
-        <div class="stat" style="--i:1">
-          <div class="stat-key">Modules</div>
-          <div class="stat-val" data-target="43">0</div>
+        <div class="stat-row" style="--i:1">
+          <span class="stat-key">— MODULES</span>
+          <span class="stat-compact" data-target="23">0</span>
         </div>
 
-        <div class="stat" style="--i:2">
-          <div class="stat-key">Route files</div>
-          <div class="stat-val" data-target="12">0</div>
+        <div class="stat-row" style="--i:2">
+          <span class="stat-key">— ROUTE FILES</span>
+          <span class="stat-compact" data-target="3">0</span>
         </div>
 
-        <div class="stat" style="--i:3">
-          <div class="stat-key">Routes</div>
-          <div class="stat-val" data-target="61">0</div>
+        <div class="stat-row" style="--i:3">
+          <span class="stat-key">— ROUTES</span>
+          <span class="stat-compact" data-target="204">0</span>
         </div>
 
-        <div class="stat" style="--i:4">
-          <div class="stat-key">Table files</div>
-          <div class="stat-val" data-target="9">0</div>
+        <div class="stat-row" style="--i:4">
+          <span class="stat-key">— TABLE FILES</span>
+          <span class="stat-compact" data-target="3">0</span>
         </div>
 
-        <div class="stat" style="--i:5">
-          <div class="stat-key">Queue pending</div>
-          <div class="stat-val" data-target="3">0</div>
+        <div class="stat-row" style="--i:5">
+          <span class="stat-key">— QUEUE PENDING</span>
+          <span class="stat-compact" data-target="0">0</span>
         </div>
 
-        <div class="stat" style="--i:6">
-          <div class="stat-key">Queue running</div>
-          <div class="stat-val" data-target="1">0</div>
+        <div class="stat-row" style="--i:6">
+          <span class="stat-key">— QUEUE RUNNING</span>
+          <span class="stat-compact" data-target="1">0</span>
         </div>
 
-        <div class="stat" style="--i:7">
-          <div class="stat-key">HOT_CONTEXT lines</div>
-          <div class="stat-val" data-target="455">0</div>
+        <div class="stat-row" style="--i:7">
+          <span class="stat-key">— HOT_CONTEXT LINES</span>
+          <span class="stat-compact" data-target="457">0</span>
         </div>
 
-        <div class="stat" style="--i:8">
-          <div class="stat-key">Recent events</div>
-          <div class="stat-val" data-target="128">0</div>
+        <div class="stat-row" style="--i:8">
+          <span class="stat-key">— RECENT EVENTS</span>
+          <span class="stat-compact" data-target="0">0</span>
         </div>
             </div>
           </div>
-          <div class="panel">
-            <h3>Recent Tabs</h3>
+
+          <div class="panel p-sessions card-material">
+            <div class="section-sub">— RECENT TABS</div>
+            <div class="ws-divider"></div>
             <div class="tabs-list">
               
         <div class="tab-row active" style="--i:0">
           <span class="dot"></span>
           <span class="tab-name">WELCOME</span>
-          <span class="tab-slug">welcome · a1f203</span>
+          <span class="tab-slug">welcome · 523434</span>
           <span class="tab-state">ACTIVE</span>
         </div>
 
-        <div class="tab-row " style="--i:1">
+        <div class="tab-row" style="--i:1">
           <span class="dot"></span>
-          <span class="tab-name">HOT_CONTEXT.md</span>
-          <span class="tab-slug">native  · 9c44de</span>
+          <span class="tab-name">MODULES</span>
+          <span class="tab-slug">modules · 511298</span>
           <span class="tab-state">RECENT</span>
         </div>
 
-        <div class="tab-row " style="--i:2">
+        <div class="tab-row" style="--i:2">
           <span class="dot"></span>
-          <span class="tab-name">theme.py</span>
-          <span class="tab-slug">native  · 7b12ff</span>
-          <span class="tab-state">RECENT</span>
-        </div>
-
-        <div class="tab-row " style="--i:3">
-          <span class="dot"></span>
-          <span class="tab-name">terra health</span>
-          <span class="tab-slug">proc    · 3e88a0</span>
-          <span class="tab-state">RECENT</span>
-        </div>
-
-        <div class="tab-row " style="--i:4">
-          <span class="dot"></span>
-          <span class="tab-name">tune zone rehearse</span>
-          <span class="tab-slug">native · 5501cc</span>
+          <span class="tab-name">ROUTES</span>
+          <span class="tab-slug">routes · 488221</span>
           <span class="tab-state">RECENT</span>
         </div>
             </div>
@@ -474,33 +518,29 @@
       </div>
     </div>
 
-    <!-- ── STATUS BAR ──────────────────────────────────────────── -->
-    <div class="statusbar">
-      <span class="sb-accent">● KOHALA</span>
-      <span>branch: <span style="color:var(--text-2)">Yibb</span></span>
-      <span>tests: <span class="sb-ok">931 passed</span></span>
-      <span>health: <span class="sb-ok">Grade A</span></span>
-      <span class="spacer"></span>
-      <span class="blink">READY_</span>
+    <!-- ── FOOTER ──────────────────────────────────────────────── -->
+    <div class="footer card-material">
+      <div class="footer-text">
+        BRIDGE: OFFLINE &nbsp;&nbsp;·&nbsp;&nbsp; 1 SESSION &nbsp;&nbsp;·&nbsp;&nbsp; PATENT PENDING
+      </div>
     </div>
   </div>
 
   <div class="controls">
-    <button id="btn-toggle-side">Toggle Sidebar</button>
-    <button id="btn-replay">Replay</button>
+    <button id="btn-replay">Replay Animations</button>
   </div>
 
 <script>
   // ── Count-up animation for Scaffold Health values ──
   function runCountUps() {
-    document.querySelectorAll(".stat-val").forEach((el) => {
+    document.querySelectorAll(".stat-compact[data-target]").forEach((el) => {
       const target = parseInt(el.dataset.target, 10);
       if (isNaN(target)) return;
-      const dur = 900 + Math.random() * 400;
-      const start = performance.now();
+      const dur = 850 + Math.random() * 500;
+      const start = performance.now() + 850;  // wait for stat-row fadeUp
       el.textContent = "0";
       function tick(now) {
-        const t = Math.min(1, (now - start) / dur);
+        const t = Math.min(1, Math.max(0, (now - start) / dur));
         const eased = 1 - Math.pow(1 - t, 3);
         el.textContent = Math.round(target * eased).toString();
         if (t < 1) requestAnimationFrame(tick);
@@ -508,19 +548,22 @@
       requestAnimationFrame(tick);
     });
   }
-  setTimeout(runCountUps, 900);
+  runCountUps();
 
-  // ── Sidebar toggle ──
-  document.getElementById("btn-toggle-side").addEventListener("click", () => {
-    document.body.classList.toggle("collapsed");
-  });
-
-  // ── Replay animations ──
+  // ── Replay ──
   document.getElementById("btn-replay").addEventListener("click", () => {
     const win = document.querySelector(".window");
     const clone = win.cloneNode(true);
     win.parentNode.replaceChild(clone, win);
-    setTimeout(runCountUps, 900);
+    runCountUps();
+  });
+
+  // ── Nav item click → toggle checked state (visual only) ──
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest(".nav-item");
+    if (!t) return;
+    document.querySelectorAll(".nav-item.checked").forEach(n => n.classList.remove("checked"));
+    t.classList.add("checked");
   });
 </script>
 </body>
