@@ -1,0 +1,14 @@
+[skill]
+name = "hot_decompose"
+version = "0.1"
+description = "Triage HOT_CONTEXT into scaffold files, keeping only session-scoped content"
+entry = "run.py"
+type = "utility"
+
+[triggers]
+intents = ["decompose context", "triage hot context", "clean hot context"]
+commands = ["terra hot decompose"]
+
+[deps]
+python = [">=3.11"]
+modules = []

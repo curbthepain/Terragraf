@@ -10,6 +10,7 @@ Usage:
 
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 
 # Patterns that shouldn't be committed
@@ -44,6 +45,34 @@ def _pre_commit():
             if size > _MAX_FILE_SIZE:
                 print(f"Warning: large file ({size} bytes): {filepath}",
                       file=sys.stderr)
+
+    # Check HOT_CONTEXT size
+    scaffold = Path(__file__).resolve().parent.parent
+    hot_context = scaffold / "HOT_CONTEXT.md"
+    manifest = scaffold / "MANIFEST.toml"
+    if hot_context.exists():
+        line_count = len(hot_context.read_text(encoding="utf-8").splitlines())
+        max_lines = 80
+        auto_decompose = False
+        if manifest.exists():
+            try:
+                data = tomllib.loads(manifest.read_text(encoding="utf-8"))
+                hc = data.get("hot_context", {})
+                max_lines = hc.get("max_lines", 80)
+                auto_decompose = hc.get("auto_decompose_on_commit", False)
+            except Exception:
+                pass
+        if line_count > max_lines:
+            print(f"Warning: HOT_CONTEXT.md is {line_count} lines "
+                  f"(threshold: {max_lines}). Run: terra hot decompose",
+                  file=sys.stderr)
+            if auto_decompose:
+                print("[scaffold] auto-running: terra hot decompose",
+                      file=sys.stderr)
+                subprocess.run(
+                    [sys.executable, str(scaffold / "skills" / "hot_decompose" / "run.py")],
+                    cwd=str(scaffold.parent),
+                )
 
 
 def _post_commit():

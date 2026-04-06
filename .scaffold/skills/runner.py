@@ -69,6 +69,62 @@ def run_skill(name, args=None):
     return result.returncode
 
 
+def run_skill_capture(name, args=None):
+    """Execute a skill and capture output. Returns (returncode, stdout, stderr)."""
+    skill_dir = SKILLS_DIR / name
+    manifest = _load_manifest(skill_dir)
+    if not manifest:
+        return (1, "", f"Error: skill '{name}' not found or missing SKILL.toml")
+
+    entry = manifest["skill"].get("entry", "run.py")
+    entry_path = skill_dir / entry
+    if not entry_path.exists():
+        return (1, "", f"Error: entry point '{entry}' not found for skill '{name}'")
+
+    cmd = [sys.executable, str(entry_path)] + (args or [])
+    result = subprocess.run(cmd, cwd=str(TERRA_ROOT), capture_output=True, text=True)
+    return (result.returncode, result.stdout, result.stderr)
+
+
+def run_skill_stream(name, args=None, on_line=None):
+    """Execute a skill and stream stdout line-by-line via on_line(line).
+
+    stderr is merged into stdout so callers see everything in order.
+    Returns the subprocess return code after wait().
+    """
+    skill_dir = SKILLS_DIR / name
+    manifest = _load_manifest(skill_dir)
+    if not manifest:
+        if on_line:
+            on_line(f"Error: skill '{name}' not found or missing SKILL.toml")
+        return 1
+
+    entry = manifest["skill"].get("entry", "run.py")
+    entry_path = skill_dir / entry
+    if not entry_path.exists():
+        if on_line:
+            on_line(f"Error: entry point '{entry}' not found for skill '{name}'")
+        return 1
+
+    cmd = [sys.executable, "-u", str(entry_path)] + (args or [])
+    proc = subprocess.Popen(
+        cmd,
+        cwd=str(TERRA_ROOT),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        bufsize=1,
+        text=True,
+    )
+    try:
+        if proc.stdout is not None:
+            for line in proc.stdout:
+                if on_line:
+                    on_line(line.rstrip("\n"))
+    finally:
+        proc.wait()
+    return proc.returncode
+
+
 def print_skills():
     """Print a formatted list of all registered skills."""
     skills = list_skills()

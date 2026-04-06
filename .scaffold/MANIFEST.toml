@@ -105,3 +105,10 @@ ipc = "auto"                # "auto", "socket", "filesystem"
 # Each instance gets its own working context but shares
 # the scaffolding structure, headers, routes, and tables.
 # Instances communicate via the shared state directory.
+
+# HOT_CONTEXT lifecycle management
+[hot_context]
+max_lines = 80              # Warning threshold for HOT_CONTEXT.md line count
+auto_decompose_on_commit = true   # Run decompose automatically on commit
+retain_sessions = 3         # Keep N most recent sessions verbatim; older sessions archive to KNOWLEDGE.toml
+hard_max_lines = 1000       # Absolute ceiling — forcer extracts h3 sub-sections until under this

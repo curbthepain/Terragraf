@@ -19,3 +19,5 @@ render_3d           | renderer     | render_3d/run.py           | render 3d, vol
 test_suite          | validator    | test_suite/run.py          | run tests, test suite, validate     | Test orchestration: discover, run, categorize, report by subsystem
 instance_dispatch   | orchestrator | instance_dispatch/run.py   | dispatch task, parallel instances   | Parallel instance orchestration: enqueue, spawn, monitor, collect
 health_check        | diagnostic   | health_check/run.py        | health check, system health         | Full system diagnostic: structure, tests, analytics, environment
+hot_decompose       | utility      | hot_decompose/run.py       | decompose context, triage hot       | Triage HOT_CONTEXT into scaffold files, session-only retention
+mcp_server          | service      | mcp_server/run.py          | mcp server, expose resources        | MCP resource server: start, stop, status
