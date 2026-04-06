@@ -40,6 +40,21 @@ by default.
 | glad | MIT/Public Domain | OpenGL loader | https://github.com/Dav1dde/glad |
 | GLM | MIT | Math for OpenGL | https://github.com/g-truc/glm |
 
+## Bundled Fonts (.scaffold/app/fonts/)
+
+The Kohala theme bundles three font families as `.ttf` files so the
+Qt UI renders consistently regardless of system font installs. All
+three are SIL Open Font License (OFL) — redistributable inside this
+project and downstream binaries.
+
+| Family | License | Files | URL |
+|--------|---------|-------|-----|
+| Barlow | OFL 1.1 | Barlow-Regular/Medium/SemiBold/Bold.ttf | https://github.com/jpt/barlow |
+| Barlow Condensed | OFL 1.1 | BarlowCondensed-Regular/SemiBold/Bold/ExtraBold/Black.ttf | https://github.com/jpt/barlow |
+| JetBrains Mono | OFL 1.1 | JetBrainsMono-Regular/Bold.ttf | https://github.com/JetBrains/JetBrainsMono |
+
+OFL full text: https://scripts.sil.org/OFL
+
 ## C++ — Optional
 
 | Library | License | Purpose | URL |
@@ -67,4 +82,5 @@ by default.
 | PSF | Yes | |
 | HPND | Yes | |
 | Public Domain | Yes | |
+| OFL 1.1 | Yes | Bundled fonts (Barlow, Barlow Condensed, JetBrains Mono) |
 | GPL-2.0 | No | FFTW3 optional, not linked by default |

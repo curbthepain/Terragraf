@@ -128,7 +128,10 @@ class MainWindow(QMainWindow):
         self.menuBar().setVisible(False)
 
         # 3-column splitter: [sidebar | tabs (with corner chrome) | imgui]
+        # objectName="centralWidget" makes the QMainWindow's sunset gradient
+        # show through (see kohala.qss `QMainWindow > QWidget#centralWidget`).
         self._splitter = QSplitter(Qt.Orientation.Horizontal)
+        self._splitter.setObjectName("centralWidget")
         self._splitter.addWidget(self._sidebar)
         self._splitter.addWidget(self._tabs)
         self._splitter.addWidget(self._imgui_panel)

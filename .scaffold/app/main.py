@@ -6,6 +6,7 @@ import sys
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 from . import scaling
+from . import fonts as app_fonts
 from .window import MainWindow
 
 
@@ -22,6 +23,10 @@ def main():
     scaling.init(app)
     app.setApplicationName("Terragraf")
     app.setOrganizationName("Terragraf")
+
+    # Register bundled Barlow + JetBrains Mono fonts so the Kohala theme
+    # font stack resolves consistently regardless of system installs.
+    app_fonts.register_fonts()
 
     window = MainWindow()
     window.show()

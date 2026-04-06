@@ -484,7 +484,9 @@ def test_show_diff_additions():
     viewer = DiffViewer()
     viewer.show_diff("line1\n", "line1\nline2\n")
     html = viewer._text.toHtml()
-    assert theme.GREEN in html
+    # Qt's HTML renderer normalizes hex colors to lowercase, so compare
+    # case-insensitively against the palette constant.
+    assert theme.GREEN.lower() in html.lower()
     viewer.close()
     viewer.deleteLater()
 
@@ -497,7 +499,7 @@ def test_show_diff_removals():
     viewer = DiffViewer()
     viewer.show_diff("line1\nline2\n", "line1\n")
     html = viewer._text.toHtml()
-    assert theme.RED in html
+    assert theme.RED.lower() in html.lower()
     viewer.close()
     viewer.deleteLater()
 
