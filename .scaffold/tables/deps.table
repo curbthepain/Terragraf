@@ -16,3 +16,4 @@ imgui    | tuning  | uses    | medium
 tuning   | sharpen | uses    | low
 tests    | math    | uses    | low
 tests    | fft     | uses    | low
+projects | skills  | uses    | low
