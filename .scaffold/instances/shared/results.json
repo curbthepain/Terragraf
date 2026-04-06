@@ -432,5 +432,19 @@
     "status": "completed",
     "result": "all good",
     "completed_at": 1775500609.348509
+  },
+  {
+    "instance_id": "reporter",
+    "task_id": "4dff2036",
+    "status": "completed",
+    "result": "all good",
+    "completed_at": 1775501361.4143605
+  },
+  {
+    "instance_id": "reporter",
+    "task_id": "1a7bc665",
+    "status": "completed",
+    "result": "all good",
+    "completed_at": 1775501471.5455408
   }
 ]

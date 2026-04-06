@@ -256,15 +256,24 @@ class TestWelcomeTabS27:
 
 @needs_qt
 class TestTabStripMirroring:
+    # Class-level refs keep Qt widgets alive across the test body. Local
+    # variables get GC'd the moment the helper returns, which under
+    # shiboken deletes the underlying C++ object and the strip along with
+    # it — that's what caused the first run on CI to blow up with
+    # "Internal C++ object (WorkspaceTabStrip) already deleted".
+    _alive: list = []
+
     def _make(self):
-        from PySide6.QtWidgets import QMenu
         from app.session import SessionManager
         from app.tab_widget import WorkspaceTabWidget
-        from app.widgets.top_bar import TopBar
+        from app.widgets.tab_strip import WorkspaceTabStrip
         mgr = SessionManager()
         tabs = WorkspaceTabWidget(mgr)
-        bar = TopBar(QMenu())
-        strip = bar.tab_strip
+        strip = WorkspaceTabStrip()
+        # Pin both objects so Python (and shiboken) don't collect them
+        # mid-test.
+        self._alive.extend([mgr, tabs, strip])
+
         # Wire the same signals MainWindow wires.
         tabs.tab_added.connect(lambda i, lbl: strip.add_tab(i, lbl))
         tabs.tab_removed.connect(strip.remove_tab)
@@ -273,6 +282,16 @@ class TestTabStripMirroring:
         strip.current_changed.connect(tabs.setCurrentIndex)
         strip.close_requested.connect(tabs._on_close_tab)
         return tabs, strip
+
+    def test_topbar_owns_tab_strip(self):
+        """Sanity: the TopBar exposes the same WorkspaceTabStrip type used
+        above, so MainWindow's wiring targets the same signal surface."""
+        from PySide6.QtWidgets import QMenu
+        from app.widgets.tab_strip import WorkspaceTabStrip
+        from app.widgets.top_bar import TopBar
+        bar = TopBar(QMenu())
+        self._alive.append(bar)
+        assert isinstance(bar.tab_strip, WorkspaceTabStrip)
 
     def test_create_tab_adds_pill(self):
         tabs, strip = self._make()
