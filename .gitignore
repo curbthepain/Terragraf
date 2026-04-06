@@ -4,6 +4,9 @@
 .claude/
 Releases/
 checkpoints/
-projects/
+projects/*
+!projects/knowledge_writer.py
+!projects/knowledge_reader.py
+!projects/KNOWLEDGE.toml
 src/
 Debug/
