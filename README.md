@@ -2,7 +2,7 @@
 
 **This is not a code generator. This is the environment the AI operates inside of.**
 
-[![CI](https://github.com/curbthepain/Terragraf/actions/workflows/ci.yml/badge.svg)](https://github.com/curbthepain/Terragraf/actions/workflows/ci.yml)
+[![CI](https://github.com/curbthepain/Terragraf/actions/workflows/ci.yml/badge.svg)](https://github.com/curbthepain/Terragraf/actions/workflows/ci.yml) 
 
 Terragraf is the working directory any AI reads on entry. It provides
 structure, navigation, composition, and execution; everything an AI
@@ -16,10 +16,9 @@ instead of scanning every file or relying on summarization.
 ---
 
 ## Known Issues 
-  - The app implement is broken as of now. Essentially pre alpha. Things are mislabeled, and most things don't work.
   - QT widget rendering causes improper scaling inside the app.
-  - Elements that are undesirable, such as 302 Tests Pass, from AI "vibing" do exist. Those will be ironed out.
-  - UI/UX needs much polishing. It is experimental at best for now.
+  - Elements that are undesirable from AI "vibing" do exist. Those will be ironed out.
+  - UI/UX needs some polishing. It is experimental for now.
 
 ---
 
