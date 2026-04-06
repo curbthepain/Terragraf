@@ -1,4 +1,11 @@
-"""Main window — tabbed workspace with native + external sessions."""
+"""Main window — tabbed workspace with native + external sessions.
+
+Session 27 chrome rework: replaced the ``QSplitter`` + ``QStatusBar`` shell
+with a floating-card layout (sidebar + top bar + tab content + footer) that
+matches ``additions/terragraf_preview.py``. See
+``.scaffold/app/widgets/top_bar.py`` for ``TopBar`` / ``Footer``, and
+``tab_strip.py`` for the ws-tab pill strip that replaces ``QTabBar``.
+"""
 
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QAction, QKeySequence
@@ -9,13 +16,8 @@ from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
-    QLabel,
-    QStatusBar,
-    QPushButton,
-    QSplitter,
 )
 
-from . import theme
 from .bridge_client import BridgeClient
 from .coherence import CoherenceManager
 from .external_detector import ExternalDetector
@@ -31,7 +33,8 @@ from .tab_widget import WorkspaceTabWidget
 from .welcome_tab import WelcomeTab
 from .settings_page import _load_settings, _save_settings
 from .widgets.sidebar import Sidebar
-from .widgets.top_bar import TabCornerChrome
+from .widgets.top_bar import Footer, TopBar
+from . import theme
 
 
 class MainWindow(QMainWindow):
@@ -108,45 +111,71 @@ class MainWindow(QMainWindow):
             ),
         )
 
+        # ImGuiPanel is still constructed (its cleanup hooks matter) but
+        # it no longer lives inside the main layout — the preview chrome
+        # has no side column for it, and ImGui runs in a separate OS
+        # window via ImGuiDock anyway. TODO(s28): expose via a toggleable
+        # floating dock if we want the in-window panel back.
         self._imgui_panel = ImGuiPanel(self._bridge)
-        self._imgui_panel.setVisible(False)  # Hidden until toggled
+        self._imgui_panel.setVisible(False)
 
         # --- Sidebar (collapsible contextual rail) ---
         self._sidebar = Sidebar()
         settings = _load_settings()
         self._sidebar.set_expanded(settings.get("sidebar_expanded", True))
 
-        # --- Tab-bar corner chrome (hamburger + sidebar toggle) ---
+        # --- Top bar (hamburger + sidebar toggle + ws-tab strip + brand) ---
         self._hamburger_menu = self._build_hamburger_menu()
-        self._top_bar = TabCornerChrome(self._hamburger_menu)
+        self._top_bar = TopBar(self._hamburger_menu)
         self._top_bar.set_sidebar_expanded(self._sidebar.is_expanded())
         self._top_bar.sidebar_toggle_clicked.connect(self._toggle_sidebar)
-        # Pin chrome to the LEFT corner of the tab strip — directly left of the tabs.
-        self._tabs.setCornerWidget(self._top_bar, Qt.Corner.TopLeftCorner)
+
+        # Wire WorkspaceTabWidget <-> TopBar.tab_strip
+        self._tab_strip = self._top_bar.tab_strip
+        self._tabs.tab_added.connect(self._on_tab_added_to_strip)
+        self._tabs.tab_removed.connect(self._tab_strip.remove_tab)
+        self._tabs.tab_label_changed.connect(self._tab_strip.set_label)
+        self._tabs.current_changed.connect(self._tab_strip.set_current)
+        self._tab_strip.current_changed.connect(self._tabs.setCurrentIndex)
+        self._tab_strip.close_requested.connect(self._tabs._on_close_tab)
 
         # Hide the standard menu bar — hamburger replaces it
         self.menuBar().setVisible(False)
 
-        # 3-column splitter: [sidebar | tabs (with corner chrome) | imgui]
+        # --- Floating-card central layout ---
         # objectName="centralWidget" makes the QMainWindow's sunset gradient
         # show through (see kohala.qss `QMainWindow > QWidget#centralWidget`).
-        self._splitter = QSplitter(Qt.Orientation.Horizontal)
-        self._splitter.setObjectName("centralWidget")
-        self._splitter.addWidget(self._sidebar)
-        self._splitter.addWidget(self._tabs)
-        self._splitter.addWidget(self._imgui_panel)
-        self._splitter.setStretchFactor(0, 0)
-        self._splitter.setStretchFactor(1, 4)
-        self._splitter.setStretchFactor(2, 1)
-        self._splitter.setSizes([
-            self._sidebar.width() or Sidebar.WIDTH_COLLAPSED,
-            1080,
-            280,
-        ])
-        # Sidebar handle is non-draggable (sidebar is fixed-width)
-        self._splitter.setCollapsible(0, False)
+        central = QWidget()
+        central.setObjectName("centralWidget")
 
-        self.setCentralWidget(self._splitter)
+        outer = QVBoxLayout(central)
+        outer.setContentsMargins(16, 14, 16, 6)
+        outer.setSpacing(10)
+
+        body = QHBoxLayout()
+        body.setContentsMargins(0, 0, 0, 0)
+        body.setSpacing(14)
+        body.addWidget(self._sidebar)
+
+        right_col = QVBoxLayout()
+        right_col.setContentsMargins(0, 0, 0, 0)
+        right_col.setSpacing(12)
+        right_col.addWidget(self._top_bar)
+        right_col.addWidget(self._tabs, 1)
+
+        right_wrap = QWidget()
+        right_wrap.setLayout(right_col)
+        body.addWidget(right_wrap, 1)
+
+        body_wrap = QWidget()
+        body_wrap.setLayout(body)
+        outer.addWidget(body_wrap, 1)
+
+        # --- Footer (replaces QStatusBar) ---
+        self._footer = Footer()
+        outer.addWidget(self._footer)
+
+        self.setCentralWidget(central)
 
         # --- Lazy dialog cache (sidebar action_id -> instance) ---
         self._dialogs: dict = {}
@@ -173,26 +202,10 @@ class MainWindow(QMainWindow):
         # Sidebar action dispatch
         self._sidebar.action_triggered.connect(self._on_sidebar_action)
 
-        # --- Status bar ---
-        self._status = QStatusBar()
-        self.setStatusBar(self._status)
-
-        # Bridge status indicator
-        self._bridge_indicator = QLabel("bridge: offline")
-        self._bridge_indicator.setObjectName("dim")
-        self._status.addPermanentWidget(self._bridge_indicator)
+        # --- Footer state wiring (replaces the S26 QStatusBar) ---
         self._bridge.connection_changed.connect(self._on_bridge_status)
+        self._footer.set_bridge_state(False)
 
-        # Session count indicator
-        self._session_indicator = QLabel("0 sessions")
-        self._session_indicator.setObjectName("dim")
-        self._status.addPermanentWidget(self._session_indicator)
-
-        # Coherence warning indicator
-        self._coherence_indicator = QLabel("")
-        self._coherence_indicator.setStyleSheet(f"color: {theme.YELLOW};")
-        self._coherence_indicator.setVisible(False)
-        self._status.addPermanentWidget(self._coherence_indicator)
         self._coherence.conflict_detected.connect(self._on_conflict_detected)
         self._coherence.conflict_cleared.connect(self._on_conflict_cleared)
 
@@ -201,8 +214,7 @@ class MainWindow(QMainWindow):
 
         # --- Create initial welcome tab ---
         self._tabs.create_tab(tab_type="welcome", label="Welcome")
-
-        self._status.showMessage("ready")
+        self._update_session_count()
 
         # --- Auto-connect if configured ---
         settings = _load_settings()
@@ -310,9 +322,9 @@ class MainWindow(QMainWindow):
     # ── Tab event handlers ──────────────────────────────────────────
 
     def _on_tab_activated(self, session_id: str):
-        session = self._session_mgr.get(session_id)
-        if session:
-            self._status.showMessage(f"{session.tab_type}: {session.label}")
+        # Footer doesn't carry a "current tab" segment — the active ws-tab
+        # pill in the top bar handles that. Hook kept for future use.
+        return
 
     def _on_tab_created(self, session_id: str):
         self._update_session_count()
@@ -321,8 +333,19 @@ class MainWindow(QMainWindow):
         self._update_session_count()
 
     def _update_session_count(self):
-        n = self._session_mgr.count
-        self._session_indicator.setText(f"{n} session{'s' if n != 1 else ''}")
+        self._footer.set_session_count(self._session_mgr.count)
+
+    def _on_tab_added_to_strip(self, index: int, label: str):
+        """Bridge WorkspaceTabWidget.tab_added to the ws-tab pill strip.
+
+        Welcome tabs are non-closable; everything else gets an inline ×.
+        """
+        session_id = self._tabs.session_for_tab(index)
+        session = self._session_mgr.get(session_id) if session_id else None
+        closable = not (session and session.tab_type == "welcome")
+        self._tab_strip.add_tab(index, label, closable=closable)
+        # If the new tab is the current one, highlight its pill immediately.
+        self._tab_strip.set_current(self._tabs.currentIndex())
 
     def _on_external_change(self, event):
         """Forward external events to all open ExternalTab widgets."""
@@ -338,7 +361,8 @@ class MainWindow(QMainWindow):
         Watcher saw HOT_CONTEXT.md change. Run the central threshold guard
         in warn-only mode (auto_decompose=False) so we never rewrite a file
         the user might be editing in another window. Surface the result in
-        the status bar.
+        the footer as a transient coherence warning so the user sees it
+        without the old QStatusBar round-trip.
         """
         try:
             import sys as _sys
@@ -351,21 +375,15 @@ class MainWindow(QMainWindow):
         except Exception:
             return
         if result.get("over"):
-            self.statusBar().showMessage(
-                f"HOT_CONTEXT {result['lines']}/{result['threshold']} lines "
-                f"— run terra hot decompose",
-                8000,
+            self._footer.set_coherence_warning(
+                f"HOT_CONTEXT {result['lines']}/{result['threshold']} — "
+                f"run terra hot decompose"
             )
 
     # ── Bridge status ───────────────────────────────────────────────
 
     def _on_bridge_status(self, connected: bool):
-        if connected:
-            self._bridge_indicator.setText("bridge: online")
-            self._bridge_indicator.setStyleSheet(f"color: {theme.GREEN};")
-        else:
-            self._bridge_indicator.setText("bridge: offline")
-            self._bridge_indicator.setStyleSheet(f"color: {theme.RED};")
+        self._footer.set_bridge_state(connected)
         if hasattr(self, "_sidebar"):
             self._sidebar.set_bridge_status(connected)
 
@@ -373,19 +391,22 @@ class MainWindow(QMainWindow):
 
     def _on_conflict_detected(self, session_id: str, conflict_type: str, detail: str):
         n = self._coherence.active_conflict_count
-        self._coherence_indicator.setText(f"conflicts: {n}")
-        self._coherence_indicator.setToolTip(f"{conflict_type}: {detail}")
-        self._coherence_indicator.setVisible(True)
+        self._footer.set_coherence_warning(
+            f"CONFLICTS: {n} ({conflict_type})"
+        )
 
     def _on_conflict_cleared(self, session_id: str):
         if self._coherence.active_conflict_count == 0:
-            self._coherence_indicator.setVisible(False)
+            self._footer.set_coherence_warning(None)
         else:
             n = self._coherence.active_conflict_count
-            self._coherence_indicator.setText(f"conflicts: {n}")
+            self._footer.set_coherence_warning(f"CONFLICTS: {n}")
 
     def _on_sharpen_suggested(self, route_path: str):
-        self._status.showMessage(f"sharpen suggested: {route_path}", 5000)
+        # Sharpen hints used to flash in the status bar. The footer is a
+        # persistent brand line now; just log and let ActivityFeed surface
+        # the event instead.
+        return
 
     # ── ImGui panel ──────────────────────────────────────────────────
 
@@ -424,12 +445,8 @@ class MainWindow(QMainWindow):
         new_state = not self._sidebar.is_expanded()
         self._sidebar.set_expanded(new_state)
         self._top_bar.set_sidebar_expanded(new_state)
-        # Sync splitter sizes so the column resizes immediately
-        sizes = self._splitter.sizes()
-        if sizes:
-            sizes[0] = (Sidebar.WIDTH_EXPANDED if new_state else Sidebar.WIDTH_COLLAPSED)
-            self._splitter.setSizes(sizes)
-        # Persist
+        # No splitter anymore — the sidebar is a fixed-width floating card,
+        # set_expanded() already updates its width.
         s = _load_settings()
         s["sidebar_expanded"] = new_state
         _save_settings(s)
@@ -448,30 +465,29 @@ class MainWindow(QMainWindow):
                 else:
                     self._dialogs[key] = factory()
             except Exception as e:
-                self._status.showMessage(f"failed to open {key}: {e}", 5000)
+                self._footer.set_coherence_warning(f"failed to open {key}: {e}")
                 return None
         return self._dialogs[key]
 
     def _run_skill_quietly(self, name: str):
-        """Run a skill in-process and show first line in status bar."""
+        """Run a skill in-process. Errors surface as a coherence warning."""
         try:
             import sys
             from pathlib import Path
             sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
             from skills.runner import run_skill_capture
             rc, stdout, stderr = run_skill_capture(name, [])
-            text = (stdout or stderr or "").strip()
-            first = text.split("\n", 1)[0] if text else f"{name} done"
-            self._status.showMessage(f"{name}: {first}", 5000)
+            if rc != 0:
+                text = (stderr or stdout or "").strip().split("\n", 1)[0]
+                self._footer.set_coherence_warning(f"{name}: {text or 'failed'}")
         except Exception as e:
-            self._status.showMessage(f"{name}: error {e}", 5000)
+            self._footer.set_coherence_warning(f"{name}: error {e}")
 
     def _clear_active_activity_feed(self):
         widget = self._tabs.currentWidget()
         feed = getattr(widget, "_activity_feed", None) or getattr(widget, "activity_feed", None)
         if feed and hasattr(feed, "clear"):
             feed.clear()
-            self._status.showMessage("activity feed cleared", 3000)
 
     def _on_sidebar_action(self, action_id: str):
         # Imports are local to keep window.py startup fast and avoid
@@ -502,8 +518,7 @@ class MainWindow(QMainWindow):
         if action_id == "settings":
             self._open_settings(); return
         if action_id == "refresh_snapshot":
-            self._scaffold_state.load_all()
-            self._status.showMessage("snapshot reloaded", 3000); return
+            self._scaffold_state.load_all(); return
         if action_id == "clear_activity":
             self._clear_active_activity_feed(); return
         if action_id.startswith("skill:"):
@@ -571,7 +586,7 @@ class MainWindow(QMainWindow):
                 dlg.exec()
             return
 
-        self._status.showMessage(f"unknown sidebar action: {action_id}", 3000)
+        self._footer.set_coherence_warning(f"unknown sidebar action: {action_id}")
 
     def closeEvent(self, event):
         # Cleanup coherence timer

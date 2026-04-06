@@ -282,6 +282,11 @@ QLabel[class="sidebar-header"]  { font-family: "JetBrains Mono", "Consolas", mon
 QLabel[class="hint"]            { color: #6B7D90; font-size: 11px; font-family: "JetBrains Mono", monospace; letter-spacing: 0.5px; }
 QLabel[class="brand-mark"]      { font-family: "Barlow Condensed", sans-serif; font-weight: 900; font-size: 18px; color: #FFFFFF; letter-spacing: 2px; }
 QLabel[class="brand-mark-red"]  { font-family: "Barlow Condensed", sans-serif; font-weight: 900; font-size: 18px; color: #E83030; letter-spacing: 2px; }
+/* Session 27: single centered line rendered into the workspace Footer —
+   replaces the old QStatusBar and folds bridge/session/coherence state
+   into one ticker-style label. Matches the inline style used by the
+   preview's `center_lbl`. */
+QLabel[class="brand-footer"]    { color: #E83030; font-family: "JetBrains Mono", "Consolas", monospace; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; background: transparent; border: none; }
 
 /* Sidebar nav items — pill rows with warm top edge on hover/active.
    Padding kept tight on the right and letter-spacing pulled back so

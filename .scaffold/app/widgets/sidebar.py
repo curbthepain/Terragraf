@@ -10,14 +10,28 @@ The toggle is on the TopBar, not inside the sidebar.
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QLabel,
     QFrame,
+    QHBoxLayout,
+    QLabel,
+    QVBoxLayout,
+    QWidget,
 )
 
 from .. import theme
 from .icon_button import IconButton
+
+
+# Hardcoded for now — no single-source-of-truth version string exists in
+# the codebase yet. TODO(s28): pull from pyproject.toml or app/__init__.py
+# once we add one.
+_APP_VERSION = "v0.4.2"
+
+
+def _apply_class(widget: QWidget, cls: str) -> None:
+    widget.setProperty("class", cls)
+    s = widget.style()
+    s.unpolish(widget)
+    s.polish(widget)
 
 
 # Per-tab layouts: list of (icon, label, action_id)
@@ -79,24 +93,29 @@ class Sidebar(QWidget):
     action_triggered = Signal(str)
 
     WIDTH_COLLAPSED = theme.SIDEBAR_WIDTH_COLLAPSED
-    WIDTH_EXPANDED = theme.SIDEBAR_WIDTH_EXPANDED
+    # S27: matches the 258px floating card in additions/terragraf_preview.py.
+    WIDTH_EXPANDED = 258
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("sidebar_v2")
+        # Session 27: tag the sidebar as a kohala card so the QSS
+        # `QFrame[class="sidebar"]` rule applies. The legacy objectName
+        # shim remains for backward compatibility.
+        _apply_class(self, "sidebar")
 
         self._expanded = False
         self._current_tab_type: str | None = None
         self._buttons: list[IconButton] = []
 
         self._layout = QVBoxLayout(self)
-        self._layout.setContentsMargins(0, 4, 0, 4)
+        self._layout.setContentsMargins(14, 18, 14, 14)
         self._layout.setSpacing(2)
 
-        self._section_label = QLabel("")
-        self._section_label.setObjectName("sidebar_section")
-        self._section_label.setVisible(False)
+        self._section_label = QLabel("— WELCOME —")
+        _apply_class(self._section_label, "sidebar-header")
         self._layout.addWidget(self._section_label)
+        self._layout.addSpacing(6)
 
         # Container that holds dynamic action buttons
         self._buttons_container = QWidget()
@@ -107,15 +126,30 @@ class Sidebar(QWidget):
 
         self._layout.addStretch(1)
 
-        # Footer separator + bridge indicator
-        sep = QFrame()
-        sep.setObjectName("separator")
-        sep.setFrameShape(QFrame.Shape.HLine)
-        self._layout.addWidget(sep)
+        # ── Footer: ws-divider + "— WORKSPACE // vX.Y.Z" row + bridge dot
+        divider = QFrame()
+        _apply_class(divider, "ws-divider")
+        divider.setFixedHeight(1)
+        self._layout.addWidget(divider)
+        self._layout.addSpacing(8)
+
+        ws_row = QHBoxLayout()
+        ws_row.setContentsMargins(2, 0, 2, 0)
+        ws_row.setSpacing(8)
+        ws_lbl = QLabel("— WORKSPACE //")
+        _apply_class(ws_lbl, "sidebar-header")
+        ws_row.addWidget(ws_lbl)
+        ws_row.addStretch(1)
+        ver_lbl = QLabel(_APP_VERSION)
+        _apply_class(ver_lbl, "hint")
+        ws_row.addWidget(ver_lbl)
+        ws_wrap = QWidget()
+        ws_wrap.setLayout(ws_row)
+        self._layout.addWidget(ws_wrap)
 
         self._bridge_label = QLabel("●")
         self._bridge_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._bridge_label.setStyleSheet(f"color: {theme.RED}; padding: 6px;")
+        self._bridge_label.setStyleSheet(f"color: {theme.RED}; padding: 4px;")
         self._bridge_label.setToolTip("bridge: offline")
         self._layout.addWidget(self._bridge_label)
 
@@ -170,6 +204,8 @@ class Sidebar(QWidget):
         layout = _TAB_LAYOUTS.get(self._current_tab_type, [])
         for icon, label, action_id in layout:
             btn = IconButton(icon, label)
+            # S27: tag so kohala.qss `QPushButton[class="nav-item"]` applies.
+            _apply_class(btn, "nav-item")
             btn.set_expanded(self._expanded)
             btn.clicked.connect(lambda _=False, aid=action_id: self.action_triggered.emit(aid))
             self._buttons.append(btn)
