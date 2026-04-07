@@ -568,20 +568,28 @@ def test_welcome_tab_creation(scaffold_state, session_manager):
 
 
 @needs_qt
-def test_welcome_tab_has_hint_not_broken_buttons(scaffold_state, session_manager):
-    """Welcome tab shows a sidebar hint instead of the old broken action buttons."""
+def test_welcome_tab_has_two_panels_not_broken_buttons(scaffold_state, session_manager):
+    """S27: welcome tab renders two QFrame[class=panel] cards, no action buttons."""
     from app.session import Session
     from app.welcome_tab import WelcomeTab
-    from PySide6.QtWidgets import QPushButton, QLabel
+    from PySide6.QtWidgets import QFrame, QPushButton
     session = Session(tab_type="welcome", label="Welcome")
     tab = WelcomeTab(session, scaffold_state, session_manager)
+
+    # The S26 welcome tab still had broken action buttons. The S27 rewrite
+    # removed them entirely — the sidebar covers every entry point.
     button_labels = {b.text() for b in tab.findChildren(QPushButton)}
     assert "New Native Tab" not in button_labels
     assert "New External Tab" not in button_labels
     assert "Toggle ImGui" not in button_labels
     assert "Open Settings" not in button_labels
-    label_texts = " ".join(l.text() for l in tab.findChildren(QLabel))
-    assert "sidebar" in label_texts.lower()
+
+    # Exactly two direct-child panel frames (Scaffold Health + Recent Tabs).
+    panels = [
+        f for f in tab.findChildren(QFrame)
+        if f.property("class") == "panel"
+    ]
+    assert len(panels) == 2
     tab.close()
     tab.deleteLater()
 

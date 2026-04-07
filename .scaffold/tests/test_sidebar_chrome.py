@@ -119,27 +119,35 @@ class TestSidebar:
 
 
 # ── TopBar ─────────────────────────────────────────────────────────────
+# Session 27 replaced ``TabCornerChrome`` (a 2-button corner widget inside
+# the QTabWidget) with a full-width ``TopBar`` floating card that owns the
+# workspace tab-strip as well. Detailed TopBar/Footer/TabStrip assertions
+# live in test_layout.py.
 
 @needs_qt
 class TestTopBar:
     def test_construct_with_menu(self):
         from PySide6.QtWidgets import QMenu
-        from app.widgets.top_bar import TabCornerChrome
+        from app.widgets.top_bar import TopBar
         menu = QMenu()
         menu.addAction("Test")
-        bar = TabCornerChrome(menu)
-        assert bar.hamburger_button.text() == "☰"
-        assert bar.sidebar_toggle.text() == "▤"
+        bar = TopBar(menu)
+        assert bar.hamburger_button.text() == "≡"
+        assert bar.sidebar_toggle.text() == "▣"
+        assert bar.tab_strip is not None
+        assert bar.brand_terra.text() == "TERRA"
+        assert bar.brand_graf.text() == "GRAF"
 
     def test_set_sidebar_expanded_flips_icon(self):
         from PySide6.QtWidgets import QMenu
-        from app.widgets.top_bar import TabCornerChrome
+        from app.widgets.top_bar import TopBar
         menu = QMenu()
-        bar = TabCornerChrome(menu)
+        bar = TopBar(menu)
+        before = bar.sidebar_toggle.text()
         bar.set_sidebar_expanded(True)
-        assert "◀" in bar.sidebar_toggle.text()
+        assert bar.sidebar_toggle.text() != before
         bar.set_sidebar_expanded(False)
-        assert "◀" not in bar.sidebar_toggle.text()
+        assert bar.sidebar_toggle.text() == before
 
 
 # ── CommandDialog ──────────────────────────────────────────────────────
