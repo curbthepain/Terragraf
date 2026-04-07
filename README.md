@@ -62,6 +62,9 @@ pip install -r requirements-app.txt      # + PySide6 (Qt GUI)
 
 ![Skills](skills-card.svg)
 
+![App](additions/terragraf_mainwindow.png)
+
+
 See [COMMANDS.md](COMMANDS.md) for the full command reference with
 descriptions, skills table, and UI panel docs.
 
