@@ -1,0 +1,14 @@
+[skill]
+name = "render_3d"
+version = "0.1"
+description = "3D visualization pipeline: surfaces, volumes, node graphs, point clouds"
+entry = "run.py"
+type = "renderer"
+
+[triggers]
+intents = ["render 3d", "3d visualization", "volume render", "node graph", "mesh render"]
+commands = ["terra render"]
+
+[deps]
+python = [">=3.11"]
+modules = ["numpy", "matplotlib"]

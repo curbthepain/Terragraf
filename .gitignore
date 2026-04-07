@@ -1,4 +1,12 @@
 **/__pycache__/
 .scaffold/imgui/build/
+.scaffold/llm/CURRENT.json
+.claude/
 Releases/
 checkpoints/
+projects/*
+!projects/knowledge_writer.py
+!projects/knowledge_reader.py
+!projects/KNOWLEDGE.toml
+src/
+Debug/

@@ -32,9 +32,9 @@
 
 #module ml {
     #path "ml"
-    #exports [ScaffoldModel, Classifier, CNN, Transformer, ScaffoldDataset, create_dataloader, Trainer, Evaluator]
+    #exports [ScaffoldModel, Classifier, CNN, Transformer, TerraLM, ScaffoldDataset, create_dataloader, Trainer, Evaluator, MetricsTracker, TrainConfig, export_onnx, load_onnx, export_safetensors, load_safetensors, export_torchscript, load_torchscript, save_model, load_model, save_checkpoint, load_checkpoint, detect_format, available_backends, ModelIOError, create_logger, create_optimizer, create_scheduler]
     #depends [math]
-    #desc "PyTorch ML pipeline — models, datasets, training, evaluation"
+    #desc "PyTorch ML pipeline — models, datasets, training, evaluation, export, logging"
 }
 
 #module viz {
@@ -79,6 +79,20 @@
     #desc "Git workflow scripts — branch, commit, PR, CI/CD templates"
 }
 
+#module imgui {
+    #path "imgui"
+    #exports [render_math_panel, render_spectrogram_panel, render_volume_panel, render_settings_panel, render_debug_panel]
+    #depends [viz, tuning, workspace]
+    #desc "ImGui viewer panels — math, spectrogram, volume, settings, debug (C++/OpenGL), embeddable via --embedded"
+}
+
+#module sharpen {
+    #path "sharpen"
+    #exports []
+    #depends []
+    #desc "Self-sharpening feedback loop — post-validation optimization"
+}
+
 #module tuning {
     #path "tuning"
     #exports [ThematicEngine, UniverseProfile, Knob, Zone, load_profile, list_profiles]
@@ -93,11 +107,74 @@
     #desc "Modular IDE host — discovers IDEs in apps/ via app.toml manifests, embeds via QWebEngineView or manages as child process"
 }
 
+#module workspace {
+    #path "app"
+    #exports [MainWindow, WorkspaceTabWidget, Session, SessionManager, ScaffoldWatcher, ScaffoldState, SettingsDialog, ExternalTab, ExternalDetector, ImGuiPanel, ImGuiDock, FeedbackLoop, CoherenceManager, WelcomeTab, Sidebar, TopBar, IconButton, CommandDialog, FieldSpec, SkillPicker, RoutesBrowser, HeadersBrowser, KnowledgeBrowser, WorktreeManagerDialog, LookupBrowser, PatternBrowser, HealthPanel, QueuePanel, DepsPanel, MCPServerPanel, SharpenPanel, HotContextEditor, TunePanel, ModePanel, StatusPanel, ViewerPanel, GenerateDialog, TrainDialog, SolveDialog, AnalyzeDialog, RenderDialog, BranchDialog, CommitDialog, GitFlowDialog, KnowledgeAddDialog, ProjectNewDialog, WorktreeCreateDialog, DispatchDialog]
+    #depends [instances, app_host]
+    #desc "Tabbed workspace — sidebar + hamburger chrome, native/external/welcome tabs, scaffold watcher, state cache, ImGui embedding, feedback loops, coherence detection, command form dialogs, browsers, status panels"
+}
+
+#module query {
+    #path "query"
+    #exports [QueryEngine, IntentParser, QueryResult, Intent, RouteMatch, HeaderMatch]
+    #depends [skills, workspace]
+    #desc "Structured query engine — intent parsing, route/header/skill resolution, LLM fallback when score < 0.5"
+}
+
+#module llm {
+    #path "llm"
+    #exports [LLMProvider, LLMConfig, LLMContext, AnthropicProvider, OpenAICompatibleProvider, HuggingFaceProvider, LLMWorker, make_provider, load_llm_config, LLM_FALLBACK_THRESHOLD, HarnessInfo, detect, detect_and_persist, read_current, write_current, lookup_capabilities]
+    #depends [query, workspace]
+    #desc "LLM provider layer — Anthropic + OpenAI-compat + HuggingFace local + universal harness/model detection (Claude Code, Cursor, Windsurf, Continue, terra)"
+}
+
+#module hooks {
+    #path "hooks"
+    #exports [check_threshold, on_commit, on_enter, on_generate, on_instance]
+    #depends [skills]
+    #desc "Lifecycle hooks — git pre/post commit, generation formatting, instance lifecycle, HOT_CONTEXT threshold guard (universal trigger)"
+}
+
+#module skills {
+    #path "skills"
+    #exports [list_skills, match_skill, run_skill, run_skill_capture, print_skills]
+    #depends []
+    #desc "Skill system — plugin discovery, intent matching, execution (SKILL.toml manifests)"
+}
+
+#module mcp {
+    #path "mcp"
+    #exports [MCPServer, ResourceRegistry, ResourceDescriptor, Resource, SkillToolAdapter]
+    #depends [skills, workspace]
+    #desc "MCP resource server — exposes scaffold data as discoverable resources over TCP (port 9878)"
+}
+
+#module worktree {
+    #path "worktree"
+    #exports [WorktreeManager, WorktreeInfo, WorktreeContext]
+    #depends [instances, git]
+    #desc "Git worktree isolation — parallel agent work in independent working trees"
+}
+
+#module projects {
+    #path "../projects"
+    #exports []
+    #depends [skills]
+    #desc "User projects directory — scaffolded by skills/scaffold_project"
+}
+
+#module deps {
+    #path "../src"
+    #exports [sync_python, sync_cpp, deps_status, deps_clean]
+    #depends []
+    #desc "Local dependency sourcing — Python (pip --target) and C++ (git clone) into src/"
+}
+
 #module tests {
     #path "tests"
     #exports []
     #depends [math, fft, generators]
-    #desc "Pytest test suite — 95 tests covering math, FFT, spectral, generators"
+    #desc "Pytest test suite — 382 tests covering math, FFT, spectral, tuning, transport, generators"
 }
 
 #endif // PROJECT_H

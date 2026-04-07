@@ -71,6 +71,69 @@ mode capabilities      -> headers/modes.h            # What each mode allows
 mode config            -> MANIFEST.toml              # [modes] section
 mode guard             -> modes/detector.py          # require_app() guard
 
+# ─── Skills ───────────────────────────────────────────────────────────
+list skills            -> skills/runner.py             # Discover registered skills
+run skill              -> skills/runner.py             # Execute a skill by name
+new skill              -> skills/                      # Create a new skill
+skill registry         -> skills/registry.table        # View skill registry
+skill routing          -> skills/router.route          # Intent → skill mapping
+
+# ─── Hot Context ──────────────────────────────────────────────────────
+hot context            -> skills/hot_context/run.py      # Read/update session hot context
+session status         -> skills/hot_context/run.py      # Alias
+read context           -> HOT_CONTEXT.md                  # Raw hot context file (scaffold root)
+decompose context      -> skills/hot_decompose/run.py    # Triage HOT_CONTEXT into scaffold
+triage hot context     -> skills/hot_decompose/run.py    # Alias
+clean hot context      -> skills/hot_decompose/run.py    # Alias
+
+# ─── Projects ─────────────────────────────────────────────────────────
+new project            -> skills/scaffold_project/run.py  # Scaffold new project
+create project         -> skills/scaffold_project/run.py  # Alias
+project structure      -> ../projects/                    # Browse projects
+
+# ─── Signal Analysis ──────────────────────────────────────────────────
+analyze signal         -> skills/signal_analyze/run.py    # End-to-end FFT + spectral + export
+audio analysis         -> skills/signal_analyze/run.py    # Alias
+
+# ─── Math Solver ─────────────────────────────────────────────────────
+solve math             -> skills/math_solve/run.py        # Linalg, algebra, stats, transforms
+eigenvalues            -> skills/math_solve/run.py        # Alias
+curve fit              -> skills/math_solve/run.py        # Alias
+
+# ─── Git Flow ────────────────────────────────────────────────────────
+git branch             -> skills/git_flow/run.py          # Create conventional branch
+git commit             -> skills/git_flow/run.py          # Structured commit
+git pr                 -> skills/git_flow/run.py          # PR template/preview
+
+# ─── Code Generation ─────────────────────────────────────────────────
+generate code          -> skills/generate/run.py          # Unified module/model/shader gen
+scaffold code          -> skills/generate/run.py          # Alias
+
+# ─── ML Training ─────────────────────────────────────────────────────
+train pipeline         -> skills/train_model/run.py       # Full ML training workflow
+ml training            -> skills/train_model/run.py       # Alias
+
+# ─── Viewer ──────────────────────────────────────────────────────────
+launch viewer          -> skills/viewer/run.py            # Build + bridge + launch ImGui
+viewer status          -> skills/viewer/run.py            # Check build status
+
+# ─── 3D Render ───────────────────────────────────────────────────────
+render surface         -> skills/render_3d/run.py         # Math surface visualization
+render volume          -> skills/render_3d/run.py         # Volume slices
+render nodes           -> skills/render_3d/run.py         # Node graph
+
+# ─── Test Suite ──────────────────────────────────────────────────────
+run tests              -> skills/test_suite/run.py        # Discover + run + report
+test module            -> skills/test_suite/run.py        # Run subsystem tests
+
+# ─── Instance Dispatch ───────────────────────────────────────────────
+dispatch task          -> skills/instance_dispatch/run.py  # Enqueue + spawn parallel
+instance status        -> skills/instance_dispatch/run.py  # Monitor queue
+
+# ─── Health ──────────────────────────────────────────────────────────
+health check           -> skills/health_check/run.py      # Full system diagnostic
+system health          -> skills/health_check/run.py      # Alias
+
 # ─── Refactoring ──────────────────────────────────────────────────────
 refactor             -> headers/conventions.h       # Re-read conventions
 rename               -> headers/project.h          # Module boundaries

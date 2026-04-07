@@ -23,7 +23,13 @@ except ImportError:
 needs_qt = pytest.mark.skipif(not HAS_PYSIDE6, reason="PySide6 not installed")
 
 # Widget tests need a live display — detect if one exists
-_HAS_DISPLAY = HAS_PYSIDE6 and os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")
+# Windows always has a display; Linux needs DISPLAY/WAYLAND_DISPLAY; offscreen counts too
+_HAS_DISPLAY = HAS_PYSIDE6 and (
+    sys.platform == "win32"
+    or os.environ.get("DISPLAY")
+    or os.environ.get("WAYLAND_DISPLAY")
+    or os.environ.get("QT_QPA_PLATFORM") == "offscreen"
+)
 needs_display = pytest.mark.skipif(not _HAS_DISPLAY, reason="No display server available")
 
 

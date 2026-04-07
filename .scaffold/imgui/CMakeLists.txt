@@ -6,6 +6,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(FetchContent)
 
+# ── Local source override (src/cpp/) ──────────────────────────────
+# If src/cpp/<dep> exists, FetchContent uses it instead of downloading.
+# Populated by: terra deps sync cpp
+
+set(_TERRA_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../src/cpp")
+
+foreach(_dep glfw glm glad imgui implot imnodes)
+    string(TOUPPER ${_dep} _DEP_UPPER)
+    set(_local_path "${_TERRA_SRC_DIR}/${_dep}")
+    if(IS_DIRECTORY "${_local_path}")
+        set(FETCHCONTENT_SOURCE_DIR_${_DEP_UPPER} "${_local_path}" CACHE PATH "" FORCE)
+        message(STATUS "Local source: ${_dep} -> ${_local_path}")
+    endif()
+endforeach()
+
 # ── Dependencies (FetchContent) ────────────────────────────────────
 
 # GLFW 3.4+ (windowing — auto-detects Win32/Wayland)
@@ -104,6 +119,7 @@ set(SOURCES
     tuning_panel.cpp
     debug_panel.cpp
     settings_panel.cpp
+    training_panel.cpp
 )
 
 add_executable(terragraf_imgui ${SOURCES})
@@ -135,6 +151,16 @@ if(WIN32)
     target_link_libraries(terragraf_imgui PRIVATE ws2_32)
 endif()
 
+# ── Default layout — copy next to binary ──────────────────────────
+
+add_custom_command(TARGET terragraf_imgui POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_CURRENT_SOURCE_DIR}/default_layout.ini
+        $<TARGET_FILE_DIR:terragraf_imgui>/default_layout.ini
+    COMMENT "Copying default_layout.ini to build directory"
+)
+
 # ── Install ────────────────────────────────────────────────────────
 
 install(TARGETS terragraf_imgui RUNTIME DESTINATION bin)
+install(FILES default_layout.ini DESTINATION bin)

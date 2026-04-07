@@ -18,6 +18,7 @@ COMMANDS = [
         ("terra gen module <name>", "generate a new module"),
         ("terra gen model <name>", "generate a PyTorch model"),
         ("terra gen shader <name>", "generate a compute shader"),
+        ("terra generate <type> <n>", "unified code generation"),
     ]),
     ("LIFECYCLE", [
         ("terra hook enter", "run the entry hook"),
@@ -38,14 +39,24 @@ COMMANDS = [
         ("terra viz 3d mesh", "3D mesh/surface"),
         ("terra viz 3d volume", "volumetric rendering"),
     ]),
+    ("ANALYZE", [
+        ("terra analyze <input>", "signal/audio FFT analysis"),
+        ("terra solve <op>", "math computation router"),
+    ]),
     ("MATH", [
         ("terra math eval <expr>", "evaluate expression"),
         ("terra math linalg <op>", "linear algebra info"),
         ("terra math stats [op]", "statistics info"),
     ]),
+    ("GIT", [
+        ("terra branch <type> <n>", "create conventional branch"),
+        ("terra commit <msg>", "structured commit"),
+        ("terra pr --preview", "PR template/preview"),
+    ]),
     ("INSTANCES", [
         ("terra queue", "show task queue"),
         ("terra queue add <task>", "add task to queue"),
+        ("terra dispatch <task>", "parallel instance dispatch"),
     ]),
     ("SHARPEN", [
         ("terra sharpen", "run self-sharpening"),
@@ -68,6 +79,26 @@ COMMANDS = [
         ("terra mode", "show CI or App mode"),
         ("terra mode check", "exit 0=app, 1=ci"),
         ("terra mode can <cap>", "check capability"),
+    ]),
+    ("SKILLS", [
+        ("terra skill list", "list registered skills"),
+        ("terra skill run <name>", "execute a skill by name"),
+        ("terra hot [action]", "session hot context"),
+        ("terra health", "full system diagnostic"),
+    ]),
+    ("KNOWLEDGE", [
+        ("terra knowledge", "list knowledge entries"),
+        ("terra knowledge search <q>", "search by keyword"),
+        ("terra knowledge add ...", "add a knowledge entry"),
+    ]),
+    ("PROJECTS", [
+        ("terra project new <name>", "scaffold a new project"),
+    ]),
+    ("ML", [
+        ("terra train <dir>", "ML training pipeline"),
+        ("terra viewer", "ImGui viewer lifecycle"),
+        ("terra render <type> <in>", "3D visualization"),
+        ("terra test [module]", "run test suite"),
     ]),
     ("APP", [
         ("terra app", "launch Qt container"),

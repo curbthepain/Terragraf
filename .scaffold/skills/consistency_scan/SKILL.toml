@@ -1,0 +1,14 @@
+[skill]
+name = "consistency_scan"
+version = "0.1"
+description = "Verify headers, routes, tables, and skills structural integrity"
+entry = "run.py"
+type = "validator"
+
+[triggers]
+intents = ["scan integrity", "check consistency", "verify structure"]
+commands = ["terra skill run consistency_scan"]
+
+[deps]
+python = [">=3.11"]
+modules = []

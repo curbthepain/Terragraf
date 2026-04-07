@@ -1,0 +1,14 @@
+[skill]
+name = "scaffold_project"
+version = "0.1"
+description = "Scaffold a new project into projects/"
+entry = "run.py"
+type = "generator"
+
+[triggers]
+intents = ["new project", "create project", "scaffold project"]
+commands = ["terra project new"]
+
+[deps]
+python = [">=3.11"]
+modules = []

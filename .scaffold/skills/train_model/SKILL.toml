@@ -1,0 +1,14 @@
+[skill]
+name = "train_model"
+version = "0.1"
+description = "ML training pipeline: dataset, model selection, training, evaluation"
+entry = "run.py"
+type = "pipeline"
+
+[triggers]
+intents = ["train model", "ml pipeline", "evaluate model", "build dataset"]
+commands = ["terra train"]
+
+[deps]
+python = [">=3.11"]
+modules = ["torch", "numpy"]

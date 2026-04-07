@@ -1,0 +1,14 @@
+[skill]
+name = "viewer"
+version = "0.1"
+description = "ImGui viewer lifecycle: build, bridge, launch, cleanup"
+entry = "run.py"
+type = "launcher"
+
+[triggers]
+intents = ["launch viewer", "imgui", "interactive view", "visual editor"]
+commands = ["terra viewer"]
+
+[deps]
+python = [">=3.11"]
+modules = []

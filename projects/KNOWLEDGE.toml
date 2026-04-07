@@ -1,0 +1,482 @@
+# Knowledge Registry — reusable patterns, decisions, and caveats from project work.
+
+[[knowledge]]
+id = "fft-import-pattern"
+source = "music-viz"
+category = "pattern"
+summary = "Use scipy.fft over numpy.fft for real-valued signals"
+detail = "scipy.fft.rfft is ~2x faster for real input and returns correct frequency bins without manual slicing."
+tags = ["fft", "scipy", "performance"]
+created = "2026-04-04"
+
+[[knowledge]]
+id = "pydub-fallback"
+source = "music-viz"
+category = "caveat"
+summary = "pydub requires ffmpeg system binary for MP3 decode"
+detail = "pydub wraps ffmpeg/avconv. If neither is on PATH, AudioSegment.from_mp3() raises FileNotFoundError. Fallback: use soundfile for WAV-only mode."
+tags = ["audio", "pydub", "ffmpeg", "fallback"]
+created = "2026-04-04"
+
+[[knowledge]]
+id = "opengl-theme-colors"
+source = "music-viz"
+category = "integration"
+summary = "Terragraf dark theme uses bg #1e1e2e, accent #89b4fa"
+detail = "OpenGL clear color and bar colors should match the scaffold theme constants in app/theme.py for visual consistency across Qt and ImGui apps."
+tags = ["opengl", "theme", "colors"]
+created = "2026-04-04"
+
+[[knowledge]]
+id = "decisions-made-session-12"
+source = "hot-context-decompose"
+category = "caveat"
+summary = """Decisions Made (Session 12)"""
+detail = """- ImGui reparented via `QWindow.fromWinId()`, not a separate QProcess window
+- `--embedded` flag keeps ImGui borderless for clean Qt integration
+- ImGuiDock debounces at 200ms to avoid flooding ImGui on rapid tab cycling
+- Click-to-focus uses platform-specific API (ctypes `SetForegroundWindow` on Win32)
+- Wayland has no reparentable handle — floating fallback is the only option
+- viewer_page.py NOT deleted — still works standalone, ImGuiPanel replaces it in the tab workflow
+---"""
+tags = ["platform", "hot-context"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "what-was-done-sessions-1-8"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What Was Done (Sessions 1-8)"""
+detail = """### Session 8: Music Viz Mel Spectrogram, ImGui Default Layout, DPI Fix
+### Session 7: Knowledge Registry (KNOWLEDGE.toml, writer, reader, terra.py wiring)
+### Session 6: Skills Card, Commands Update, Windows Path Fix
+### Session 5: Health Grade A, Music Viz Polish, Layout Persistence, Skill Tests
+### Session 4: Skills System (15 skills)
+### Session 3: End-to-End Bridge Polish
+### Session 2: Windows-Native Polish
+### Session 1: Socket Transport + CLI
+---"""
+tags = ["hot-context", "session-8", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-9"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 9)"""
+detail = """### Tabbed Workspace — Qt container rewrite
+Replaced QStackedWidget with dynamic tabbed workspace. Each tab is an independent session.
+- `Session` dataclass + `SessionManager` (max 16, create/destroy/activate)
+- `ScaffoldWatcher` (QFileSystemWatcher, 100ms debounce, categorized signals)
+- `ScaffoldState` (parsed headers/routes/tables/HOT_CONTEXT, auto-refresh, snapshot, health_summary)
+- `WorkspaceTabWidget` (factory pattern, +button, context menu, Ctrl+T/W/Tab/1-9)
+- `SettingsDialog` (modal, Ct"""
+tags = ["hot-context", "session-9", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-10"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 10)"""
+detail = """### Native Tab — QueryEngine + IntentParser + Chat Panel
+Structured query engine resolving through routes/headers/skills. No LLM.
+- `IntentParser` (19 verbs, tokenizes verb/target/modifiers)
+- `QueryEngine(scaffold_state)` — query() resolves via router.route (87 mappings), routes, headers
+- Scored matching: exact=1.0, contains=0.8, reverse-contains=0.6, path=0.5, desc=0.3
+- `NativeTab` — chat layout, QueryCard + ResponseCard, ContextPanel sidebar
+- `run_skill_capture(name, args)` added to skills"""
+tags = ["hot-context", "session-10", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-11"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 11)"""
+detail = """### External Tab — Scaffold Observer
+Read-only tab showing what Claude Code/Cursor is doing to scaffold files.
+- `ExternalDetector` — classifies watcher events as external vs internal (heuristics)
+- `ExternalTab` — three-panel: ActivityFeed | ScaffoldTree | DiffViewer
+- `ActivityFeed` (500-event cap, filterable, color-coded)
+- `ScaffoldTree` (QTreeWidget, highlight recently-changed items, 5s auto-clear)
+- `DiffViewer` (unified diff, color-coded additions/removals)
+- Window wires ExternalDetector"""
+tags = ["hot-context", "session-11", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-12"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 12)"""
+detail = """### ImGui as Dockable Panel — Window Reparenting + Context Switching
+Embedded ImGui into Qt via Win32/X11 window reparenting. Tabs route data to ImGui panels.
+### 1. ImGuiPanel (app/imgui_panel.py)
+- Absorbs ViewerPage's process management (bridge.py + terragraf_imgui QProcess)
+- Launches ImGui with `--embedded` flag (no GLFW decorations)
+- Retrieves native window handle via bridge `get_window_handle` -> `window_handle_response`
+- Reparents GLFW into Qt via `QWindow.fromWinId()` + `createWindowC"""
+tags = ["hot-context", "session-12", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "key-files-session-12"
+source = "hot-context-decompose"
+category = "domain"
+summary = """Key Files (Session 12)"""
+detail = """```
+.scaffold/app/imgui_panel.py            — Dockable ImGui process manager + reparenting (new)
+.scaffold/app/imgui_dock.py             — Tab-to-ImGui data routing (new)
+.scaffold/app/widgets/imgui_container.py — Reparented GLFW surface wrapper (new)
+.scaffold/imgui/main.cpp                — --embedded, get_window_handle, context_switch, resize (modified)
+.scaffold/app/window.py                 — QSplitter + ImGui panel + dock wiring (modified)
+.scaffold/headers/project.h             — +ImGuiPa"""
+tags = ["hot-context", "session-12", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-13"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 13)"""
+detail = """### Feedback Loops + Coherence + Welcome Tab + Integration Tests
+#### 1. FeedbackLoop (`app/feedback.py`)
+- Cross-tab intelligence: sharpen suggestions, HOT_CONTEXT push, knowledge suggestions
+- Signals: `sharpen_suggested(str)`, `hot_context_push(str)`, `knowledge_suggested(str)`
+- Skips pinned sessions, connects to ExternalDetector + ScaffoldState
+#### 2. CoherenceManager (`app/coherence.py`)
+- 5-second QTimer polls all sessions for conflicts
+- Same-route conflict detection across session pair"""
+tags = ["hot-context", "session-13", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-14"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 14)"""
+detail = """### Native LLM Provider — Streaming Fallback from QueryEngine
+#### 1. LLM Package (`llm/`)
+- `base.py` — `LLMProvider` ABC, `LLMConfig`, `LLMContext`, `LLM_FALLBACK_THRESHOLD = 0.5`
+- `config.py` — `load_llm_config()` reads `.terragraf_settings.json` `"llm"` section or env vars (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `TERRAGRAF_LLM_*`)
+- `providers.py` — `AnthropicProvider` (anthropic SDK, `messages.stream()`) + `OpenAICompatibleProvider` (openai SDK, covers Qwen, DeepSeek, ollama, vllm, lmstudi"""
+tags = ["hot-context", "session-14", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-15"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 15)"""
+detail = """### MCP Resource Tools — scaffold://URI + TCP Server
+#### 1. Resource Registry (`mcp/resources.py`)
+- `ResourceDescriptor` (uri, name, description, mime_type) + `Resource` (descriptor, content, timestamp)
+- `ResourceRegistry(scaffold_state)` — enumerates and reads all scaffold data
+- URI scheme: `scaffold://routes/{name}`, `scaffold://headers/{name}`, `scaffold://skills/{name?}`, `scaffold://tables/{name}`, `scaffold://hot_context`, `scaffold://queue`
+- Reads directly from ScaffoldState for live"""
+tags = ["hot-context", "session-15", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-16"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 16)"""
+detail = """### Local Dependency Sourcing — `terra deps` + `src/`
+Full local sourcing of all project dependencies into `src/`. Infrastructure built first (terra deps CLI, CMake auto-detect, gitignore), then expanded to cover all deps from deps.h + Vulkan toolchain + game dev C++ libs + Apache 2.0 math + FFT.
+#### 1. Directory Structure (~2.4 GB total)
+```
+src/
+  python/    (~1,485 MB)
+    numpy, scipy, torch, PySide6, matplotlib, pytest, anthropic, openai,
+    pillow, networkx, trimesh, sounddevice, soundfi"""
+tags = ["hot-context", "session-16", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-17"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 17)"""
+detail = """### Close the ML Loop — `terra train` end-to-end + ImGui Training Monitor
+#### 1. `create_optimizer()` factory (`ml/training/trainer.py`)
+- `create_optimizer(model, name, lr, weight_decay)` — adam / adamw / sgd(momentum=0.9)
+- `create_scheduler` now accepts `name="none"` → returns None
+- `Trainer.train()` gains `start_epoch=0` parameter for resume support
+#### 2. Transformer classification head (`ml/models/transformer.py`)
+- New optional `num_classes=None` param
+- When set: `AdaptiveAvgPool1d(1)"""
+tags = ["hot-context", "session-17", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-14-pre-work"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 14 Pre-Work)"""
+detail = """### HOT_CONTEXT Lifecycle System — `terra hot decompose`
+Built reusable skill that triages HOT_CONTEXT blocks into permanent scaffold locations.
+- Block parser + classifier (8 types), routers (knowledge, header, routes, deps), rewriter
+- `terra hot decompose` CLI wiring, `--dry-run`, `--threshold N`
+- MANIFEST.toml `[hot_context]` config, on_commit hook integration
+- 30 tests in `test_hot_decompose.py` — 609 total passing
+---"""
+tags = ["hot-context", "session-14", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-18"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 18)"""
+detail = """### Hamburger Menu + Contextual Sidebar + Form-Dialog UI for All Terra Commands
+The Qt app no longer requires CLI literacy. Every terra command and skill is reachable from the sidebar via a proper form dialog, browser, or status panel.
+#### 1. Top Chrome (replaced QMenuBar)
+- `app/widgets/top_bar.py` (NEW) — `TopBar(QWidget)` with hamburger button (☰), sidebar toggle (▤), and reparented `WorkspaceTabWidget` inline
+- `window.menuBar().setVisible(False)` — actions stored on `self` and reused insid"""
+tags = ["hot-context", "session-18", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "verification-results-session-19-session-19"
+source = "hot-context-decompose"
+category = "domain"
+summary = """Verification Results (Session 19) (Session 19)"""
+detail = """- `pytest .scaffold/tests/` → **825 passed, 2 skipped** (was 812, +13)
+- `pytest test_browsers_panels.py test_command_dialogs.py` → 39 passed
+- Imports of all 6 new symbols → ok
+- MainWindow smoke (offscreen): welcome=9, native=14, external=14 buttons;
+  all 6 new dialogs/panels open via `_dialog` lazy cache
+- `terra health` → Grade A maintained
+- Streaming guard: `_chunks_received == 5` after monkeypatched stream of 5 lines"""
+tags = ["hot-context", "session-19", "archived", "hard-cap"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "key-files-session-19-session-19"
+source = "hot-context-decompose"
+category = "domain"
+summary = """Key Files (Session 19) (Session 19)"""
+detail = """```
+.scaffold/skills/runner.py                       — +run_skill_stream() (modified)
+.scaffold/app/widgets/command_dialog.py          — +chunk Signal, +_run_streaming, +_emit_chunk plumbing (modified)
+.scaffold/app/widgets/dialogs/train.py           — flipped to streaming via run_skill_stream (modified)
+.scaffold/app/widgets/browsers/routes.py         — +set_filter() (modified)
+.scaffold/app/widgets/browsers/lookup.py         — errors.table browser (new)
+.scaffold/app/widgets/browsers/patterns."""
+tags = ["hot-context", "session-19", "archived", "hard-cap"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "decisions-made-session-19-session-19"
+source = "hot-context-decompose"
+category = "decision"
+summary = """Decisions Made (Session 19) (Session 19)"""
+detail = """- **Streaming architecture**: chunks flow through `self._emit_chunk` (a per-run
+  bound callable) so the same `run()` body works in sync (direct append) and
+  async (Qt signal emit auto-marshals to GUI thread). Avoids subclasses needing
+  to know which mode they're in. Trailing return value is only used if no chunks
+  arrived — prevents the final dump clobbering streamed lines.
+- **`python -u` in run_skill_stream**: critical for line-by-line behavior;
+  without it Python buffers stdout when redi"""
+tags = ["hot-context", "session-19", "archived", "hard-cap"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "verification-results-session-19b-session-19"
+source = "hot-context-decompose"
+category = "domain"
+summary = """Verification Results (Session 19b) (Session 19)"""
+detail = """- `pytest .scaffold/tests/test_ml_model_io.py -v` → 25 passed
+- `pytest .scaffold/tests/test_ml_export.py .scaffold/tests/test_ml_model_io.py` → 31 passed, 0 skipped (2 ONNX tests now running)
+- `pytest .scaffold/tests/` → **852 passed, 0 skipped** (was 825 passed, 2 skipped)
+- Grep audit: zero `torch.save` / `torch.load` / `torch.jit.*` / `torch.onnx.export` /
+  `safetensors.torch` outside `ml/model_io.py`
+- Round-trip smoke test: INFO log lines with `backend=...` emitted per save/load
+- `terra"""
+tags = ["hot-context", "session-19", "archived", "hard-cap"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "key-files-session-19b-session-19"
+source = "hot-context-decompose"
+category = "domain"
+summary = """Key Files (Session 19b) (Session 19)"""
+detail = """```
+.scaffold/ml/model_io.py                 — the safety layer (new, ~330 lines)
+.scaffold/ml/export.py                   — rewritten as shim (modified)
+.scaffold/ml/models/base_model.py        — checkpoint I/O via model_io (modified)
+.scaffold/ml/__init__.py                 — +model_io exports (modified)
+.scaffold/tests/test_ml_model_io.py      — 22 tests (new)
+.scaffold/tests/test_ml_export.py        — -2 importorskip calls (modified)
+.scaffold/headers/project.h              — +model_io + loa"""
+tags = ["hot-context", "session-19", "archived", "hard-cap"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "decisions-made-session-19b-session-19"
+source = "hot-context-decompose"
+category = "decision"
+summary = """Decisions Made (Session 19b) (Session 19)"""
+detail = """- **ALL model serialization goes through ml/model_io.py — never call
+  torch.jit or torch.save directly.** Future torch API migrations land in one
+  file. Enforced by grep audit at verification.
+- Auto backend picks `torch.export` when `dummy_input` is provided and the API
+  is importable; otherwise `jit`; otherwise `state_dict`. Explicit `format=`
+  bypasses selection.
+- `onnx` and `safetensors` are explicit-only. `auto` is for generic "save this
+  model", those formats target specific consumer"""
+tags = ["hot-context", "session-19", "archived", "hard-cap"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "verification-results-session-20-session-20"
+source = "hot-context-decompose"
+category = "domain"
+summary = """Verification Results (Session 20) (Session 20)"""
+detail = """- `pytest .scaffold/tests/test_command_dialogs.py` → **34 passed** (was 16, +18)
+- `pytest .scaffold/tests/test_browsers_panels.py` → **26 passed** (was 22, +4
+  including +1 for the existing `test_tune_panel_constructs`)
+- `pytest .scaffold/tests/` → **873 passed**, 0 skipped (was 852, +21)
+- `terra health` → **Grade A** maintained
+- `terra imgui build` → clean rebuild, all training symbols linked into binary"""
+tags = ["hot-context", "session-20", "archived", "hard-cap"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "key-files-session-20-session-20"
+source = "hot-context-decompose"
+category = "domain"
+summary = """Key Files (Session 20) (Session 20)"""
+detail = """```
+.scaffold/app/widgets/panels/tune.py             — full rewrite: typed editor (modified)
+.scaffold/app/widgets/command_dialog.py          — +run_skill_streaming() helper (modified)
+.scaffold/app/widgets/dialogs/train.py           — uses run_skill_streaming helper (modified)
+.scaffold/app/widgets/dialogs/generate.py        — flipped to streaming (modified)
+.scaffold/app/widgets/dialogs/solve.py           — flipped to streaming (modified)
+.scaffold/app/widgets/dialogs/analyze.py         — flip"""
+tags = ["hot-context", "session-20", "archived", "hard-cap"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "decisions-made-session-20-session-20"
+source = "hot-context-decompose"
+category = "decision"
+summary = """Decisions Made (Session 20) (Session 20)"""
+detail = """- **TunePanel splits read vs. write**: schema (knob types, domains, options)
+  via direct `tuning.loader` import; mutations (`load`, `set`, `zone`) via
+  `tuning/cli.py` subprocess. Keeps the state file as the single source of
+  truth and avoids duplicating engine state in the panel.
+- **`run_skill_streaming` is an instance method on CommandDialog**, not
+  static like `run_skill`, because it needs `self._emit_chunk`. The signature
+  parallels `run_skill` so subclasses pick it up by analogy.
+- **"""
+tags = ["hot-context", "session-20", "archived", "hard-cap"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "verification-results-session-21-partial-session-21"
+source = "hot-context-decompose"
+category = "domain"
+summary = """Verification Results (Session 21 partial) (Session 21)"""
+detail = """- `pytest .scaffold/tests/test_browsers_panels.py -k tune` → **6 passed**
+  (was 4, +2)
+- `pytest .scaffold/tests/` → **875 passed**, 0 skipped (was 873, +2)
+- `terra health` → **Grade A** maintained"""
+tags = ["hot-context", "session-21", "archived", "hard-cap"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "key-files-session-21-partial-session-21"
+source = "hot-context-decompose"
+category = "domain"
+summary = """Key Files (Session 21 partial) (Session 21)"""
+detail = """```
+.scaffold/app/widgets/panels/tune.py   — engine swap, collapsible groups,
+                                          instruction labels, state restore
+                                          (modified)
+.scaffold/tests/test_browsers_panels.py — +2 TunePanel tests (modified)
+```"""
+tags = ["hot-context", "session-21", "archived", "hard-cap"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "decisions-made-session-21-partial-session-21"
+source = "hot-context-decompose"
+category = "decision"
+summary = """Decisions Made (Session 21 partial) (Session 21)"""
+detail = """- **`ThematicEngine` over raw `loader`**: gives the panel state restore +
+  the public `get_knob_instruction` method in one move. The tradeoff is
+  duplicate engine state (panel's engine vs. CLI subprocess's engine), but
+  the panel always re-calls `tune set` so disk state stays canonical and
+  the panel's engine just mirrors it for previewing.
+- **Update engine BEFORE running subprocess**: the user expects the
+  instruction line to flip the instant they move the slider, not after the
+  subproce"""
+tags = ["hot-context", "session-21", "archived", "hard-cap"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-19"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 19)"""
+detail = """### UX Polish — Missing UI + Streaming TrainDialog
+Closed the last seven CLI-only terra commands and wired incremental stdout
+streaming through the runner → CommandDialog → TrainDialog pipeline.
+#### 1. Streaming infrastructure
+- `skills/runner.py` — added `run_skill_stream(name, args, on_line)` using
+  `subprocess.Popen(stdout=PIPE, stderr=STDOUT, bufsize=1, text=True)` with
+  `python -u` for unbuffered output. Iterates `proc.stdout` line-by-line and
+  invokes `on_line` per line. Returns the su"""
+tags = ["hot-context", "session-19", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-19b"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 19b)"""
+detail = """### Model Serialization Safety Layer — ml/model_io.py
+Single choke point for every torch.save / torch.jit / torch.onnx / safetensors
+call. Zero raw serialization calls remain outside this module.
+- `save_model(model, path, format="auto", dummy_input=None, meta=None)`
+- `load_model(path, model=None, format="auto")`
+- `save_checkpoint` / `load_checkpoint` (preserve Session 17 dict schema)
+- `detect_format(path)` / `available_backends()`
+- `ModelIOError` — explicit install-hint messages for missing"""
+tags = ["hot-context", "session-19", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-20"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 20)"""
+detail = """### TunePanel polish + ImGui training_panel build + streaming dialogs
+Closed three of the four Session 20 backlog items. GPU dogfood deferred (no GPU
+on this machine).
+#### 1. TunePanel — typed knob editor + profile dropdown (`app/widgets/panels/tune.py`)
+- Imports `tuning.loader.list_profiles()` + `load_profile()` directly for
+  read-side schema; mutations still go through `tuning/cli.py` subprocess so
+  the on-disk state file remains authoritative
+- `_SCAFFOLD` added to `sys.path` once at impo"""
+tags = ["hot-context", "session-20", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-21-in-progress"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 21 — in progress)"""
+detail = """### TunePanel: collapsible domains + instruction preview + state restore
+#### 1. Engine-backed schema (`app/widgets/panels/tune.py`)
+- Replaced raw `tuning.loader.load_profile()` with a local
+  `tuning.engine.ThematicEngine` instance held on `self._engine`
+- After `engine.load(name)`, the panel restores any persisted state from
+  `.tuning_state.json` via `engine.import_state(state)` — same logic as
+  `tuning/cli.py:_load_engine()`. Closes the "panel rebuilds from default"
+  gap from the Session """
+tags = ["hot-context", "session-21", "archived"]
+created = "2026-04-06"

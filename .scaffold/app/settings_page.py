@@ -35,6 +35,7 @@ def _load_settings() -> dict:
         "show_debug": True,
         "show_tuning": True,
         "show_viewer": True,
+        "sidebar_expanded": True,
     }
     if _SETTINGS_FILE.exists():
         try:

@@ -36,15 +36,39 @@ class ViewerPage(QWidget):
         scaffold_dir = Path(__file__).parent.parent
         self._imgui_dir = scaffold_dir / "imgui"
         self._bridge_script = scaffold_dir / "imgui" / "bridge.py"
-        _binary_name = "terragraf_imgui.exe" if sys.platform == "win32" else "terragraf_imgui"
-        self._imgui_binary = scaffold_dir / "imgui" / "build" / _binary_name
+        self._imgui_binary = self._find_imgui_binary(scaffold_dir)
 
         self._init_ui()
 
-        # Refresh process status
+        # Refresh process status and re-check binary existence
+        self._refresh_binary_status()
         self._timer = QTimer(self)
         self._timer.timeout.connect(self._refresh_status)
         self._timer.start(1000)
+
+    @staticmethod
+    def _find_imgui_binary(scaffold_dir):
+        """Search candidate paths for the built ImGui binary."""
+        candidates = [
+            scaffold_dir / "imgui" / "build" / "Release" / "terragraf_imgui.exe",
+            scaffold_dir / "imgui" / "build" / "terragraf_imgui.exe",
+            scaffold_dir / "imgui" / "build" / "Debug" / "terragraf_imgui.exe",
+            scaffold_dir / "imgui" / "build" / "terragraf_imgui",
+        ]
+        for p in candidates:
+            if p.exists():
+                return p
+        # Return the most likely path even if it doesn't exist yet
+        if sys.platform == "win32":
+            return scaffold_dir / "imgui" / "build" / "Release" / "terragraf_imgui.exe"
+        return scaffold_dir / "imgui" / "build" / "terragraf_imgui"
+
+    def _refresh_binary_status(self):
+        """Re-check if binary exists and update button/label state."""
+        scaffold_dir = Path(__file__).parent.parent
+        self._imgui_binary = self._find_imgui_binary(scaffold_dir)
+        self._imgui_exists = self._imgui_binary.exists()
+        self._start_imgui_btn.setEnabled(self._imgui_exists)
 
     def _init_ui(self):
         layout = QVBoxLayout(self)
@@ -145,8 +169,9 @@ class ViewerPage(QWidget):
             build_cmds = (
                 "To build the ImGui viewer:\n"
                 "  cd .scaffold\\imgui\n"
-                "  mkdir build && cd build\n"
-                "  cmake .. && cmake --build . --parallel\n\n"
+                "  mkdir build; cd build\n"
+                "  cmake ..; cmake --build . --parallel\n\n"
+                "Or from project root:  .\\terra imgui build\n\n"
                 "Requires: GLFW, OpenGL 4.5, C++17 compiler (VS2022)"
             )
         else:
@@ -203,11 +228,29 @@ class ViewerPage(QWidget):
 
     # ── ImGui process ───────────────────────────────────────────────
 
+    def _bridge_is_running(self):
+        return (self._bridge_process is not None
+                and self._bridge_process.state() != QProcess.ProcessState.NotRunning)
+
     def _start_imgui(self):
         if self._imgui_process and self._imgui_process.state() != QProcess.ProcessState.NotRunning:
             return
         if not self._imgui_binary.exists():
             self._imgui_log.appendPlainText("[qt] binary not found — build first")
+            return
+
+        # Auto-start bridge if not running
+        if not self._bridge_is_running():
+            self._imgui_log.appendPlainText("[qt] auto-starting bridge...")
+            self._start_bridge()
+            # Delay viewer launch so bridge port is ready
+            QTimer.singleShot(1000, self._launch_imgui_process)
+            return
+
+        self._launch_imgui_process()
+
+    def _launch_imgui_process(self):
+        if self._imgui_process and self._imgui_process.state() != QProcess.ProcessState.NotRunning:
             return
         self._imgui_process = QProcess(self)
         self._imgui_process.setWorkingDirectory(str(self._imgui_dir))
@@ -260,6 +303,8 @@ class ViewerPage(QWidget):
         else:
             self._imgui_status.setText("Stopped")
             self._imgui_status.setObjectName("status_red")
+            # Re-check binary existence so button enables after build
+            self._refresh_binary_status()
         self._imgui_status.style().unpolish(self._imgui_status)
         self._imgui_status.style().polish(self._imgui_status)
 

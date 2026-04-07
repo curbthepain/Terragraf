@@ -1,0 +1,14 @@
+[skill]
+name = "hot_context"
+version = "0.1"
+description = "Read, display, or update the session hot context (.claude/HOT_CONTEXT.md)"
+entry = "run.py"
+type = "utility"
+
+[triggers]
+intents = ["hot context", "session context", "what's hot", "session status", "read context"]
+commands = ["terra hot", "terra hot show", "terra hot update"]
+
+[deps]
+python = [">=3.11"]
+modules = []

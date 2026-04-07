@@ -87,6 +87,8 @@ class InstanceManager:
         if not RESULTS_FILE.exists():
             self._write_json(RESULTS_FILE, [])
 
+        self._worktree_mgr = None
+
         # Try socket transport
         if ipc in ("auto", "socket"):
             try:
@@ -102,9 +104,20 @@ class InstanceManager:
                 self._transport = None
                 self._ipc_mode = "filesystem"
 
-    def enqueue(self, description: str, context: dict = None) -> str:
+    def _get_worktree_manager(self):
+        """Lazy-initialize WorktreeManager."""
+        if self._worktree_mgr is None:
+            from worktree.manager import WorktreeManager
+            self._worktree_mgr = WorktreeManager()
+        return self._worktree_mgr
+
+    def enqueue(self, description: str, context: dict = None,
+                use_worktree: bool = False) -> str:
         """Add a task to the queue. Returns task ID."""
-        task = Task(description=description, context=context or {})
+        context = context or {}
+        if use_worktree:
+            context["_use_worktree"] = True
+        task = Task(description=description, context=context)
         self.tasks.append(task)
 
         if self._ipc_mode == "filesystem":
@@ -128,6 +141,18 @@ class InstanceManager:
             task.assigned_to = instance.id
             instance.status = "working"
             self.instances.append(instance)
+
+            # Provision worktree if requested
+            if task.context.get("_use_worktree"):
+                try:
+                    wt_mgr = self._get_worktree_manager()
+                    wt_info = wt_mgr.create(
+                        task_id=task.id, instance_id=instance.id)
+                    task.context["worktree_id"] = wt_info.worktree_id
+                    task.context["worktree_path"] = str(wt_info.path)
+                    task.context["worktree_branch"] = wt_info.branch
+                except Exception as exc:
+                    print(f"[manager] worktree provision failed: {exc}")
 
             if self._transport and self._ipc_mode == "socket":
                 # Dispatch via socket to connected instances

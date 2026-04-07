@@ -1,0 +1,14 @@
+[skill]
+name = "generate"
+version = "0.1"
+description = "Unified code generation: module, model, shader with language detection"
+entry = "run.py"
+type = "generator"
+
+[triggers]
+intents = ["generate module", "generate model", "generate shader", "new module", "scaffold code"]
+commands = ["terra generate"]
+
+[deps]
+python = [">=3.11"]
+modules = []

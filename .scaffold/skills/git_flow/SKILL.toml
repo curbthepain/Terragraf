@@ -1,0 +1,14 @@
+[skill]
+name = "git_flow"
+version = "0.1"
+description = "Git workflow orchestrator: branch, commit, PR with conventions"
+entry = "run.py"
+type = "workflow"
+
+[triggers]
+intents = ["create branch", "commit", "create pr", "git workflow"]
+commands = ["terra branch", "terra commit", "terra pr"]
+
+[deps]
+python = [">=3.11"]
+modules = []
