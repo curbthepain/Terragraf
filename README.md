@@ -1,4 +1,4 @@
-# Terraformer
+# Terragraf
 
 **This is not a code generator. This is the environment the AI operates inside of.**
 
