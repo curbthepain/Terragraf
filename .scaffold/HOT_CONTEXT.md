@@ -5,11 +5,14 @@
 Sessions 1-32 complete. **S33 (this session)** updated SECURITY.md
 with four graphify threat rows (SSRF via URL fetch, oversized
 downloads, XSS in graph HTML output, prompt injection via node
-labels), all citing upstream `graphify.security`. Updated the
-"Optional network calls" section to present tense (graphify is now
-live, not future). PyPI name still `graphifyy` (double y), v0.3.24;
-`graphify` not yet reclaimed — no code changes needed. **973 tests**
-passing on Yog-pls, Grade A, **18 skills**, **0 structure issues**.
+labels). Rewrote rows to describe Terragraf's own posture honestly
+rather than deferring to unverified upstream claims. Updated the
+"Optional network calls" section to present tense. PyPI name still
+`graphifyy` (double y), v0.3.24; `graphify` not yet reclaimed — no
+code changes needed. Untracked runtime state files (`queue.json`,
+`results.json`, `analytics.json`) from git and added to `.gitignore`.
+**973 tests** passing on Yog-pls, Grade A, **18 skills**, **0
+structure issues**.
 
 Plan file: `C:/Users/curb/.claude/plans/clever-mixing-kitten.md`.
 
@@ -64,8 +67,10 @@ Documentation-only session. No code changes, no new tests.
 
 - **Threat table**: appended 4 rows after the existing 10-row table:
   SSRF via URL fetch, oversized downloads, XSS in graph HTML output,
-  prompt injection via node labels. All mitigations cite upstream
-  `graphify.security` rather than duplicating logic.
+  prompt injection via node labels. Rows describe Terragraf's own
+  posture (user-initiated commands, local filesystem, opt-in LLM)
+  and credit upstream `graphify` without overclaiming unverified
+  `graphify.security` mitigations.
 - **Optional network calls**: replaced the `**Future**` placeholder
   (graphify ingest "will fetch URLs") with present-tense description
   now that graphify is live.
@@ -77,9 +82,17 @@ Documentation-only session. No code changes, no new tests.
   No changes to `SKILL.toml`, `terra.py`, or `run.py` needed.
   Re-check before next Terragraf release.
 
+### Repo hygiene
+
+- **Untracked runtime state files**: `queue.json`, `results.json`,
+  `analytics.json` removed from git tracking (`git rm --cached`) and
+  added to `.gitignore`. These change on every task run and created
+  noisy diffs.
+
 ### Files touched
 ```
  SECURITY.md                      +4 table rows, ~5 lines rewritten
+ .gitignore                       +3 runtime state exclusions
 ```
 
 ### S33 verification
@@ -87,9 +100,10 @@ Documentation-only session. No code changes, no new tests.
 - `python terra.py health` → Grade A, 0 structure issues, 18 skills
 
 ### S33 decisions
-- **Cited `graphify.security` by module name, not by specific function**.
-  The upstream API may refactor internals; naming the module is stable
-  enough for a threat table without coupling to function signatures.
+- **Described Terragraf's posture, not upstream's**. Initial draft
+  deferred all four mitigations to `graphify.security` — rewrote to
+  lead with what Terragraf controls (user-initiated CLI, local
+  filesystem, opt-in LLM) and credit upstream as a secondary layer.
 - **Did not add new tests**. Documentation-only session — the threat
   table is prose, not code. Existing 973 tests confirm no regressions.
 - **Did not change `graphifyy` → `graphify` anywhere**. PyPI name has
