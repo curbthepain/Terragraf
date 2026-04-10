@@ -17,6 +17,7 @@ the QTabWidget's corner slot) is gone.
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QFontMetrics, QResizeEvent
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -134,6 +135,7 @@ class Footer(QFrame):
         self._bridge_state: str = "offline"
         self._session_count: int = 0
         self._coherence_warning: str | None = None
+        self._full_text: str = ""
 
         self._rebuild()
 
@@ -166,9 +168,38 @@ class Footer(QFrame):
         n = self._session_count
         tail = self._coherence_warning or "PATENT PENDING"
         plural = "S" if n != 1 else ""
-        text = (
+        self._full_text = (
             f"BRIDGE: {self._bridge_state.upper()}"
             f"   ·   {n} SESSION{plural}"
             f"   ·   {tail.upper()}"
         )
-        self.center_label.setText(text)
+        self._apply_elided_text()
+
+    def _apply_elided_text(self) -> None:
+        """Render ``_full_text`` ellipsized to the current footer width.
+
+        Long coherence warnings (e.g. ``CONFLICTS: ...``) previously
+        overflowed the fixed 44px strip. Uses ``QFontMetrics.elidedText``
+        with ``Qt.ElideRight``, bounded by the footer's current width
+        minus the horizontal content margins. When width is 0 (pre-show
+        or in tests without a resize event) the full text is set as-is
+        so assertions on the raw string keep working.
+        """
+        # Only elide once the widget is actually on screen — before show()
+        # (including in tests that never call show()) we have no meaningful
+        # width to measure against, and callers expect the raw text.
+        if not self.isVisible():
+            self.center_label.setText(self._full_text)
+            return
+        margins = self.contentsMargins()
+        budget = self.width() - margins.left() - margins.right()
+        if budget <= 0:
+            self.center_label.setText(self._full_text)
+            return
+        fm = QFontMetrics(self.center_label.font())
+        elided = fm.elidedText(self._full_text, Qt.TextElideMode.ElideRight, budget)
+        self.center_label.setText(elided)
+
+    def resizeEvent(self, event: QResizeEvent) -> None:  # noqa: N802 (Qt)
+        super().resizeEvent(event)
+        self._apply_elided_text()

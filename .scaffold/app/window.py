@@ -11,6 +11,7 @@ from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (
     QApplication,
+    QDockWidget,
     QMainWindow,
     QMenu,
     QWidget,
@@ -25,6 +26,7 @@ from .external_tab import ExternalTab
 from .feedback import FeedbackLoop
 from .imgui_dock import ImGuiDock
 from .imgui_panel import ImGuiPanel
+from .widgets.graph_panel import GraphPanel
 from .native_tab import NativeTab
 from .session import SessionManager
 from .scaffold_watcher import ScaffoldWatcher
@@ -111,13 +113,49 @@ class MainWindow(QMainWindow):
             ),
         )
 
-        # ImGuiPanel is still constructed (its cleanup hooks matter) but
-        # it no longer lives inside the main layout — the preview chrome
-        # has no side column for it, and ImGui runs in a separate OS
-        # window via ImGuiDock anyway. TODO(s28): expose via a toggleable
-        # floating dock if we want the in-window panel back.
+        # ImGuiPanel lives inside a QDockWidget on the right edge. The
+        # dock is hidden by default; Ctrl+I toggles its visibility. The
+        # user can float (tear off) the dock via its titlebar for a
+        # multi-monitor workflow. `ImGuiDock` below is the unrelated
+        # ImGui-backend routing object — different concept from the Qt
+        # QDockWidget we build here.
         self._imgui_panel = ImGuiPanel(self._bridge)
-        self._imgui_panel.setVisible(False)
+        self._imgui_dock_widget = QDockWidget("ImGui Viewer", self)
+        self._imgui_dock_widget.setObjectName("imguiDock")
+        self._imgui_dock_widget.setWidget(self._imgui_panel)
+        self._imgui_dock_widget.setAllowedAreas(
+            Qt.DockWidgetArea.RightDockWidgetArea
+            | Qt.DockWidgetArea.LeftDockWidgetArea
+        )
+        self._imgui_dock_widget.setFeatures(
+            QDockWidget.DockWidgetFeature.DockWidgetClosable
+            | QDockWidget.DockWidgetFeature.DockWidgetMovable
+            | QDockWidget.DockWidgetFeature.DockWidgetFloatable
+        )
+        self.addDockWidget(
+            Qt.DockWidgetArea.RightDockWidgetArea, self._imgui_dock_widget
+        )
+        self._imgui_dock_widget.setVisible(False)
+
+        # GraphPanel lives in its own QDockWidget, same pattern as ImGui.
+        # Ctrl+G toggles; hidden by default.
+        self._graph_panel = GraphPanel()
+        self._graph_dock_widget = QDockWidget("Graph Viewer", self)
+        self._graph_dock_widget.setObjectName("graphDock")
+        self._graph_dock_widget.setWidget(self._graph_panel)
+        self._graph_dock_widget.setAllowedAreas(
+            Qt.DockWidgetArea.RightDockWidgetArea
+            | Qt.DockWidgetArea.LeftDockWidgetArea
+        )
+        self._graph_dock_widget.setFeatures(
+            QDockWidget.DockWidgetFeature.DockWidgetClosable
+            | QDockWidget.DockWidgetFeature.DockWidgetMovable
+            | QDockWidget.DockWidgetFeature.DockWidgetFloatable
+        )
+        self.addDockWidget(
+            Qt.DockWidgetArea.RightDockWidgetArea, self._graph_dock_widget
+        )
+        self._graph_dock_widget.setVisible(False)
 
         # --- Sidebar (collapsible contextual rail) ---
         self._sidebar = Sidebar()
@@ -262,6 +300,11 @@ class MainWindow(QMainWindow):
         self._action_toggle_imgui.setShortcut(QKeySequence("Ctrl+I"))
         self._action_toggle_imgui.triggered.connect(self._toggle_imgui_panel)
         view_menu.addAction(self._action_toggle_imgui)
+
+        self._action_toggle_graph = QAction("Toggle &Graph Panel", self)
+        self._action_toggle_graph.setShortcut(QKeySequence("Ctrl+G"))
+        self._action_toggle_graph.triggered.connect(self._toggle_graph_panel)
+        view_menu.addAction(self._action_toggle_graph)
 
         self._action_toggle_sidebar = QAction("Toggle &Sidebar", self)
         self._action_toggle_sidebar.setShortcut(QKeySequence("Ctrl+B"))
@@ -411,8 +454,16 @@ class MainWindow(QMainWindow):
     # ── ImGui panel ──────────────────────────────────────────────────
 
     def _toggle_imgui_panel(self):
-        visible = not self._imgui_panel.isVisible()
-        self._imgui_panel.setVisible(visible)
+        visible = not self._imgui_dock_widget.isVisible()
+        self._imgui_dock_widget.setVisible(visible)
+
+    # ── Graph panel ─────────────────────────────────────────────────
+
+    def _toggle_graph_panel(self):
+        visible = not self._graph_dock_widget.isVisible()
+        self._graph_dock_widget.setVisible(visible)
+        if visible:
+            self._graph_panel.refresh()
 
     # ── Window controls ─────────────────────────────────────────────
 
@@ -443,7 +494,7 @@ class MainWindow(QMainWindow):
 
     def _toggle_sidebar(self):
         new_state = not self._sidebar.is_expanded()
-        self._sidebar.set_expanded(new_state)
+        self._sidebar.set_expanded(new_state, animated=True)
         self._top_bar.set_sidebar_expanded(new_state)
         # No splitter anymore — the sidebar is a fixed-width floating card,
         # set_expanded() already updates its width.
@@ -521,6 +572,8 @@ class MainWindow(QMainWindow):
             self._scaffold_state.load_all(); return
         if action_id == "clear_activity":
             self._clear_active_activity_feed(); return
+        if action_id == "toggle_graph_panel":
+            self._toggle_graph_panel(); return
         if action_id.startswith("skill:"):
             self._run_skill_quietly(action_id.split(":", 1)[1]); return
         if action_id == "route_jump":

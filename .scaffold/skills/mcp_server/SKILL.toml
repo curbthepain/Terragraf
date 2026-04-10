@@ -1,0 +1,14 @@
+[skill]
+name = "mcp_server"
+version = "0.1"
+description = "MCP resource server: start, stop, status"
+entry = "run.py"
+type = "service"
+
+[triggers]
+intents = ["mcp server", "expose resources", "start mcp"]
+commands = ["terra mcp start", "terra mcp status"]
+
+[deps]
+python = [">=3.11"]
+modules = []

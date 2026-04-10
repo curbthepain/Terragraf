@@ -480,3 +480,136 @@ detail = """### TunePanel: collapsible domains + instruction preview + state res
   gap from the Session """
 tags = ["hot-context", "session-21", "archived"]
 created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-23"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 23)"""
+detail = """### TunePanel zone status indicator + Yibb→Debug worktree mirror
+#### 1. TunePanel inline zone indicator (`app/widgets/panels/tune.py`)
+- New `self.zone_label` QLabel placed directly under `active_label` in
+  `_build_ui()`. Default text `"Zone: (none)"`, `objectName = "dim"`.
+- New `_refresh_zone_indicator()` reads `self._engine.active_zone`
+  (engine.py:38) and renders one of three states:
+  - `"Zone: (no profile)"` when engine is None
+  - `"Zone: (none)"` when engine present but no zone active"""
+tags = ["hot-context", "session-23", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-24"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 24)"""
+detail = """### Welcome polish + expanded sidebar default + responsive DPI + redundant tab `+` removal
+Implemented the full Session 24 plan that was deferred from Session 23. Plus
+one extra item the user spotted mid-session: the redundant top-right `+`
+corner button on the tab bar.
+#### 1. DPI policy: PassThrough (`app/main.py`, NEW `app/scaling.py`)
+- `Qt.HighDpiScaleFactorRoundingPolicy.RoundPreferFloor` → `PassThrough`.
+  Qt 6 + PySide6 handles fractional scales correctly; every `px` value in
+  code and """
+tags = ["hot-context", "session-24", "archived"]
+created = "2026-04-06"
+
+[[knowledge]]
+id = "whats-done-session-25"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 25)"""
+detail = """### First push of Sessions 9–24 to origin/Yibb + CI green
+Local Yibb had been sitting at `032d519` (Session 6) for the entire run
+of Sessions 7–24 — every later session's work lived only as untracked
+files / unstaged modifications in the working tree. Local also turned
+out to be 1 commit BEHIND `origin/Yibb` (`fb52316` — README quickstart
+fix). Session 25 turned that whole pile into a clean linear history
+on `origin/Yibb` with all 4 CI matrix jobs green.
+#### 1. Worktree mirror at Debug/K
+- New """
+tags = ["hot-context", "session-25", "archived"]
+created = "2026-04-08"
+
+[[knowledge]]
+id = "whats-done-session-26"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 26)"""
+detail = """### Kohala theme foundation + bundled fonts + preview target
+Monolithic `theme.py` (~1600 lines of Python-generated QSS) split into
+`.scaffold/app/themes/kohala.qss` (798 lines, authored by hand against
+the Kohala brand) plus a thin `theme.py` shim that loads the QSS file
+at app startup. `themes/legacy_objectnames.qss` added as a compat shim
+so widgets still styled via `objectName` keep working while the class
+migration proceeds.
+- **Bundled fonts**: `.scaffold/app/fonts/` ships Barlow, Barlow
+ """
+tags = ["hot-context", "session-26", "archived"]
+created = "2026-04-09"
+
+[[knowledge]]
+id = "whats-done-session-27"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 27)"""
+detail = """### Workspace layout rework — floating-card chrome + pill tabs
+Migrates `MainWindow`, `WorkspaceTabWidget`, and `WelcomeTab` to the
+layout in `additions/terragraf_preview.py` (S26). Replaces the
+`QSplitter` + `QStatusBar` + `QTabBar` chrome with floating warm-glass
+cards, a custom pill strip, and a centered footer ticker. 864 tests
+passing with PySide6 6.11 on Linux offscreen.
+Branch: `claude/branch-yibb-to-yibbmw-QcMUd` (base: `YibbMW`). PR #14
+open. Commits: `b16fc6f` (feature), `ea1f246` (tes"""
+tags = ["hot-context", "session-27", "archived"]
+created = "2026-04-09"
+
+[[knowledge]]
+id = "whats-done-session-28-qt-knowledge-base-branch-cleanup"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 28 — Qt knowledge base + branch cleanup)"""
+detail = """Setup-and-learning session. No app code changed. Built out reference
+material so future Qt/UX sessions have pattern-matched answers in
+context instead of guessing, and pruned the local branch list.
+### 1. Branch swap: Terragraf → `Yog-pls`
+- Prior branch state: `D:/Terragraf` was on `Yibb` @ `727ad9e` with
+  5 dirty files. Yog-pls on origin had 52 new commits — `Yibb` had
+  been merged down via PR #18 (`2dd44fc`).
+- Procedure:
+  1. `git stash push -u -m "Yibb pre-Yog-pls swap 2026-04-06"` —
+    """
+tags = ["hot-context", "session-28", "archived"]
+created = "2026-04-09"
+
+[[knowledge]]
+id = "whats-done-session-29-securitymd-graphify-adoption-doc"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 29 — SECURITY.md + graphify adoption doc)"""
+detail = """Docs-only interlude. No app code touched, no tests added. Two files
+created, both verified against current source.
+### 1. `SECURITY.md` (repo root, ~85 lines)
+First public security policy for the repo. Previously there was no
+SECURITY.md at root, in `.github/`, or in `docs/` — vulnerability
+reporting had no defined channel.
+Modeled on graphify's security policy (the user supplied it as the
+reference) but the threat table is Terragraf-specific, not a copy-
+paste. Cross-checked every mitigation cl"""
+tags = ["hot-context", "session-29", "archived"]
+created = "2026-04-09"
+
+[[knowledge]]
+id = "whats-done-session-30-qt-polish-cluster"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 30 — Qt Polish Cluster)"""
+detail = """First half of the S30-S33 split plan (Qt UX + graphify + SECURITY.md).
+Four small, independent fixes from the S28 follow-up list. No
+refactors, no layout churn. The biggest S30-list task (ImGuiPanel
+→ QDockWidget) is deferred to S31 so it lands in isolation; S31 also
+establishes the dock pattern that S32 graphify Phase 2 reuses.
+### 1. mcp_server registry — already resolved
+The untracked `.scaffold/skills/mcp_server/{SKILL.toml,run.py}` shim
+(authored pre-S28) was already active in the working t"""
+tags = ["hot-context", "session-30", "archived"]
+created = "2026-04-10"

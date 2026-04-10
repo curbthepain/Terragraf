@@ -8,7 +8,7 @@ Two widths only — collapsed (icon-only) and expanded (icon + label).
 The toggle is on the TopBar, not inside the sidebar.
 """
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Qt, Signal
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -17,14 +17,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .. import __version__ as _APP_VERSION_RAW
 from .. import theme
 from .icon_button import IconButton
 
-
-# Hardcoded for now — no single-source-of-truth version string exists in
-# the codebase yet. TODO(s28): pull from pyproject.toml or app/__init__.py
-# once we add one.
-_APP_VERSION = "v0.4.2"
+_APP_VERSION = f"v{_APP_VERSION_RAW}"
 
 
 def _apply_class(widget: QWidget, cls: str) -> None:
@@ -46,6 +43,7 @@ _TAB_LAYOUTS: dict[str, list[tuple[str, str, str]]] = {
         ("◑", "Mode",              "panel_mode"),
         ("✓", "Consistency Scan",  "skill:consistency_scan"),
         ("≡", "Knowledge",         "browse_knowledge"),
+        ("⬡", "Graph Viewer",      "toggle_graph_panel"),
         ("⚙", "Settings",          "settings"),
     ],
     "native": [
@@ -61,6 +59,7 @@ _TAB_LAYOUTS: dict[str, list[tuple[str, str, str]]] = {
         ("⚠", "Lookup Error",      "browse_lookup"),
         ("◇", "Patterns",          "browse_patterns"),
         ("◈", "Tune",              "panel_tune"),
+        ("⬡", "Graph Viewer",      "toggle_graph_panel"),
         ("≡", "Knowledge",         "browse_knowledge"),
         ("⚙", "Settings",          "settings"),
     ],
@@ -107,6 +106,14 @@ class Sidebar(QWidget):
         self._expanded = False
         self._current_tab_type: str | None = None
         self._buttons: list[IconButton] = []
+
+        # Animations for set_expanded(animated=True). Stored on self so
+        # GC doesn't eat them mid-tween; reused across toggles.
+        self._anim_min = QPropertyAnimation(self, b"minimumWidth", self)
+        self._anim_max = QPropertyAnimation(self, b"maximumWidth", self)
+        for a in (self._anim_min, self._anim_max):
+            a.setDuration(180)
+            a.setEasingCurve(QEasingCurve.OutCubic)
 
         self._layout = QVBoxLayout(self)
         self._layout.setContentsMargins(14, 18, 14, 14)
@@ -158,14 +165,33 @@ class Sidebar(QWidget):
 
     # ── Public API ──────────────────────────────────────────────────
 
-    def set_expanded(self, expanded: bool):
-        """Switch between collapsed (icon only) and expanded (icon + label)."""
+    def set_expanded(self, expanded: bool, *, animated: bool = False):
+        """Switch between collapsed (icon only) and expanded (icon + label).
+
+        When ``animated`` is True, minimumWidth/maximumWidth tween to the
+        target over 180ms with an OutCubic curve. Both properties are
+        animated together so the parent layout can't fight a partial
+        constraint. Default is False to keep construction and tests
+        synchronous — callers that want motion (``window._toggle_sidebar``)
+        opt in explicitly.
+        """
         self._expanded = expanded
-        width = self.WIDTH_EXPANDED if expanded else self.WIDTH_COLLAPSED
-        self.setFixedWidth(width)
+        target = self.WIDTH_EXPANDED if expanded else self.WIDTH_COLLAPSED
         self._section_label.setVisible(expanded and self._current_tab_type is not None)
         for btn in self._buttons:
             btn.set_expanded(expanded)
+
+        if animated:
+            start = self.width() or self.minimumWidth()
+            for a in (self._anim_min, self._anim_max):
+                a.stop()
+                a.setStartValue(start)
+                a.setEndValue(target)
+                a.start()
+        else:
+            self._anim_min.stop()
+            self._anim_max.stop()
+            self.setFixedWidth(target)
 
     def is_expanded(self) -> bool:
         return self._expanded

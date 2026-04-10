@@ -238,7 +238,7 @@ class TestWelcomeTabS27:
         state, mgr = _make_state_and_mgr()
         tab = WelcomeTab(Session(tab_type="welcome", label="W"), state, mgr)
         assert set(tab._health_labels.keys()) == {k for k, _ in _HEALTH_KEYS}
-        assert len(tab._health_labels) == 9
+        assert len(tab._health_labels) == 12
 
     def test_root_layout_stretch_ratio(self):
         from app.session import Session
@@ -366,5 +366,92 @@ class TestMainWindowChrome:
         win = self._make_window()
         # Welcome tab was created in __init__; its pill should be there.
         assert win._tab_strip.count() == 1
+        win.close()
+        win.deleteLater()
+
+
+# ── ImGui QDockWidget (S31) ────────────────────────────────────────────
+
+@needs_qt
+class TestImGuiDock:
+    def _make_window(self):
+        from app.window import MainWindow
+        return MainWindow()
+
+    def test_imgui_dock_exists(self):
+        from PySide6.QtWidgets import QDockWidget
+        from app.imgui_panel import ImGuiPanel
+        win = self._make_window()
+        assert isinstance(win._imgui_dock_widget, QDockWidget)
+        assert win._imgui_dock_widget.widget() is win._imgui_panel
+        assert isinstance(win._imgui_panel, ImGuiPanel)
+        win.close()
+        win.deleteLater()
+
+    def test_imgui_dock_starts_hidden(self):
+        win = self._make_window()
+        assert win._imgui_dock_widget.isVisible() is False
+        win.close()
+        win.deleteLater()
+
+    def test_imgui_toggle_flips_dock_visibility(self):
+        win = self._make_window()
+        # MainWindow must be shown for child visibility to resolve to True.
+        win.show()
+        assert win._imgui_dock_widget.isVisible() is False
+        win._toggle_imgui_panel()
+        assert win._imgui_dock_widget.isVisible() is True
+        win._toggle_imgui_panel()
+        assert win._imgui_dock_widget.isVisible() is False
+        win.close()
+        win.deleteLater()
+
+    def test_imgui_dock_right_area(self):
+        from PySide6.QtCore import Qt
+        win = self._make_window()
+        area = win.dockWidgetArea(win._imgui_dock_widget)
+        assert area == Qt.DockWidgetArea.RightDockWidgetArea
+        win.close()
+        win.deleteLater()
+
+
+@needs_qt
+class TestGraphDock:
+    def _make_window(self):
+        from app.window import MainWindow
+        return MainWindow()
+
+    def test_graph_dock_exists(self):
+        from PySide6.QtWidgets import QDockWidget
+        from app.widgets.graph_panel import GraphPanel
+        win = self._make_window()
+        assert isinstance(win._graph_dock_widget, QDockWidget)
+        assert win._graph_dock_widget.widget() is win._graph_panel
+        assert isinstance(win._graph_panel, GraphPanel)
+        win.close()
+        win.deleteLater()
+
+    def test_graph_dock_starts_hidden(self):
+        win = self._make_window()
+        assert win._graph_dock_widget.isVisible() is False
+        win.close()
+        win.deleteLater()
+
+    def test_graph_toggle_flips_dock_visibility(self):
+        win = self._make_window()
+        win.show()
+        assert win._graph_dock_widget.isVisible() is False
+        win._toggle_graph_panel()
+        assert win._graph_dock_widget.isVisible() is True
+        win._toggle_graph_panel()
+        assert win._graph_dock_widget.isVisible() is False
+        win.close()
+        win.deleteLater()
+
+    def test_graph_dock_right_area(self):
+        from PySide6.QtCore import Qt
+        win = self._make_window()
+        area = win.dockWidgetArea(win._graph_dock_widget)
+        assert area == Qt.DockWidgetArea.RightDockWidgetArea
         win.close()
         win.deleteLater()

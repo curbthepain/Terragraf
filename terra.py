@@ -937,6 +937,9 @@ def cmd_dispatch(args):
 def cmd_health(args):
     _run_skill("health_check", args)
 
+def cmd_graphify(args):
+    _run_skill("graphify", args)
+
 # ── skill ─────────────────────────────────────────────────────────
 
 def cmd_skill(args):
@@ -1209,7 +1212,7 @@ CPP_CATEGORIES = {
 PYTHON_PROBES = [
     "numpy", "scipy", "pytest", "matplotlib", "PySide6", "torch",
     "anthropic", "openai",
-    "PIL", "networkx", "trimesh",
+    "PIL", "graphifyy", "trimesh",
     "sounddevice", "soundfile", "pydub",
     # ML ecosystem
     "torchvision", "torchaudio", "sklearn", "pandas",
@@ -1220,7 +1223,7 @@ PYTHON_PROBES = [
 
 EXTRA_PIP_PACKAGES = [
     "anthropic", "openai",
-    "pillow", "networkx", "trimesh",
+    "pillow", "graphifyy", "trimesh",
     "sounddevice", "soundfile", "pydub",
     # ML ecosystem
     "torchvision", "torchaudio", "scikit-learn", "pandas",
@@ -1457,6 +1460,7 @@ COMMANDS = {
     "test": cmd_test,
     "dispatch": cmd_dispatch,
     "health": cmd_health,
+    "graphify": cmd_graphify,
     "skill": cmd_skill,
     "project": cmd_project,
     "knowledge": cmd_knowledge,

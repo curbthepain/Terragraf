@@ -35,6 +35,9 @@ _HEALTH_KEYS: list[tuple[str, str]] = [
     ("queue_running",    "Queue running"),
     ("hot_context_lines", "HOT_CONTEXT lines"),
     ("recent_events",    "Recent events"),
+    ("graph_nodes",      "Graph nodes"),
+    ("graph_communities", "Communities"),
+    ("graph_god_nodes",  "God nodes"),
 ]
 
 

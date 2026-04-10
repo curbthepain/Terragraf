@@ -10,3 +10,10 @@ projects/*
 !projects/KNOWLEDGE.toml
 src/
 Debug/
+
+graphify-out/
+
+# Qt docs — raw source files kept local only; .md consolidations are tracked
+.scaffold/docs/qt/*.rtf
+.scaffold/docs/qt/*.txt
+.scaffold/docs/qt/~$*

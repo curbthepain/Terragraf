@@ -269,7 +269,7 @@ class ScaffoldState(QObject):
             len(d.get("modules", [])) for d in self.headers.values()
         )
         total_routes = sum(len(entries) for entries in self.routes.values())
-        return {
+        summary = {
             "header_files": len(self.headers),
             "modules": total_modules,
             "route_files": len(self.routes),
@@ -280,3 +280,41 @@ class ScaffoldState(QObject):
             "hot_context_lines": len(self.hot_context.splitlines()) if self.hot_context else 0,
             "recent_events": len(self.recent_events),
         }
+        summary.update(self._graphify_stats())
+        return summary
+
+    def _graphify_stats(self) -> dict:
+        """Read graphify-out/ for graph health metrics. Returns '—' when absent."""
+        import json as _json
+        terra_root = SCAFFOLD_DIR.parent
+        graph_json = terra_root / "graphify-out" / "graph.json"
+        report_md = terra_root / "graphify-out" / "GRAPH_REPORT.md"
+        stats: dict = {"graph_nodes": "\u2014", "graph_communities": "\u2014", "graph_god_nodes": "\u2014"}
+        try:
+            data = _json.loads(graph_json.read_text(encoding="utf-8"))
+            nodes = data.get("nodes", [])
+            stats["graph_nodes"] = len(nodes)
+            if nodes:
+                communities = [n.get("community", 0) for n in nodes]
+                stats["graph_communities"] = max(communities) + 1
+        except Exception:
+            pass
+        try:
+            text = report_md.read_text(encoding="utf-8")
+            # Count lines under the "God Nodes" heading until next heading.
+            in_section = False
+            count = 0
+            for line in text.splitlines():
+                if "god node" in line.lower() and line.startswith("#"):
+                    in_section = True
+                    continue
+                if in_section:
+                    if line.startswith("#"):
+                        break
+                    if line.strip().startswith("-") or line.strip().startswith("*"):
+                        count += 1
+            if count:
+                stats["graph_god_nodes"] = count
+        except Exception:
+            pass
+        return stats
