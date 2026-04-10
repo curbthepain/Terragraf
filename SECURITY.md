@@ -11,7 +11,7 @@ branches. Only the following branches receive security fixes:
 | `Yog`          | Main merge target          | Soon      |
 | `main`         | Stable snapshot            | No        |
 | legacy branches| Historical                 | No        |
-|----------------|----------------------------|-----------|
+
 
 ## Reporting a Vulnerability
 
@@ -66,7 +66,7 @@ outbound network activity is:
 | Oversized downloads during ingest        | Downloads initiated by `graphify ingest` are bounded by the upstream package's own size limits. Terragraf does not add a second size gate. The ingest command requires explicit user invocation.                                                               |
 | XSS in graph HTML output                 | `GraphPanel` loads `graphify-out/graph.html` from the local filesystem into a `QWebEngineView`. The HTML is generated locally by `graphify` from the user's own codebase, not fetched from the network. Terragraf does not apply additional HTML sanitization. |
 | Prompt injection via node labels         | Code comments and identifiers from the user's codebase become node labels in the knowledge graph. These labels may be included in LLM prompts when a provider is configured. LLM calls are opt-in and require explicit provider configuration.                 |
-|------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+
 
 ### What Terragraf does NOT do
 
