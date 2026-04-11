@@ -11,8 +11,13 @@ Usage:
 """
 
 import argparse
+import io
 import sys
 import tomllib
+
+# Ensure stdout handles Unicode on Windows (cp1252 can't encode → etc.)
+if sys.stdout.encoding and sys.stdout.encoding.lower().replace("-", "") != "utf8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 from pathlib import Path
 
 KNOWLEDGE_FILE = Path(__file__).resolve().parent / "KNOWLEDGE.toml"
