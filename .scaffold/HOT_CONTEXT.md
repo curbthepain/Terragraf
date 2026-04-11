@@ -1,20 +1,14 @@
 # Hot Context — Terragraf
 
-## Status: Session 33 — SECURITY.md graphify threat rows
+## Status: Session 35 — Kohala Tier 2 overrides (aniso + LOD bias)
 
-Sessions 1-32 complete. **S33 (this session)** updated SECURITY.md
-with four graphify threat rows (SSRF via URL fetch, oversized
-downloads, XSS in graph HTML output, prompt injection via node
-labels). Rewrote rows to describe Terragraf's own posture honestly
-rather than deferring to unverified upstream claims. Updated the
-"Optional network calls" section to present tense. PyPI name still
-`graphifyy` (double y), v0.3.24; `graphify` not yet reclaimed — no
-code changes needed. Untracked runtime state files (`queue.json`,
-`results.json`, `analytics.json`) from git and added to `.gitignore`.
-**973 tests** passing on Yog-pls, Grade A, **18 skills**, **0
-structure issues**.
+Sessions 1-34 complete. **S35 (this session)** implemented Kohala Tier 2
+Phase A: anisotropic filtering + LOD bias override-before-forward in
+`kohala_CreateSampler`, with overlay UI controls. No Terragraf code
+changes. **973 tests** passing on Yog-pls, Grade A, **18 skills**,
+**0 structure issues**.
 
-Plan file: `C:/Users/curb/.claude/plans/clever-mixing-kitten.md`.
+**Kohala hot context:** `projects/Kohala/.claude/kohala_overlay_hot_context.md`
 
 ### Noted mechanisms directory
 
@@ -58,6 +52,55 @@ Resolution target: after S33 (end of session roadmap).
 - Manual Qt smoke of the new zone indicator on a display: open Tuning
   panel, verify `Zone: (none)` initial, Enter/Exit updates inline,
   reopen-after-Enter restores zone from `.tuning_state.json`
+
+## What's Done (Session 34 — Kohala session protocol integration)
+
+Framework-only session. No code changes, no new tests, no skill changes.
+
+### Session protocol (hub-and-spoke)
+
+- **`PROTOCOL.md`** (repo root): the hub. 11 session commands adapted from
+  Kohala v8 command interface. Each command has 3 trigger variants
+  (formal/casual/short). 4 behavioral constraints always active. Layer
+  stack adapted for Terragraf (L5 Runtime through L1 OS/Platform).
+  Command combinations, evidence class reference table.
+- **`CLAUDE.md`** (repo root): the spoke for Claude Code. Thin harness
+  routing to PROTOCOL.md. Quick start, tools list, framework file index.
+- **`improvements.md`** (repo root): empty template for the
+  Consider/Graduate feedback loop.
+
+### Commands integrated
+
+Swap/Switch/ctx, Vertical/Debug/cat, Confidence/Blush/est,
+Sweep/Crunch/brush, Phoenix/Rebirth/zero, Report/Condense/dumpsys,
+Profile/Analyze/compute, Backup/RAID6/snapshot,
+Consider/Failstate/wheresmycar, Graduate/Improve/uni, Test/Prove/bench.
+
+### Commands NOT ported (Kohala-specific)
+
+Boot/Route, Consume, Patch, Organize, Ship/Cache, Halt, Chain, Ad-hoc,
+Decay (overlaps Confidence).
+
+### Files touched
+```
+ PROTOCOL.md       new (~400 lines) — session command hub
+ CLAUDE.md         new (~30 lines) — Claude Code spoke/harness
+ improvements.md   new (~5 lines) — Consider/Graduate template
+```
+
+### S34 decisions
+- **Hub-and-spoke, not CLAUDE.md monolith.** PROTOCOL.md is tool-agnostic;
+  CLAUDE.md is the Claude Code-specific harness. Future .cursorrules or
+  .windsurfrules spokes route to the same hub.
+- **Kohala stays separate.** No files in projects/Kohala/ were modified.
+  Kohala keeps its own v8 CLAUDE.md for when working in that directory.
+- **Did not create a terra skill for Kohala.** Session commands are AI
+  behavioral protocols, not CLI tools. Integrating them as a skill would
+  have been the wrong abstraction.
+- **Adapted layer stack for Terragraf.** Kohala's L1-L5 was Vulkan/C++;
+  Terragraf's is Python/Qt/scaffold. Misdirection table rewritten.
+
+---
 
 ## What's Done (Session 33 — SECURITY.md graphify threat rows)
 
@@ -201,87 +244,6 @@ Both phases of `.scaffold/docs/graphify_adoption.md` in one session.
   JIT deprecation warnings and documented the existing `model_io.py`
   fallback mechanism in `.scaffold/docs/noted/`. Resolution deferred
   to after S33.
-
-## What's Done (Session 31 — ImGuiPanel → QDockWidget)
-
-Single-task session. Wrapped `ImGuiPanel` in a `QDockWidget`
-attached to `MainWindow`'s right dock area. This is the first
-`QDockWidget` in the codebase and establishes the pattern S32
-Phase 2 reuses for `GraphPanel`.
-
-### 1. `.scaffold/app/window.py` (~25 lines changed)
-- **Import**: added `QDockWidget` to the `PySide6.QtWidgets` block.
-- **Construction** (replaced the 4-line S28 TODO at old :114-120):
-  `self._imgui_dock_widget = QDockWidget("ImGui Viewer", self)` with
-  `objectName="imguiDock"` (for future `saveState` round-tripping
-  and QSS targeting). `setWidget(self._imgui_panel)` reparents the
-  existing `ImGuiPanel` into the dock. Allowed areas: Right + Left
-  only (no Top/Bottom — horizontal docks would squash the tab
-  layout). Features: Closable + Movable + Floatable. Registered via
-  `addDockWidget(Qt.RightDockWidgetArea, ...)`, then
-  `setVisible(False)`.
-- **Handler** (`_toggle_imgui_panel`): now toggles
-  `self._imgui_dock_widget` visibility instead of the bare
-  `_imgui_panel`. The inner panel inherits visibility from its
-  parent dock — no dual-visibility bookkeeping needed.
-- **No changes to central widget**, footer, sidebar, top bar, or any
-  other layout element. The `(16,14,16,6)` margins are untouched.
-
-### 2. `.scaffold/tests/test_layout.py` (+35 lines)
-New `TestImGuiDock` class with 4 assertions:
-- `test_imgui_dock_exists` — dock is `QDockWidget`, wraps
-  `_imgui_panel`, panel is `ImGuiPanel`
-- `test_imgui_dock_starts_hidden` — `isVisible() is False`
-- `test_imgui_toggle_flips_dock_visibility` — `_toggle_imgui_panel()`
-  flips visibility (test calls `win.show()` so child visibility
-  resolves correctly under offscreen platform)
-- `test_imgui_dock_right_area` — `dockWidgetArea()` ==
-  `RightDockWidgetArea`
-
-### 3. `ImGuiPanel` — untouched
-No changes to `imgui_panel.py`. The panel already inherits from
-`QWidget` with no top-level assumptions. `QDockWidget.setWidget()`
-reparents it cleanly. `cleanup()` still runs from
-`MainWindow.closeEvent` — process teardown is unaffected.
-
-### Files touched
-```
- .scaffold/app/window.py               ~25 lines
-                                       (QDockWidget import, dock
-                                        construction replaces S28
-                                        TODO, handler rewrite)
- .scaffold/tests/test_layout.py        +35 lines (TestImGuiDock)
-```
-
-### S31 verification
-- `python terra.py health` → Grade A, 0 structure issues, 17 skills,
-  969 tests discoverable
-- `QT_QPA_PLATFORM=offscreen python -m pytest .scaffold/tests/` →
-  **969 passed**, 28 warnings (preexisting torch deprecations),
-  28.03s. Zero regressions.
-- Manual Qt smoke deferred — user can `Ctrl+I` on display to confirm
-  dock appears on right edge, floats on drag, hides on X or re-toggle.
-
-### S31 decisions
-- **Named `_imgui_dock_widget` (not `_imgui_dock`)**. `_imgui_dock`
-  is already taken by `ImGuiDock` (the ImGui-backend routing object
-  at `imgui_dock.py`). The `_widget` suffix disambiguates without
-  renaming the existing attribute.
-- **Allowed Right + Left only, not all four areas**. Top/Bottom docks
-  would insert a horizontal splitter between the central widget and
-  the window edge, squashing the floating-card tab layout. Right/Left
-  keeps the dock tall and narrow, matching the panel's toolbar +
-  container + log vertical stack.
-- **`DockWidgetClosable` enabled**. The X button hides the dock (does
-  not destroy it) — same semantics as `Ctrl+I` toggle. User
-  expectation: if there's an X, clicking it should dismiss the panel.
-- **No dock-state persistence yet**. `objectName("imguiDock")` is set
-  so a future session can add `saveState`/`restoreState` to
-  `.terragraf_settings.json` without touching dock construction.
-- **No QSS styling added**. kohala.qss has no `QDockWidget` rules;
-  the dock inherits Qt defaults. Styling is a backlog polish item.
-- **Did not commit**. Working tree has S29/S30/S31 dirty files. User
-  decides commit timing.
 
 ## Next Session (32): graphify Phase 1 + Phase 2
 Both phases of `.scaffold/docs/graphify_adoption.md` in one session.

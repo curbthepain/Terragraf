@@ -613,3 +613,20 @@ The untracked `.scaffold/skills/mcp_server/{SKILL.toml,run.py}` shim
 (authored pre-S28) was already active in the working t"""
 tags = ["hot-context", "session-30", "archived"]
 created = "2026-04-10"
+
+[[knowledge]]
+id = "whats-done-session-31-imguipanel-qdockwidget"
+source = "hot-context-decompose"
+category = "domain"
+summary = """What's Done (Session 31 — ImGuiPanel → QDockWidget)"""
+detail = """Single-task session. Wrapped `ImGuiPanel` in a `QDockWidget`
+attached to `MainWindow`'s right dock area. This is the first
+`QDockWidget` in the codebase and establishes the pattern S32
+Phase 2 reuses for `GraphPanel`.
+### 1. `.scaffold/app/window.py` (~25 lines changed)
+- **Import**: added `QDockWidget` to the `PySide6.QtWidgets` block.
+- **Construction** (replaced the 4-line S28 TODO at old :114-120):
+  `self._imgui_dock_widget = QDockWidget("ImGui Viewer", self)` with
+  `objectName="imguiDock""""
+tags = ["hot-context", "session-31", "archived"]
+created = "2026-04-10"

@@ -1,12 +1,10 @@
 {
   "bridge_host": "127.0.0.1",
   "bridge_port": 9876,
-  "auto_connect": false,
+  "auto_connect": true,
   "imgui_binary": ".scaffold/imgui/build/terragraf_imgui",
   "bridge_script": ".scaffold/imgui/bridge.py",
-  "auto_launch_bridge": false,
+  "auto_launch_bridge": true,
   "show_debug": true,
-  "show_tuning": true,
-  "show_viewer": true,
-  "sidebar_expanded": true
+  "show_tuning": true
 }
