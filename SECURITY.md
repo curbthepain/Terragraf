@@ -5,12 +5,12 @@
 Terragraf is pre-1.0 and ships from session-numbered development
 branches. Only the following branches receive security fixes:
 
-| Branch         | Role                       | Supported |
-|----------------|----------------------------|-----------|
-| `Yog-pls`      | Current development        | Yes       |
-| `Yog`          | Main merge target          | Soon      |
-| `main`         | Stable snapshot            | No        |
-| legacy branches| Historical                 | No        |
+| Branch          | Role                       | Supported |
+|-----------------|----------------------------|-----------|
+| `Yog-pls`       | Previous Working Branch    | Yes       |
+| `Yog`           | Main merge target          | Yes       |
+| `main`          | Working Branch 2           | No        |
+| legacy branches | Historical                 | No        |
 
 
 ## Reporting a Vulnerability
