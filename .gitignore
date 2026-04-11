@@ -1,1 +1,22 @@
 **/__pycache__/
+.scaffold/imgui/build/
+.scaffold/llm/CURRENT.json
+.scaffold/instances/shared/queue.json
+.scaffold/instances/shared/results.json
+.scaffold/tuning/analytics.json
+.claude/
+Releases/
+checkpoints/
+projects/*
+!projects/knowledge_writer.py
+!projects/knowledge_reader.py
+!projects/KNOWLEDGE.toml
+src/
+Debug/
+
+graphify-out/
+
+# Qt docs — raw source files kept local only; .md consolidations are tracked
+.scaffold/docs/qt/*.rtf
+.scaffold/docs/qt/*.txt
+.scaffold/docs/qt/~$*

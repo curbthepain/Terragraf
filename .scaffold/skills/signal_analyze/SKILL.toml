@@ -1,0 +1,14 @@
+[skill]
+name = "signal_analyze"
+version = "0.1"
+description = "End-to-end signal/audio analysis: FFT, spectral features, spectrogram, export"
+entry = "run.py"
+type = "analyzer"
+
+[triggers]
+intents = ["analyze signal", "run fft", "spectral analysis", "spectrogram", "audio analysis"]
+commands = ["terra analyze"]
+
+[deps]
+python = [">=3.11"]
+modules = ["numpy", "scipy", "matplotlib"]

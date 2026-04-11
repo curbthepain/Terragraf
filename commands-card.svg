@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="1164" viewBox="0 0 880 1164">
+  <rect width="880" height="1164" rx="10" fill="#0d1117" stroke="#30363d" stroke-width="1" />
+  <rect width="880" height="44" rx="10" fill="#161b22" />
+  <rect x="0" y="34" width="880" height="10" fill="#161b22" />
+  <line x1="0" y1="44" x2="880" y2="44" stroke="#30363d" stroke-width="1" />
+  <text x="24" y="26" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" fill="#7d8590">19 categories</text>
+  <text x="440" y="26" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="13" font-weight="bold" fill="#e6edf3">terragraf commands</text>
+  <text x="856" y="26" text-anchor="end" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" fill="#7d8590">64 commands</text>
+  <text x="226" y="79" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">SETUP</text>
+  <line x1="209" y1="83" x2="243" y2="83" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="30" y="106" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra init</text>
+  <text x="246" y="106" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">wire hooks, check env</text>
+  <text x="226" y="141" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">NAVIGATE</text>
+  <line x1="198" y1="145" x2="254" y2="145" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="30" y="168" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra status</text>
+  <text x="246" y="168" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">what's here, what works</text>
+  <text x="30" y="190" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra route &lt;intent&gt;</text>
+  <text x="246" y="190" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">where do I go for this?</text>
+  <text x="226" y="225" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">LOOK UP</text>
+  <line x1="202" y1="229" x2="250" y2="229" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="30" y="252" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra lookup &lt;error&gt;</text>
+  <text x="246" y="252" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">known fix for this error?</text>
+  <text x="30" y="274" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra pattern [name]</text>
+  <text x="246" y="274" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">what design pattern fits?</text>
+  <text x="30" y="296" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra dep [module]</text>
+  <text x="246" y="296" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">what depends on what?</text>
+  <text x="226" y="331" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">BUILD</text>
+  <line x1="209" y1="335" x2="243" y2="335" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="30" y="358" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra gen module &lt;name&gt;</text>
+  <text x="246" y="358" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">generate a new module</text>
+  <text x="30" y="380" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra gen model &lt;name&gt;</text>
+  <text x="246" y="380" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">generate a PyTorch model</text>
+  <text x="30" y="402" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra gen shader &lt;name&gt;</text>
+  <text x="246" y="402" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">generate a compute shader</text>
+  <text x="30" y="424" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra generate &lt;type&gt; &lt;n&gt;</text>
+  <text x="246" y="424" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">unified code generation</text>
+  <text x="226" y="459" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">LIFECYCLE</text>
+  <line x1="195" y1="463" x2="257" y2="463" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="30" y="486" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra hook enter</text>
+  <text x="246" y="486" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">run the entry hook</text>
+  <text x="30" y="508" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra hook commit</text>
+  <text x="246" y="508" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">run the commit hook</text>
+  <text x="30" y="530" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra hook generate</text>
+  <text x="246" y="530" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">run after file generation</text>
+  <text x="30" y="552" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra hook instance</text>
+  <text x="246" y="552" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">run on instance spawn</text>
+  <text x="226" y="587" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">IMGUI</text>
+  <line x1="209" y1="591" x2="243" y2="591" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="30" y="614" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra imgui build</text>
+  <text x="246" y="614" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">build the ImGui app</text>
+  <text x="30" y="636" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra imgui run</text>
+  <text x="246" y="636" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">launch interactive viewer</text>
+  <text x="30" y="658" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra imgui bridge</text>
+  <text x="246" y="658" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">start Python bridge server</text>
+  <text x="226" y="693" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">VISUALIZE</text>
+  <line x1="195" y1="697" x2="257" y2="697" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="30" y="720" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra viz spectrogram</text>
+  <text x="246" y="720" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">render spectrogram</text>
+  <text x="30" y="742" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra viz heatmap</text>
+  <text x="246" y="742" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">render 2D heatmap</text>
+  <text x="30" y="764" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra viz stream</text>
+  <text x="246" y="764" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">real-time data plotter</text>
+  <text x="30" y="786" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra viz 3d nodes</text>
+  <text x="246" y="786" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">3D node graph</text>
+  <text x="30" y="808" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra viz 3d mesh</text>
+  <text x="246" y="808" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">3D mesh/surface</text>
+  <text x="30" y="830" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra viz 3d volume</text>
+  <text x="246" y="830" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">volumetric rendering</text>
+  <text x="226" y="865" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">ANALYZE</text>
+  <line x1="202" y1="869" x2="250" y2="869" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="30" y="892" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra analyze &lt;input&gt;</text>
+  <text x="246" y="892" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">signal/audio FFT analysis</text>
+  <text x="30" y="914" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra solve &lt;op&gt;</text>
+  <text x="246" y="914" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">math computation router</text>
+  <text x="226" y="949" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">MATH</text>
+  <line x1="212" y1="953" x2="240" y2="953" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="30" y="976" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra math eval &lt;expr&gt;</text>
+  <text x="246" y="976" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">evaluate expression</text>
+  <text x="30" y="998" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra math linalg &lt;op&gt;</text>
+  <text x="246" y="998" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">linear algebra info</text>
+  <text x="30" y="1020" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra math stats [op]</text>
+  <text x="246" y="1020" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">statistics info</text>
+  <text x="226" y="1055" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">GIT</text>
+  <line x1="216" y1="1059" x2="236" y2="1059" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="30" y="1082" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra branch &lt;type&gt; &lt;n&gt;</text>
+  <text x="246" y="1082" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">create conventional branch</text>
+  <text x="30" y="1104" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra commit &lt;msg&gt;</text>
+  <text x="246" y="1104" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">structured commit</text>
+  <text x="30" y="1126" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra pr --preview</text>
+  <text x="246" y="1126" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">PR template/preview</text>
+  <text x="654" y="79" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">INSTANCES</text>
+  <line x1="623" y1="83" x2="685" y2="83" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="458" y="106" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra queue</text>
+  <text x="674" y="106" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">show task queue</text>
+  <text x="458" y="128" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra queue add &lt;task&gt;</text>
+  <text x="674" y="128" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">add task to queue</text>
+  <text x="458" y="150" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra dispatch &lt;task&gt;</text>
+  <text x="674" y="150" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">parallel instance dispatch</text>
+  <text x="654" y="185" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">SHARPEN</text>
+  <line x1="630" y1="189" x2="678" y2="189" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="458" y="212" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra sharpen</text>
+  <text x="674" y="212" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">run self-sharpening</text>
+  <text x="458" y="234" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra sharpen --dry-run</text>
+  <text x="674" y="234" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">preview changes</text>
+  <text x="458" y="256" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra sharpen status</text>
+  <text x="674" y="256" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">analytics summary</text>
+  <text x="654" y="291" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">TUNING</text>
+  <line x1="633" y1="295" x2="675" y2="295" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="458" y="318" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra tune</text>
+  <text x="674" y="318" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">show active profile</text>
+  <text x="458" y="340" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra tune list</text>
+  <text x="674" y="340" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">list profiles</text>
+  <text x="458" y="362" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra tune load &lt;name&gt;</text>
+  <text x="674" y="362" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">load profile</text>
+  <text x="458" y="384" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra tune zone &lt;name&gt;</text>
+  <text x="674" y="384" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">enter zone</text>
+  <text x="458" y="406" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra tune zone --exit</text>
+  <text x="674" y="406" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">exit current zone</text>
+  <text x="458" y="428" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra tune set &lt;id&gt; &lt;val&gt;</text>
+  <text x="674" y="428" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">set knob value</text>
+  <text x="458" y="450" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra tune axes</text>
+  <text x="674" y="450" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">show thematic axes</text>
+  <text x="458" y="472" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra tune directive</text>
+  <text x="674" y="472" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">show bot directive</text>
+  <text x="458" y="494" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra tune instructions</text>
+  <text x="674" y="494" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">behavioral output</text>
+  <text x="458" y="516" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra tune promise</text>
+  <text x="674" y="516" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">show thematic promise</text>
+  <text x="654" y="551" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">MODE</text>
+  <line x1="640" y1="555" x2="668" y2="555" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="458" y="578" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra mode</text>
+  <text x="674" y="578" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">show CI or App mode</text>
+  <text x="458" y="600" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra mode check</text>
+  <text x="674" y="600" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">exit 0=app, 1=ci</text>
+  <text x="458" y="622" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra mode can &lt;cap&gt;</text>
+  <text x="674" y="622" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">check capability</text>
+  <text x="654" y="657" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">SKILLS</text>
+  <line x1="633" y1="661" x2="675" y2="661" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="458" y="684" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra skill list</text>
+  <text x="674" y="684" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">list registered skills</text>
+  <text x="458" y="706" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra skill run &lt;name&gt;</text>
+  <text x="674" y="706" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">execute a skill by name</text>
+  <text x="458" y="728" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra hot [action]</text>
+  <text x="674" y="728" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">session hot context</text>
+  <text x="458" y="750" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra health</text>
+  <text x="674" y="750" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">full system diagnostic</text>
+  <text x="654" y="785" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">KNOWLEDGE</text>
+  <line x1="623" y1="789" x2="685" y2="789" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="458" y="812" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra knowledge</text>
+  <text x="674" y="812" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">list knowledge entries</text>
+  <text x="458" y="834" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra knowledge search &lt;q&gt;</text>
+  <text x="674" y="834" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">search by keyword</text>
+  <text x="458" y="856" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra knowledge add ...</text>
+  <text x="674" y="856" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">add a knowledge entry</text>
+  <text x="654" y="891" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">PROJECTS</text>
+  <line x1="626" y1="895" x2="682" y2="895" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="458" y="918" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra project new &lt;name&gt;</text>
+  <text x="674" y="918" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">scaffold a new project</text>
+  <text x="654" y="953" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">ML</text>
+  <line x1="647" y1="957" x2="661" y2="957" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="458" y="980" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra train &lt;dir&gt;</text>
+  <text x="674" y="980" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">ML training pipeline</text>
+  <text x="458" y="1002" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra viewer</text>
+  <text x="674" y="1002" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">ImGui viewer lifecycle</text>
+  <text x="458" y="1024" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra render &lt;type&gt; &lt;in&gt;</text>
+  <text x="674" y="1024" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">3D visualization</text>
+  <text x="458" y="1046" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra test [module]</text>
+  <text x="674" y="1046" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">run test suite</text>
+  <text x="654" y="1081" text-anchor="middle" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="10" font-weight="bold" fill="#58a6ff" letter-spacing="1.2">APP</text>
+  <line x1="644" y1="1085" x2="664" y2="1085" stroke="#58a6ff" stroke-width="1" opacity="0.25" />
+  <text x="458" y="1108" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra app</text>
+  <text x="674" y="1108" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">launch Qt container</text>
+  <text x="458" y="1130" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#e6edf3">terra app --offscreen</text>
+  <text x="674" y="1130" font-family="'SF Mono','Cascadia Code','Consolas',monospace" font-size="12" fill="#7d8590">headless mode (testing)</text>
+</svg>

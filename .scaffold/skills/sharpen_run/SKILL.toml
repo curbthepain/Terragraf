@@ -1,0 +1,14 @@
+[skill]
+name = "sharpen_run"
+version = "0.1"
+description = "Self-sharpening with feedback loop: analyze, preview, apply, validate"
+entry = "run.py"
+type = "optimizer"
+
+[triggers]
+intents = ["sharpen", "self-sharpen", "analytics", "scaffold health"]
+commands = ["terra sharpen"]
+
+[deps]
+python = [">=3.11"]
+modules = []

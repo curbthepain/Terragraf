@@ -4,26 +4,31 @@
 # Format: CONCEPT -> PATH [description]
 
 # ── Project Root ─────────────────────────────────────────────────────
-scaffolding       -> .scaffold/                  # This system
-source code       -> src/                        # All source
-entry point       -> src/main.*                  # App entry
-config            -> src/config/                 # Configuration
-build config      -> build.gradle.kts            # Build system
-ci/cd             -> .github/workflows/          # CI pipelines
+scaffolding       -> headers/                     # This system (scaffold root)
 
-# ── Code Organization ───────────────────────────────────────────────
-models            -> src/models/                 # Data structures
-views             -> src/ui/                     # UI layer
-services          -> src/services/               # Business logic
-utils             -> src/utils/                  # Shared helpers
-native            -> src/native/                 # C/C++ via NDK/JNI
+# ── App chrome (Session 18) ──────────────────────────────────────────
+sidebar           -> app/widgets/sidebar.py        # Collapsible contextual rail
+top bar           -> app/widgets/top_bar.py        # Hamburger + sidebar toggle + tabs
+icon button       -> app/widgets/icon_button.py    # Sidebar action button
+command dialog    -> app/widgets/command_dialog.py # Form dialog base class
+form dialogs      -> app/widgets/dialogs/          # Per-command form dialogs
+data browsers     -> app/widgets/browsers/         # Filterable scaffold data browsers
+status panels     -> app/widgets/panels/           # Live state panels (health/queue/deps/mcp/sharpen/hot)
+lookup browser    -> app/widgets/browsers/lookup.py    # terra lookup <error> UI
+patterns browser  -> app/widgets/browsers/patterns.py  # terra pattern <name> UI
+tune panel        -> app/widgets/panels/tune.py        # terra tune profile/zone/knobs UI
+mode panel        -> app/widgets/panels/mode.py        # terra mode (CI vs App)
+status panel      -> app/widgets/panels/status.py      # terra status (no terra import)
+viewer panel      -> app/widgets/panels/viewer.py      # terra viewer lifecycle
 
 # ── ML ───────────────────────────────────────────────────────────────
 ml models         -> ml/models/                  # Architecture defs
 ml data           -> ml/datasets/                # Data loading
 ml training       -> ml/training/                # Train/eval loops
-checkpoints       -> checkpoints/                # Saved models
-training logs     -> runs/                       # TensorBoard etc
+ml train          -> skills/train_model/         # terra train CLI (end-to-end pipeline)
+ml monitor        -> imgui/training_panel.cpp    # Live training viz (ImPlot loss curves)
+ml model_io       -> ml/model_io.py               # Unified model serialization (save/load/detect)
+ml export         -> ml/export.py                 # ONNX/safetensors/JIT shim over model_io
 
 # ── Visualization ────────────────────────────────────────────────────
 viz               -> viz/                        # Visualization root
@@ -49,7 +54,87 @@ fft               -> compute/fft/                # FFT utilities
 vulkan            -> compute/vulkan/             # Vulkan code
 shaders           -> compute/shaders/            # GPU shaders
 
+# ── Mode Detection ───────────────────────────────────────────────────
+modes             -> modes/                      # Mode detection system
+mode contract     -> headers/modes.h             # CI vs App mode rules
+
+# ── Projects ─────────────────────────────────────────────────────────
+projects          -> ../projects/                   # Project workspace root
+knowledge         -> ../projects/KNOWLEDGE.toml     # Knowledge registry (patterns, decisions, caveats)
+knowledge writer  -> ../projects/knowledge_writer.py # Append entries to knowledge registry
+knowledge reader  -> ../projects/knowledge_reader.py # Query/filter knowledge entries
+
+# ── Query Engine ─────────────────────────────────────────────────────
+query engine      -> query/engine.py              # Structured query resolution
+intent parser     -> query/parser.py              # Verb/target/modifier extraction
+native tab        -> app/native_tab.py            # Chat panel for native sessions
+message card      -> app/widgets/message_card.py  # Query/response card widgets
+context panel     -> app/widgets/context_panel.py # Session context sidebar
+
+# ── Workspace ────────────────────────────────────────────────────────
+workspace         -> app/                        # Tabbed workspace root
+session           -> app/session.py              # Session model (Session, SessionManager)
+tab widget        -> app/tab_widget.py           # WorkspaceTabWidget (QTabWidget)
+scaffold watcher  -> app/scaffold_watcher.py     # File change detection (QFileSystemWatcher)
+scaffold state    -> app/scaffold_state.py       # Parsed scaffold state cache
+settings dialog   -> app/settings_dialog.py      # Modal settings (Ctrl+,)
+external tab      -> app/external_tab.py          # Scaffold observer tab
+external detector -> app/external_detector.py     # External change classifier
+activity feed     -> app/widgets/activity_feed.py  # Chronological event list
+scaffold tree     -> app/widgets/scaffold_tree.py  # Parsed state tree view
+diff viewer       -> app/widgets/diff_viewer.py    # Unified diff display
+
+# ── LLM Provider ────────────────────────────────────────────────
+llm provider      -> llm/                          # LLM provider layer root
+llm config        -> llm/config.py                 # Config loading (settings/env, HF/Ollama auto-detect)
+llm base          -> llm/base.py                   # Provider ABC + LLM_FALLBACK_THRESHOLD
+llm providers     -> llm/providers.py              # Anthropic + OpenAI-compat + HuggingFace local
+llm factory       -> llm/factory.py                # Provider construction (anthropic/openai/ollama/hf)
+llm worker        -> app/llm_worker.py             # Qt streaming worker thread
+llm harness       -> llm/harness.py                # Universal harness/model detection (Claude Code/Cursor/Windsurf/Continue/terra)
+llm capabilities  -> llm/capabilities.py           # provider:model -> {streaming, tools, vision, context_tokens}
+model command     -> llm/harness.py                # terra model show/detect/list/set/use (CLI in terra.py)
+hot threshold     -> hooks/on_hot_threshold.py     # Central HOT_CONTEXT guard — wires Claude Code hook + terra CLI + Qt watcher + git pre-commit
+
+# ── Feedback + Coherence ────────────────────────────────────────
+feedback loop   -> app/feedback.py            # Cross-tab feedback (sharpen, HOT push, knowledge)
+coherence       -> app/coherence.py           # Same-route conflict + lock contention detection
+welcome tab     -> app/welcome_tab.py         # Welcome landing page (health, sessions, quick actions)
+
+# ── ImGui Embedding ─────────────────────────────────────────────
+imgui panel       -> app/imgui_panel.py             # Dockable ImGui process manager + reparenting
+imgui dock        -> app/imgui_dock.py              # Tab-to-ImGui data routing (context switch)
+imgui container   -> app/widgets/imgui_container.py # Reparented GLFW surface wrapper
+
+# ── HOT_CONTEXT Lifecycle ────────────────────────────────────────────
+hot decompose     -> skills/hot_decompose/run.py    # Automatic HOT_CONTEXT triage
+
+# ── Worktree Isolation ───────────────────────────────────────────────
+worktree manager  -> worktree/manager.py          # Git worktree lifecycle (create/list/remove/gc)
+worktree context  -> worktree/context.py           # Worktree-scoped instance context
+
+# ── MCP Resources ────────────────────────────────────────────────────
+mcp server        -> mcp/server.py               # MCP TCP server (port 9878)
+mcp resources     -> mcp/resources.py            # Resource descriptors + registry
+mcp tools         -> mcp/tools.py                # Skill-to-tool adapter
+
+# ── Dependencies ─────────────────────────────────────────────────────
+deps              -> ../src/                     # Local dependency root
+deps python       -> ../src/python/              # Python packages (pip --target)
+deps cpp          -> ../src/cpp/                 # C++ sources (git clone)
+deps vulkan       -> ../src/cpp/Vulkan-Headers/  # Vulkan API headers + loader
+deps vma          -> ../src/cpp/VulkanMemoryAllocator/ # Vulkan memory allocator
+deps glslang      -> ../src/cpp/glslang/         # GLSL→SPIR-V compiler
+deps spirv        -> ../src/cpp/SPIRV-Tools/     # SPIR-V optimizer/validator
+deps fftw         -> ../src/cpp/fftw3/           # FFTW3 (fastest CPU FFT)
+deps eigen        -> ../src/cpp/eigen/           # Eigen linear algebra
+deps ceres        -> ../src/cpp/ceres-solver/    # Ceres nonlinear optimization
+deps json         -> ../src/cpp/json/            # nlohmann/json
+deps stb          -> ../src/cpp/stb/             # stb single-header libs
+deps entt         -> ../src/cpp/entt/            # Entity Component System
+deps bullet       -> ../src/cpp/bullet3/         # Bullet Physics
+deps assimp       -> ../src/cpp/assimp/          # 3D model import
+deps spdlog       -> ../src/cpp/spdlog/          # Fast C++ logging
+
 # ── Tests ────────────────────────────────────────────────────────────
 tests             -> tests/                      # Test root
-test fixtures     -> tests/fixtures/             # Shared test data
-test config       -> tests/conftest.*            # Test setup

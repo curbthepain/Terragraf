@@ -8,7 +8,7 @@ set -euo pipefail
 
 SCAFFOLD_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-echo "=== Terraformer — Session Start ==="
+echo "=== Terragraf — Session Start ==="
 echo ""
 
 # Platform
@@ -43,6 +43,19 @@ elif command -v nvidia-smi &>/dev/null; then
     nvidia-smi --query-gpu=name,driver_version --format=csv,noheader 2>/dev/null || echo "  NVIDIA: available but no details"
 else
     echo "  No GPU tools found (vulkaninfo, nvidia-smi)"
+fi
+
+# Mode detection
+echo ""
+echo "Mode:"
+if [ -n "${TERRAGRAF_MODE:-}" ]; then
+    echo "  Explicit: $TERRAGRAF_MODE (TERRAGRAF_MODE env var)"
+elif [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ]; then
+    echo "  Detected: ci (CI environment variables present)"
+elif [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]; then
+    echo "  Detected: app (display server available)"
+else
+    echo "  Detected: ci (no display server)"
 fi
 
 echo ""

@@ -37,10 +37,11 @@ class Transformer(ScaffoldModel):
     """Stack of transformer blocks with positional encoding."""
 
     def __init__(self, d_model=512, n_heads=8, n_layers=6, d_ff=2048,
-                 max_seq_len=512, vocab_size=None, dropout=0.1):
+                 max_seq_len=512, vocab_size=None, dropout=0.1, num_classes=None):
         super().__init__()
 
         self.d_model = d_model
+        self.num_classes = num_classes
 
         if vocab_size is not None:
             self.embedding = nn.Embedding(vocab_size, d_model)
@@ -55,6 +56,13 @@ class Transformer(ScaffoldModel):
         ])
         self.norm = nn.LayerNorm(d_model)
 
+        if num_classes is not None:
+            self.pool = nn.AdaptiveAvgPool1d(1)
+            self.classifier = nn.Linear(d_model, num_classes)
+        else:
+            self.pool = None
+            self.classifier = None
+
     def forward(self, x, mask=None):
         if self.embedding is not None:
             x = self.embedding(x) * math.sqrt(self.d_model)
@@ -66,7 +74,14 @@ class Transformer(ScaffoldModel):
         for layer in self.layers:
             x = layer(x, mask)
 
-        return self.norm(x)
+        x = self.norm(x)
+
+        if self.classifier is not None:
+            # (B, seq, d_model) -> (B, d_model, seq) -> pool -> (B, d_model) -> logits
+            pooled = self.pool(x.transpose(1, 2)).squeeze(-1)
+            return self.classifier(pooled)
+
+        return x
 
     @staticmethod
     def _make_positional_encoding(max_len, d_model):

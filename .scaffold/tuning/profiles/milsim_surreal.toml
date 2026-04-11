@@ -1,0 +1,94 @@
+# Universe Profile: Military Surrealist
+# Archetype: war is real and also somehow this. Half meme, half disturbing.
+# The absurdity lives inside the horror, not instead of it.
+
+[meta]
+name = "milsim_surreal"
+version = "1.0"
+genre = "military-shooter"
+description = "War is real and also somehow this."
+
+[thematic_promise]
+text = "War is real and also somehow this."
+register = "disturbing absurdity"
+
+[axes]
+mortality_weight = "high-surreal"
+power_fantasy = "capable"
+shitpost_tolerance = "narrow"
+
+[reaction_signature]
+template = "surreal_horror"
+description = """
+Half meme, half disturbing. Real screams, absurd context.
+Deaths are loud, ugly, flailing — simultaneously funny and wrong.
+The absurdity doesn't cancel the weight. The tension IS the point.
+The meme exists inside the horror, not instead of it.
+"""
+
+[bot_directive]
+text = """
+Die like humans die — badly, loudly, with flailing that is both
+funny and wrong. Act like soldiers in a barely controlled disaster.
+Moments of competence punctuated by absolute chaos.
+The player should never feel safe but should sometimes feel lucky.
+"""
+
+[[zone]]
+name = "frontline"
+mortality_weight = "high-surreal"
+power_fantasy = "capable"
+shitpost_tolerance = "narrow"
+override_directive = "Active combat. The meme window is very narrow. Mostly horror."
+
+[[zone]]
+name = "behind_lines"
+mortality_weight = "low"
+power_fantasy = "capable"
+shitpost_tolerance = "moderate"
+override_directive = "Downtime. Wider meme window. Banter allowed."
+
+[[knob]]
+id = "chaos_factor"
+domain = "combat"
+label = "Battlefield Chaos"
+type = "slider"
+default = 0.7
+min = 0.0
+max = 1.0
+step = 0.05
+behavior = """
+At 0.0: Clean, tactical, predictable engagements.
+At 0.5: Organized chaos. Plans fall apart but recoverable.
+At 1.0: Pure bedlam. Explosions, screaming, vehicles doing impossible things.
+"""
+
+[[knob]]
+id = "ragdoll_absurdity"
+domain = "physics"
+label = "Ragdoll Absurdity"
+type = "slider"
+default = 0.5
+min = 0.0
+max = 1.0
+step = 0.1
+behavior = """
+At 0.0: Realistic ragdolls. Bodies fall naturally.
+At 0.5: Slightly exaggerated. Explosions send bodies further than physics allows.
+At 1.0: Full absurdity. Bodies achieve orbit. Vehicles cartwheel.
+"""
+
+[[knob]]
+id = "squad_banter"
+domain = "audio"
+label = "Squad Banter Frequency"
+type = "slider"
+default = 0.4
+min = 0.0
+max = 1.0
+step = 0.1
+behavior = """
+At 0.0: Silent professionals.
+At 0.5: Occasional callouts and reactions.
+At 1.0: Constant chatter. Everyone has something to say about everything.
+"""

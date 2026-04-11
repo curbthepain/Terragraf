@@ -1,0 +1,86 @@
+# .scaffold/skills/router.route
+# Intent -> skill routing. Matches skill to user intent.
+#
+# Format: INTENT -> SKILL [notes]
+
+# ─── Project ─────────────────────────────────────────────────────────
+new project          -> scaffold_project             # Scaffold a new project
+create project       -> scaffold_project             # Alias
+scaffold project     -> scaffold_project             # Alias
+
+# ─── Integrity ───────────────────────────────────────────────────────
+scan integrity       -> consistency_scan             # Check scaffold structural integrity
+check consistency    -> consistency_scan             # Alias
+verify structure     -> consistency_scan             # Alias
+
+# ─── Context ─────────────────────────────────────────────────────────
+hot context          -> hot_context                  # Show current session hot context
+session context      -> hot_context                  # Alias
+session status       -> hot_context                  # Alias
+
+# ─── Signal Analysis ─────────────────────────────────────────────────
+analyze signal       -> signal_analyze               # FFT + spectral features + spectrogram
+run fft              -> signal_analyze               # Alias
+spectrogram          -> signal_analyze               # Alias
+audio analysis       -> signal_analyze               # Alias
+spectral analysis    -> signal_analyze               # Alias
+
+# ─── Math ─────────────────────────────────────────────────────────────
+solve math           -> math_solve                   # Route to linalg/algebra/stats/transforms
+eigenvalues          -> math_solve                   # Alias
+linear algebra       -> math_solve                   # Alias
+statistics           -> math_solve                   # Alias
+curve fit            -> math_solve                   # Alias
+
+# ─── Git ──────────────────────────────────────────────────────────────
+create branch        -> git_flow                     # Conventional branch creation
+git commit           -> git_flow                     # Structured commit
+create pr            -> git_flow                     # PR template and preview
+
+# ─── Generation ───────────────────────────────────────────────────────
+generate module      -> generate                     # Auto-detect language, scaffold module
+generate model       -> generate                     # PyTorch model from config
+generate shader      -> generate                     # GLSL compute shader
+scaffold code        -> generate                     # Alias
+
+# ─── Sharpening ───────────────────────────────────────────────────────
+sharpen              -> sharpen_run                   # Self-sharpening with validation
+scaffold health      -> sharpen_run                   # Alias
+analytics            -> sharpen_run                   # Alias
+
+# ─── Tuning ───────────────────────────────────────────────────────────
+tune session         -> tune_session                 # Guided calibration workflow
+load universe        -> tune_session                 # Load thematic profile
+calibrate behavior   -> tune_session                 # Alias
+thematic calibration -> tune_session                 # Alias
+
+# ─── ML Training ──────────────────────────────────────────────────────
+train model          -> train_model                  # Full ML pipeline
+ml pipeline          -> train_model                  # Alias
+evaluate model       -> train_model                  # Alias
+
+# ─── Viewer ───────────────────────────────────────────────────────────
+launch viewer        -> viewer                       # Build + bridge + launch ImGui
+imgui                -> viewer                       # Alias
+interactive view     -> viewer                       # Alias
+
+# ─── 3D Rendering ────────────────────────────────────────────────────
+render 3d            -> render_3d                    # Surface/volume/node/point cloud
+volume render        -> render_3d                    # Alias
+mesh render          -> render_3d                    # Alias
+node graph           -> render_3d                    # Alias
+
+# ─── Testing ─────────────────────────────────────────────────────────
+run tests            -> test_suite                   # Discover, run, report by subsystem
+test suite           -> test_suite                   # Alias
+validate             -> test_suite                   # Alias
+
+# ─── Instances ────────────────────────────────────────────────────────
+dispatch task        -> instance_dispatch            # Enqueue + spawn parallel instances
+parallel instances   -> instance_dispatch            # Alias
+run queue            -> instance_dispatch            # Alias
+
+# ─── Health ───────────────────────────────────────────────────────────
+health check         -> health_check                 # Full system diagnostic
+system health        -> health_check                 # Alias
+diagnose             -> health_check                 # Alias

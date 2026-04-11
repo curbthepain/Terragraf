@@ -5,7 +5,7 @@
  * A Vulkan layer sits between the application and the Vulkan driver.
  * It can intercept, validate, profile, debug, or modify any Vulkan call.
  *
- * This is the Terraformer scaffold for building custom Vulkan layers.
+ * This is the Terragraf scaffold for building custom Vulkan layers.
  *
  * Layer architecture:
  *   App → [Your Layer] → [Other Layers] → Driver
@@ -26,7 +26,7 @@ namespace scaffold::vulkan::layer {
 // ─── Layer Metadata ─────────────────────────────────────────────────
 
 constexpr const char* LAYER_NAME = "VK_LAYER_KOHALA_scaffold";
-constexpr const char* LAYER_DESC = "Terraformer scaffold Vulkan layer";
+constexpr const char* LAYER_DESC = "Terragraf scaffold Vulkan layer";
 constexpr uint32_t LAYER_IMPL_VERSION = 1;
 constexpr uint32_t LAYER_SPEC_VERSION = VK_API_VERSION_1_3;
 

@@ -6,8 +6,8 @@
  * Connects to compute/math/ via bridge.py for heavy computation.
  */
 
-// #include "imgui.h"
-// #include "implot.h"
+#include "imgui.h"
+#include "implot.h"
 
 #include <cmath>
 #include <vector>
@@ -95,48 +95,48 @@ void update_plot_data() {
  * Call this every frame from main loop.
  */
 void render_math_panel() {
-    // ImGui::Begin("Math Modeling");
-    //
-    // // Function selector
-    // ImGui::Combo("Function", &state.selected_func,
-    //              state.func_names, 6);
-    //
-    // ImGui::Separator();
-    //
-    // // Common parameters
-    // ImGui::SliderFloat("Amplitude", &state.amplitude, 0.01f, 10.0f);
-    // ImGui::SliderFloat("Frequency", &state.frequency, 0.1f, 20.0f);
-    // ImGui::SliderFloat("Phase", &state.phase, -3.14159f, 3.14159f);
-    //
-    // if (state.selected_func == 3) {
-    //     ImGui::SliderFloat("Damping", &state.damping, 0.0f, 2.0f);
-    // }
-    //
-    // if (state.selected_func == 4) {
-    //     ImGui::SliderInt("Degree", &state.poly_degree, 0, 4);
-    //     for (int i = 0; i <= state.poly_degree; ++i) {
-    //         char label[16];
-    //         snprintf(label, sizeof(label), "a%d", i);
-    //         ImGui::SliderFloat(label, &state.poly_coeffs[i], -5.0f, 5.0f);
-    //     }
-    // }
-    //
-    // ImGui::Separator();
-    //
-    // // Range
-    // ImGui::SliderFloat("X min", &state.x_min, -100.0f, 0.0f);
-    // ImGui::SliderFloat("X max", &state.x_max, 0.0f, 100.0f);
-    // ImGui::SliderInt("Points", &state.n_points, 50, 2000);
-    //
-    // // Update data
-    // update_plot_data();
-    //
-    // // Plot
-    // if (ImPlot::BeginPlot("Function Plot", ImVec2(-1, 300))) {
-    //     ImPlot::PlotLine("f(x)",
-    //         state.x_data.data(), state.y_data.data(), state.n_points);
-    //     ImPlot::EndPlot();
-    // }
-    //
-    // ImGui::End();
+    ImGui::Begin("Math Modeling");
+
+    // Function selector
+    ImGui::Combo("Function", &state.selected_func,
+                 state.func_names, 6);
+
+    ImGui::Separator();
+
+    // Common parameters
+    ImGui::SliderFloat("Amplitude", &state.amplitude, 0.01f, 10.0f);
+    ImGui::SliderFloat("Frequency", &state.frequency, 0.1f, 20.0f);
+    ImGui::SliderFloat("Phase", &state.phase, -3.14159f, 3.14159f);
+
+    if (state.selected_func == 3) {
+        ImGui::SliderFloat("Damping", &state.damping, 0.0f, 2.0f);
+    }
+
+    if (state.selected_func == 4) {
+        ImGui::SliderInt("Degree", &state.poly_degree, 0, 4);
+        for (int i = 0; i <= state.poly_degree; ++i) {
+            char label[16];
+            snprintf(label, sizeof(label), "a%d", i);
+            ImGui::SliderFloat(label, &state.poly_coeffs[i], -5.0f, 5.0f);
+        }
+    }
+
+    ImGui::Separator();
+
+    // Range
+    ImGui::SliderFloat("X min", &state.x_min, -100.0f, 0.0f);
+    ImGui::SliderFloat("X max", &state.x_max, 0.0f, 100.0f);
+    ImGui::SliderInt("Points", &state.n_points, 50, 2000);
+
+    // Update data
+    update_plot_data();
+
+    // Plot
+    if (ImPlot::BeginPlot("Function Plot", ImVec2(-1, 300))) {
+        ImPlot::PlotLine("f(x)",
+            state.x_data.data(), state.y_data.data(), state.n_points);
+        ImPlot::EndPlot();
+    }
+
+    ImGui::End();
 }

@@ -1,0 +1,14 @@
+[skill]
+name = "instance_dispatch"
+version = "0.1"
+description = "Parallel instance orchestration: enqueue, spawn, monitor, collect"
+entry = "run.py"
+type = "orchestrator"
+
+[triggers]
+intents = ["dispatch task", "parallel instances", "run queue", "spawn instance"]
+commands = ["terra dispatch"]
+
+[deps]
+python = [">=3.11"]
+modules = []

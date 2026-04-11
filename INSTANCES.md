@@ -1,6 +1,6 @@
 # Multi-Instancing
 
-Terraformer's instance model replaces the traditional AI agent hierarchy
+Terragraf's instance model replaces the traditional AI agent hierarchy
 with peer instances sharing one scaffold.
 
 ## The problem with agents
@@ -22,12 +22,12 @@ complex, interdependent, or need shared context.
 
 ## How multi-instancing works
 
-Instead of one AI spawning sub-agents, Terraformer runs **multiple AI
+Instead of one AI spawning sub-agents, Terragraf runs **multiple AI
 instances in parallel** that share the same scaffolding:
 
 ```
 Instance 0 (coordinator)
-    reads: .scaffold/instances/shared/queue.json
+    reads: task queue (socket or filesystem)
     writes: tasks to queue
     reads: results from completed instances
 
@@ -44,38 +44,61 @@ exist and reads results) but does not own or control the others.
 
 ## Key differences from agents
 
-| | Traditional agents | Terraformer instances |
+| | Traditional agents | Terragraf instances |
 |---|---|---|
-| **Topology** | Tree (parent → children) | Flat (coordinator + peers) |
+| **Topology** | Tree (parent -> children) | Flat (coordinator + peers) |
 | **Context** | Summarized at each level | Full scaffold per instance |
 | **Parallelism** | Parent waits for child | All instances run concurrently |
-| **Communication** | Return values up the tree | Shared filesystem (queue + results) |
+| **Communication** | Return values up the tree | Socket IPC + filesystem fallback |
 | **Visibility** | Parent sees only output | All results visible to all instances |
+
+## IPC transport
+
+Instances communicate via **TCP socket IPC** (default) with automatic
+fallback to filesystem polling.
+
+### Socket mode (default)
+
+- `TransportServer` listens on `127.0.0.1:9877`, accepts peer connections
+- `TransportClient` connects, auto-registers with instance ID
+- Length-prefixed JSON protocol (4-byte big-endian header + payload)
+- Message types: `task_assign`, `task_result`, `register`, `heartbeat`
+- Thread-safe inbox with mutex, heartbeats filtered at receive time
+- Sub-millisecond dispatch, supports 10+ concurrent instances
+
+### Filesystem mode (fallback)
+
+- `shared/queue.json` — task queue, atomic via file locks
+- `shared/results.json` — completed results
+- `shared/locks/` — file-based locks preventing concurrent edits
+- Used when socket port is unavailable or explicitly configured
+
+### Mode selection
+
+Set in `MANIFEST.toml`:
+
+```toml
+[features]
+ipc = "auto"      # try socket, fall back to filesystem
+# ipc = "socket"  # socket only (fail if unavailable)
+# ipc = "filesystem"  # filesystem only
+```
 
 ## Instance lifecycle
 
 1. **Spawn** — `manager.py` creates an instance with a task and working
    directory.
 2. **Init** — the instance reads `ENTRY.md`, `MANIFEST.toml`, and the
-   relevant headers for its task.
-3. **Execute** — the instance follows routes and tables to do its work.
+   relevant headers. If socket mode, connects to TransportServer and
+   registers.
+3. **Wait** — `wait_for_task()` blocks until a task is assigned via
+   socket or polls the filesystem queue.
+4. **Execute** — the instance follows routes and tables to do its work.
    It has its own full context window for its task.
-4. **Report** — the instance writes its result to
-   `shared/results.json`.
-5. **Terminate** — the instance cleans up and releases any file locks.
-
-## Coordination
-
-- `shared/queue.json` — task queue. Instances pull tasks atomically
-  using file locks.
-- `shared/results.json` — completed results. The coordinator reads
-  these.
-- `shared/locks/` — file-based locks preventing two instances from
-  editing the same file.
-
-Current coordination is filesystem-based. The roadmap includes socket
-and pipe IPC for sub-millisecond dispatch. See
-[ROADMAP.md](ROADMAP.md#phase-7-socketpipe-ipc-for-multi-instancing).
+5. **Report** — the instance sends its result via socket (`task_result`
+   message) or writes to `shared/results.json`.
+6. **Cleanup** — the instance disconnects transport and releases
+   resources.
 
 ## When to multi-instance
 
@@ -93,9 +116,22 @@ and pipe IPC for sub-millisecond dispatch. See
 
 ```
 .scaffold/instances/
-├── manager.py          — spawns and coordinates instances
-├── instance.py         — individual instance runtime
+├── manager.py          — spawns and coordinates instances (socket + filesystem)
+├── instance.py         — individual instance runtime (socket + filesystem)
+├── transport.py        — TCP socket transport layer (server + client)
 └── shared/
-    ├── queue.json      — task queue
-    └── results.json    — completed results
+    ├── queue.json      — task queue (filesystem mode)
+    ├── results.json    — completed results
+    └── locks/          — file-based locks
 ```
+
+## Tests
+
+16 transport tests covering:
+- Wire protocol roundtrips (single, multiple, large messages)
+- Server/client connection and registration
+- Broadcast and unicast message delivery
+- Multiple concurrent clients
+- Heartbeat filtering
+- Disconnect detection and reconnection
+- Manager socket integration (startup, fallback, dispatch, result reporting)

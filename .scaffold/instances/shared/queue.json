@@ -1,1 +1,12 @@
-{"tasks": []}
+[
+  {
+    "id": "59cef371",
+    "description": "socket report test",
+    "context": {},
+    "status": "running",
+    "assigned_to": "20d42939",
+    "result": null,
+    "created_at": 1775814952.7965205,
+    "completed_at": 0.0
+  }
+]

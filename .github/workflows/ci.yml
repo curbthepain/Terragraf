@@ -2,15 +2,17 @@ name: CI
 
 on:
   push:
-    branches: [main, terra-yog]
+    branches: [Yibb, Yog]
   pull_request:
-    branches: [main]
+    branches: [Yog]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
+        os: [ubuntu-latest, windows-latest]
         python-version: ['3.11', '3.12']
 
     steps:
@@ -20,11 +22,33 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: pip install numpy scipy pytest
+      - name: Install system Qt deps (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            xvfb libxkbcommon0 libxcb-cursor0 libxcb-icccm4 libxcb-image0 \
+            libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-shape0 \
+            libxcb-xinerama0 libxcb-xkb1 libegl1 libgl1 libdbus-1-3 \
+            libfontconfig1 libxrender1
 
-      - name: Run tests
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run tests (Linux, headless via xvfb)
+        if: runner.os == 'Linux'
         working-directory: .scaffold
+        env:
+          TERRAGRAF_MODE: ci
+          QT_QPA_PLATFORM: offscreen
+        run: xvfb-run -a python -m pytest tests/ -v --tb=short
+
+      - name: Run tests (Windows)
+        if: runner.os == 'Windows'
+        working-directory: .scaffold
+        env:
+          TERRAGRAF_MODE: ci
+          QT_QPA_PLATFORM: offscreen
         run: python -m pytest tests/ -v --tb=short
 
   lint:
@@ -38,4 +62,6 @@ jobs:
 
       - name: Check syntax
         working-directory: .scaffold
+        env:
+          TERRAGRAF_MODE: ci
         run: python -m py_compile compute/math/linalg.py compute/math/algebra.py compute/math/stats.py compute/math/transforms.py compute/fft/fft.py compute/fft/spectral.py generators/gen_model.py generators/gen_shader.py

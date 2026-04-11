@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# terra — single entry point for the Terraformer scaffolding system.
+# terra — single entry point for the Terragraf scaffolding system.
 # Human commands. Fits on one card.
 #
 #   terra status          what's here, what works
@@ -47,10 +47,21 @@ count_files() {
     find "$dir" -name "*.$ext" 2>/dev/null | wc -l
 }
 
+_record_hit() {
+    # Fire-and-forget analytics recording for self-sharpening
+    if has_python; then
+        $(python_cmd) -c "
+import sys; sys.path.insert(0, '$SCAFFOLD')
+from sharpen.tracker import record_hit
+record_hit('$1', '''$2''', '''$3''')
+" 2>/dev/null &
+    fi
+}
+
 # ── status ───────────────────────────────────────────────────────────
 
 cmd_status() {
-    echo -e "${BOLD}Terraformer${RESET}"
+    echo -e "${BOLD}Terragraf${RESET}"
     echo ""
 
     # Platform
@@ -113,6 +124,7 @@ cmd_route() {
 
             if [[ "$intent_lower" == *"$query_lower"* ]]; then
                 echo -e "  ${CYAN}${intent}${RESET} -> ${BOLD}${target}${RESET}"
+                _record_hit "routes/$(basename "$file")" "$intent" "$query"
                 found=1
             fi
         done < "$file"
@@ -145,6 +157,7 @@ cmd_lookup() {
             echo -e "  ${GREEN}fix${RESET}    $(echo "$fix" | xargs)"
             [ -n "${hint// }" ] && echo -e "  ${DIM}where${RESET}  $(echo "$hint" | xargs)"
             echo ""
+            _record_hit "tables/errors.table" "$pattern" "$query"
             found=1
         fi
     done < "$SCAFFOLD/tables/errors.table"
@@ -174,6 +187,7 @@ cmd_pattern() {
             [ -n "${example// }" ] && echo -e "    example $(echo "$example" | xargs)"
             [ -n "${notes// }" ] && echo -e "    ${DIM}$(echo "$notes" | xargs)${RESET}"
             echo ""
+            [ -n "$query" ] && _record_hit "tables/patterns.table" "$name" "$query"
             found=1
         fi
     done < "$SCAFFOLD/tables/patterns.table"
@@ -207,6 +221,7 @@ cmd_dep() {
                 low)    risk_color="$GREEN" ;;
             esac
             echo -e "  $(echo "$module" | xargs) -> $(echo "$depends" | xargs)  ${DIM}$(echo "$rel" | xargs)${RESET}  ${risk_color}${risk_trimmed}${RESET}"
+            [ -n "$query" ] && _record_hit "tables/deps.table" "$module" "$query"
             found=1
         fi
     done < "$SCAFFOLD/tables/deps.table"
@@ -312,7 +327,7 @@ print('  queued: $id  $desc')
 # ── init ─────────────────────────────────────────────────────────
 
 cmd_init() {
-    echo -e "${BOLD}Terraformer init${RESET}"
+    echo -e "${BOLD}Terragraf init${RESET}"
     echo ""
 
     # Wire commit hook into git
@@ -380,16 +395,42 @@ cmd_imgui() {
             echo -e "${BOLD}Building ImGui app...${RESET}"
             local build_dir="$SCAFFOLD/imgui/build"
             mkdir -p "$build_dir"
-            if command -v cmake &>/dev/null; then
-                cmake -B "$build_dir" -S "$SCAFFOLD/imgui" && cmake --build "$build_dir"
+
+            # Locate cmake: VS2022 bundled, then PATH
+            local vs_cmake="/c/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe"
+            local cmake_cmd=""
+            if [ -f "$vs_cmake" ]; then
+                cmake_cmd="$vs_cmake"
+            elif command -v cmake &>/dev/null; then
+                cmake_cmd="cmake"
             else
                 echo -e "  ${RED}cmake required to build ImGui app${RESET}"
-                echo -e "  ${DIM}install: sudo apt install cmake (Linux) or winget install cmake (Windows)${RESET}"
+                echo -e "  ${DIM}install: winget install cmake (Windows) or sudo apt install cmake (Linux)${RESET}"
+                return 1
+            fi
+
+            # Configure + build (VS generator avoids vcvars requirement on Windows)
+            if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* || "$OSTYPE" == "win32"* ]]; then
+                "$cmake_cmd" -G "Visual Studio 17 2022" -A x64 \
+                    -B "$build_dir" -S "$SCAFFOLD/imgui" \
+                && "$cmake_cmd" --build "$build_dir" --config Release
+            else
+                "$cmake_cmd" -DCMAKE_BUILD_TYPE=Release \
+                    -B "$build_dir" -S "$SCAFFOLD/imgui" \
+                && "$cmake_cmd" --build "$build_dir"
             fi
             ;;
         run)
-            local binary="$SCAFFOLD/imgui/build/terraformer_imgui"
-            if [ -x "$binary" ]; then
+            local binary=""
+            # VS generator puts binary in Release/ subdirectory
+            if [ -f "$SCAFFOLD/imgui/build/Release/terragraf_imgui.exe" ]; then
+                binary="$SCAFFOLD/imgui/build/Release/terragraf_imgui.exe"
+            elif [ -f "$SCAFFOLD/imgui/build/terragraf_imgui.exe" ]; then
+                binary="$SCAFFOLD/imgui/build/terragraf_imgui.exe"
+            elif [ -f "$SCAFFOLD/imgui/build/terragraf_imgui" ]; then
+                binary="$SCAFFOLD/imgui/build/terragraf_imgui"
+            fi
+            if [ -n "$binary" ]; then
                 "$binary"
             else
                 echo -e "  ${YELLOW}not built yet${RESET}"
@@ -497,10 +538,117 @@ print(result)
     esac
 }
 
+# ── sharpen ──────────────────────────────────────────────────────────
+
+cmd_sharpen() {
+    local action="${1:-status}"
+    if ! has_python; then
+        echo -e "  ${RED}python required for sharpen${RESET}"
+        return 1
+    fi
+    $(python_cmd) "$SCAFFOLD/sharpen/cli.py" "$action" "${@:2}"
+}
+
+# ── tune ────────────────────────────────────────────────────────────
+
+cmd_tune() {
+    local action="${1:-status}"
+    if ! has_python; then
+        echo -e "  ${RED}python required for tune${RESET}"
+        return 1
+    fi
+    $(python_cmd) "$SCAFFOLD/tuning/cli.py" "$action" "${@:2}"
+}
+
+# ── mode ─────────────────────────────────────────────────────────────
+
+cmd_mode() {
+    local action="${1:-show}"
+
+    if ! has_python; then
+        echo -e "  ${RED}python required for mode detection${RESET}"
+        return 1
+    fi
+
+    case "$action" in
+        show)
+            $(python_cmd) -c "
+import sys; sys.path.insert(0, '$SCAFFOLD')
+from modes.detector import detect
+info = detect()
+print(f'  mode     \033[1m{info.mode.value}\033[0m')
+print(f'  source   {info.source}')
+print()
+if info.is_ci:
+    print('  \033[33mCI mode — headless, tests/lint only\033[0m')
+    print('  Blocked systems:')
+    for s in sorted(info.blocked):
+        print(f'    \033[31m✗\033[0m {s}')
+else:
+    print('  \033[32mApp mode — full interactive access\033[0m')
+print()
+print('  Capabilities:')
+for c in sorted(info.capabilities):
+    print(f'    \033[32m✓\033[0m {c}')
+"
+            ;;
+        check)
+            # Exit 0 if app mode, exit 1 if CI mode
+            $(python_cmd) -c "
+import sys; sys.path.insert(0, '$SCAFFOLD')
+from modes.detector import detect
+info = detect()
+sys.exit(0 if info.is_app else 1)
+"
+            ;;
+        can)
+            local cap="${2:?Usage: terra mode can <capability>}"
+            $(python_cmd) -c "
+import sys; sys.path.insert(0, '$SCAFFOLD')
+from modes.detector import detect
+info = detect()
+if info.can('$cap'):
+    print('  \033[32m✓\033[0m $cap is available in ' + info.mode.value + ' mode')
+    sys.exit(0)
+else:
+    print('  \033[31m✗\033[0m $cap is not available in ' + info.mode.value + ' mode')
+    sys.exit(1)
+"
+            ;;
+        *)
+            echo -e "  ${BOLD}terra mode${RESET}"
+            echo -e "    ${CYAN}show${RESET}           display current mode and capabilities"
+            echo -e "    ${CYAN}check${RESET}          exit 0 if app mode, exit 1 if CI"
+            echo -e "    ${CYAN}can${RESET} <cap>      check if a capability is available"
+            ;;
+    esac
+}
+
+# ── app ──────────────────────────────────────────────────────────────
+
+cmd_app() {
+    if ! has_python; then
+        echo -e "${RED}python not found${RESET}"
+        exit 1
+    fi
+    local py
+    py=$(python_cmd)
+
+    # Check PySide6 is available
+    if ! "$py" -c "import PySide6" 2>/dev/null; then
+        echo -e "${YELLOW}PySide6 not installed.${RESET}"
+        echo -e "  pip install -r requirements-app.txt"
+        exit 1
+    fi
+
+    cd "$SCAFFOLD"
+    "$py" -m app.main "$@"
+}
+
 # ── help ─────────────────────────────────────────────────────────────
 
 cmd_help() {
-    echo -e "${BOLD}terra${RESET} — Terraformer commands"
+    echo -e "${BOLD}terra${RESET} — Terragraf commands"
     echo ""
     echo -e "  ${CYAN}terra init${RESET}               wire hooks, check env"
     echo -e "  ${CYAN}terra status${RESET}             what's here, what works"
@@ -515,6 +663,10 @@ cmd_help() {
     echo -e "  ${CYAN}terra imgui${RESET} <action>      ImGui real-time viewer"
     echo -e "  ${CYAN}terra viz${RESET} <action>       visualization"
     echo -e "  ${CYAN}terra math${RESET} <action>      math operations"
+    echo -e "  ${CYAN}terra sharpen${RESET} [action]   self-sharpening analytics"
+    echo -e "  ${CYAN}terra tune${RESET} [action]      thematic calibration"
+    echo -e "  ${CYAN}terra mode${RESET} [action]     detect CI vs App mode"
+    echo -e "  ${CYAN}terra app${RESET}                Qt container app"
     echo -e "  ${CYAN}terra help${RESET}               this"
     echo ""
     echo -e "  ${DIM}Routes:  .scaffold/routes/*.route${RESET}"
@@ -537,6 +689,10 @@ case "${1:-}" in
     imgui)    shift; cmd_imgui "$@" ;;
     viz)      shift; cmd_viz "$@" ;;
     math)     shift; cmd_math "$@" ;;
+    sharpen)  shift; cmd_sharpen "$@" ;;
+    tune)     shift; cmd_tune "$@" ;;
+    mode)     shift; cmd_mode "$@" ;;
+    app)      shift; cmd_app "$@" ;;
     help|-h|--help) cmd_help ;;
     *)        cmd_help ;;
 esac

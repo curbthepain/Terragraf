@@ -1,0 +1,14 @@
+[skill]
+name = "graphify"
+version = "0.1"
+description = "Build and query a knowledge graph of the codebase"
+entry = "run.py"
+type = "analyzer"
+
+[triggers]
+intents = ["knowledge graph", "build graph", "query graph", "graph analysis"]
+commands = ["terra graphify"]
+
+[deps]
+python = [">=3.11"]
+modules = ["graphifyy"]

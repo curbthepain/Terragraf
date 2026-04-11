@@ -3,7 +3,7 @@
 
 ## What This Is
 
-Terraformer scaffolding. Not a project generator — this IS the project.
+Terragraf scaffolding. Not a project generator — this IS the project.
 You work from inside this structure. Any AI can slot in.
 CLI entry point: `./terra help`
 
@@ -55,6 +55,9 @@ Targets: **Linux (Wayland)** and **Windows 10/11** only.
 │   ├── errors.table        ← Error → cause → fix
 │   ├── patterns.table      ← Pattern → where used → example
 │   └── deps.table          ← Module → depends on → risk
+│
+├── modes/                  ← Operational mode detection (CI vs App)
+│   └── detector.py         ← detect(), require_app(), ModeInfo
 │
 ├── instances/              ← Multi-instancing (replaces agents)
 │   ├── manager.py          ← Spawn, track, and coordinate instances

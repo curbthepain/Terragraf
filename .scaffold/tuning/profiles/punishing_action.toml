@@ -1,0 +1,96 @@
+# Universe Profile: Punishing Action RPG
+# Archetype: outmatched until earned. Every encounter is a test.
+# Mastery through suffering. Fair but unforgiving.
+
+[meta]
+name = "punishing_action"
+version = "1.0"
+genre = "action-rpg"
+description = "Every encounter is a test being administered."
+
+[thematic_promise]
+text = "You are not ready. You will be. Every death is a lesson."
+register = "solemn weight"
+
+[axes]
+mortality_weight = "high-personal"
+power_fantasy = "outmatched"
+shitpost_tolerance = "zero"
+
+[reaction_signature]
+template = "visceral_operatic"
+description = """
+Death is heavy and personal. The player failed, not the character.
+Reactions are deliberate — no comedy, no exaggeration.
+Impact feels physical and earned. Recovery is slow and intentional.
+The world does not care about the player. It simply exists.
+"""
+
+[bot_directive]
+text = """
+Every interaction should feel like a test being administered.
+Enemies are not obstacles — they are teachers that kill.
+Attacks must be readable but punishing if missed.
+The player should feel outmatched until the moment mastery clicks,
+then feel the rush of having earned something real.
+Never cheap-shot. Always fair. Always lethal.
+"""
+
+[[zone]]
+name = "starting_area"
+mortality_weight = "high-personal"
+power_fantasy = "outmatched"
+shitpost_tolerance = "zero"
+override_directive = "Establish the contract immediately. First enemy can kill you. This is intentional."
+
+[[zone]]
+name = "endgame_area"
+mortality_weight = "high-personal"
+power_fantasy = "capable"
+shitpost_tolerance = "zero"
+override_directive = "The player has earned competence. Respect it. Challenge accordingly."
+
+[[knob]]
+id = "attack_telegraph_clarity"
+domain = "combat"
+label = "Attack Telegraph Clarity"
+type = "slider"
+default = 0.6
+min = 0.0
+max = 1.0
+step = 0.05
+behavior = """
+At 0.0: Minimal telegraph. Near-instant attacks. Extreme difficulty.
+At 0.5: Clear wind-up animations. Fair and readable.
+At 1.0: Very generous telegraphs. Accessibility-first.
+"""
+
+[[knob]]
+id = "punishment_severity"
+domain = "progression"
+label = "Death Punishment"
+type = "dropdown"
+default = "heavy"
+options = ["light", "moderate", "heavy", "brutal"]
+behavior = """
+light: Lose nothing. Respawn at last checkpoint.
+moderate: Lose some progress. Respawn nearby.
+heavy: Lose significant resources. Return to last safe zone.
+brutal: Lose everything carried. Full corpse run.
+"""
+
+[[knob]]
+id = "healing_scarcity"
+domain = "resources"
+label = "Healing Availability"
+type = "slider"
+default = 0.3
+min = 0.0
+max = 1.0
+step = 0.05
+behavior = """
+At 0.0: No healing available. Pure no-hit gameplay.
+At 0.3: Rare healing. Every use is a strategic decision.
+At 0.5: Moderate healing. Recoverable mistakes.
+At 1.0: Abundant healing. Focus on combat, not resource management.
+"""

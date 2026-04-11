@@ -6,8 +6,8 @@
  * Receives FFT data from compute/fft/ via bridge.py.
  */
 
-// #include "imgui.h"
-// #include "implot.h"
+#include "imgui.h"
+#include "implot.h"
 
 #include <vector>
 #include <cmath>
@@ -72,46 +72,46 @@ void push_frame(const float* spectrum, int n_freqs) {
  * Call this every frame from main loop.
  */
 void render_spectrogram_panel() {
-    // if (!state.initialized) init_spectrogram();
-    //
-    // ImGui::Begin("Spectrogram");
-    //
-    // // Controls
-    // ImGui::SliderInt("FFT Size", &state.fft_size, 256, 4096);
-    // ImGui::SliderFloat("Min dB", &state.min_db, -120.0f, -20.0f);
-    // ImGui::SliderFloat("Max dB", &state.max_db, -20.0f, 20.0f);
-    //
-    // if (ImGui::Button("Reset")) {
-    //     init_spectrogram();
-    // }
-    //
-    // ImGui::Separator();
-    //
-    // // Test signal controls
-    // ImGui::Text("Test Signal");
-    // ImGui::SliderFloat("Freq 1 (Hz)", &state.test_freq1, 20.0f, 4000.0f);
-    // ImGui::SliderFloat("Freq 2 (Hz)", &state.test_freq2, 20.0f, 4000.0f);
-    //
-    // // Generate test frame (sine wave mix)
-    // std::vector<float> test_spectrum(state.n_freqs, 0.0f);
-    // float freq_resolution = state.sample_rate / state.fft_size;
-    // int bin1 = (int)(state.test_freq1 / freq_resolution);
-    // int bin2 = (int)(state.test_freq2 / freq_resolution);
-    // if (bin1 < state.n_freqs) test_spectrum[bin1] = 1.0f;
-    // if (bin2 < state.n_freqs) test_spectrum[bin2] = 0.5f;
-    // push_frame(test_spectrum.data(), state.n_freqs);
-    //
-    // // Render heatmap
-    // if (ImPlot::BeginPlot("##Spectrogram", ImVec2(-1, 400))) {
-    //     ImPlot::PlotHeatmap("dB",
-    //         state.spec_buffer.data(),
-    //         state.n_freqs, state.history_frames,
-    //         state.min_db, state.max_db,
-    //         nullptr,
-    //         ImPlotPoint(0, 0),
-    //         ImPlotPoint(state.history_frames, state.n_freqs));
-    //     ImPlot::EndPlot();
-    // }
-    //
-    // ImGui::End();
+    if (!state.initialized) init_spectrogram();
+
+    ImGui::Begin("Spectrogram");
+
+    // Controls
+    ImGui::SliderInt("FFT Size", &state.fft_size, 256, 4096);
+    ImGui::SliderFloat("Min dB", &state.min_db, -120.0f, -20.0f);
+    ImGui::SliderFloat("Max dB", &state.max_db, -20.0f, 20.0f);
+
+    if (ImGui::Button("Reset")) {
+        init_spectrogram();
+    }
+
+    ImGui::Separator();
+
+    // Test signal controls
+    ImGui::Text("Test Signal");
+    ImGui::SliderFloat("Freq 1 (Hz)", &state.test_freq1, 20.0f, 4000.0f);
+    ImGui::SliderFloat("Freq 2 (Hz)", &state.test_freq2, 20.0f, 4000.0f);
+
+    // Generate test frame (sine wave mix)
+    std::vector<float> test_spectrum(state.n_freqs, 0.0f);
+    float freq_resolution = state.sample_rate / state.fft_size;
+    int bin1 = (int)(state.test_freq1 / freq_resolution);
+    int bin2 = (int)(state.test_freq2 / freq_resolution);
+    if (bin1 < state.n_freqs) test_spectrum[bin1] = 1.0f;
+    if (bin2 < state.n_freqs) test_spectrum[bin2] = 0.5f;
+    push_frame(test_spectrum.data(), state.n_freqs);
+
+    // Render heatmap
+    if (ImPlot::BeginPlot("##Spectrogram", ImVec2(-1, 400))) {
+        ImPlot::PlotHeatmap("dB",
+            state.spec_buffer.data(),
+            state.n_freqs, state.history_frames,
+            state.min_db, state.max_db,
+            nullptr,
+            ImPlotPoint(0, 0),
+            ImPlotPoint(state.history_frames, state.n_freqs));
+        ImPlot::EndPlot();
+    }
+
+    ImGui::End();
 }

@@ -1,0 +1,384 @@
+/* ============================================================
+   LEGACY OBJECTNAME COMPATIBILITY
+   Re-maps every #objectName selector the existing app + tests
+   rely on (status_*, dim, mono, title, primary, danger,
+   queryCard, contextPanel, activityList, diffBody, sidebar_v2,
+   icon_btn, top_bar, chrome_button, sidebar, etc.) onto the
+   Kohala palette so widgets that haven't been migrated to
+   property-class tags keep rendering correctly.
+
+   Hardcoded colors (no f-string interpolation) — this file is
+   loaded raw by themes/__init__.py.
+============================================================ */
+
+/* ── Labels ───────────────────────────────────────────────────── */
+
+QLabel#title {
+    color: #F0EDE6;
+    font-family: "Barlow Condensed", "Barlow", "Inter", sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: transparent;
+}
+
+QLabel#subtitle {
+    color: #B6C3D2;
+    font-size: 13px;
+    background: transparent;
+}
+
+QLabel#section_header {
+    color: #F0EDE6;
+    font-family: "Barlow Condensed", "Barlow", "Inter", sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 8px 0 4px 0;
+    letter-spacing: 0.4px;
+    background: transparent;
+}
+
+QLabel#dim {
+    color: #6B7D90;
+    font-size: 12px;
+    background: transparent;
+}
+
+QLabel#mono {
+    color: #8A9BAE;
+    font-size: 12px;
+    font-family: "JetBrains Mono", "Cascadia Code", "Consolas", monospace;
+    background: transparent;
+}
+
+QLabel#code, QListWidget#code {
+    font-family: "JetBrains Mono", "Cascadia Code", "Consolas", monospace;
+}
+
+/* Semantic colour labels — used by widgets that previously inlined colour. */
+QLabel#status_green   { color: #6EE0B0; font-size: 13px; background: transparent; }
+QLabel#status_red     { color: #E83030; font-size: 13px; background: transparent; }
+QLabel#status_yellow  { color: #fbbf24; font-size: 13px; background: transparent; }
+QLabel#status_cyan    { color: #22d3ee; font-size: 13px; background: transparent; }
+QLabel#status_accent  { color: #E83030; font-size: 13px; background: transparent; }
+QLabel#status_magenta { color: #c084fc; font-size: 13px; background: transparent; }
+
+QLabel#status_green_bold   { color: #6EE0B0; font-weight: 700; background: transparent; }
+QLabel#status_red_bold     { color: #E83030; font-weight: 700; background: transparent; }
+QLabel#status_yellow_bold  { color: #fbbf24; font-weight: 700; background: transparent; }
+QLabel#status_cyan_bold    { color: #22d3ee; font-weight: 700; background: transparent; }
+QLabel#status_accent_bold  { color: #E83030; font-weight: 700; background: transparent; }
+QLabel#status_magenta_bold { color: #c084fc; font-weight: 700; background: transparent; }
+
+QLabel#detail_yellow { color: #fbbf24; font-size: 10px; background: transparent; }
+QLabel#detail_cyan   { color: #22d3ee; font-size: 10px; background: transparent; }
+QLabel#detail_green  { color: #6EE0B0; font-size: 10px; background: transparent; }
+
+
+/* ── Buttons (legacy #primary / #secondary / #danger) ─────────── */
+
+QPushButton#primary {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0    rgba(255, 110, 96, 245),
+        stop:0.05 rgba(240, 70, 60, 248),
+        stop:0.50 rgba(205, 36, 32, 250),
+        stop:0.92 rgba(150, 18, 16, 250),
+        stop:1    rgba(95,  10, 10, 248));
+    color: #FFFFFF;
+    border: 1px solid rgba(255,140,128,0.45);
+    border-top: 1px solid rgba(255,210,200,0.65);
+    border-bottom: 1px solid rgba(50,4,4,0.55);
+    border-radius: 18px;
+    font-weight: 700;
+    padding: 9px 22px;
+    min-height: 16px;
+}
+
+QPushButton#primary:hover {
+    border-top-color: rgba(255,225,215,0.78);
+}
+
+QPushButton#primary:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(150, 18, 16, 250), stop:1 rgba(70, 5, 5, 250));
+    color: rgba(255,255,255,0.85);
+}
+
+QPushButton#secondary {
+    background: transparent;
+    color: #E83030;
+    border: 1px solid rgba(232,48,48,0.40);
+    border-radius: 18px;
+    padding: 9px 22px;
+    font-weight: 600;
+}
+
+QPushButton#secondary:hover {
+    background: rgba(232,48,48,0.10);
+    color: #FFFFFF;
+}
+
+QPushButton#danger {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(60, 16, 18, 200), stop:1 rgba(28, 10, 14, 220));
+    color: #E0A8A6;
+    border: 1px solid rgba(192,34,31,0.40);
+    border-top: 1px solid rgba(255,140,120,0.35);
+    border-bottom: 1px solid rgba(40,4,4,0.50);
+    border-radius: 18px;
+    padding: 9px 22px;
+    font-weight: 600;
+}
+
+QPushButton#danger:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(80, 20, 22, 220), stop:1 rgba(40, 12, 16, 230));
+    border-color: rgba(232,48,48,0.60);
+    color: #FFFFFF;
+}
+
+
+/* ── Legacy sidebar (#sidebar / .nav_btn / #sidebar_v2 / #icon_btn) ─ */
+/* Kept so any pre-rework call sites still get a usable look while the
+   layout migration is in flight. */
+
+QWidget#sidebar {
+    background-color: #0E1A2E;
+    border-right: 1px solid rgba(255,255,255,0.10);
+}
+
+QPushButton.nav_btn {
+    background: transparent;
+    color: #B6C3D2;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    text-align: left;
+    font-size: 13px;
+}
+
+QPushButton.nav_btn:hover {
+    background-color: rgba(255,255,255,0.05);
+    color: #F0EDE6;
+}
+
+QPushButton.nav_btn[active="true"] {
+    background-color: rgba(232,48,48,0.18);
+    color: #E83030;
+    border-left: 2px solid #E83030;
+}
+
+QWidget#sidebar_v2 {
+    background-color: #0E1A2E;
+    border-right: 1px solid rgba(255,255,255,0.10);
+}
+
+QLabel#sidebar_section {
+    color: #E83030;
+    font-family: "JetBrains Mono", "Consolas", monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 14px 14px 4px 14px;
+    background: transparent;
+}
+
+QPushButton#icon_btn {
+    background: transparent;
+    color: #B6C3D2;
+    border: none;
+    border-radius: 8px;
+    padding: 0 12px;
+    margin: 1px 6px;
+    text-align: left;
+    font-size: 13px;
+    qproperty-iconSize: 16px;
+}
+
+QPushButton#icon_btn:hover {
+    background-color: rgba(255,255,255,0.05);
+    color: #F0EDE6;
+}
+
+QPushButton#icon_btn:pressed {
+    background-color: rgba(232,48,48,0.18);
+    color: #E83030;
+}
+
+QPushButton#icon_btn:focus {
+    background-color: rgba(255,255,255,0.05);
+    outline: none;
+}
+
+
+/* ── Legacy TopBar / chrome buttons (TabCornerChrome) ─────────── */
+
+QWidget#top_bar {
+    background-color: #0E1A2E;
+}
+
+QToolButton#chrome_button {
+    background: transparent;
+    color: #B6C3D2;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 16px;
+}
+
+QToolButton#chrome_button:hover {
+    background-color: rgba(255,255,255,0.05);
+    color: #F0EDE6;
+}
+
+QToolButton#chrome_button::menu-indicator {
+    image: none;
+}
+
+
+/* ── Cards (chat / response / LLM) ────────────────────────────── */
+
+QFrame#queryCard {
+    background-color: rgba(6,12,22,210);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-top: 1px solid rgba(255,240,220,0.14);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin: 2px 0;
+}
+
+QFrame#responseCard, QFrame#llmCard, QFrame#noProviderCard {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0    rgba(26, 42, 64, 220),
+        stop:0.06 rgba(20, 34, 54, 218),
+        stop:0.55 rgba(12, 22, 38, 210),
+        stop:1    rgba(6,  12, 22, 205));
+    border: 1px solid rgba(255,255,255,0.10);
+    border-top: 1px solid rgba(255,240,220,0.22);
+    border-bottom: 1px solid rgba(0,0,0,0.40);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin: 2px 0;
+}
+
+QTextEdit#llmText {
+    background-color: rgba(6,12,22,210);
+    color: #F0EDE6;
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    font-family: "JetBrains Mono", "Cascadia Code", "Consolas", monospace;
+    font-size: 12px;
+}
+
+QTextEdit#llmTextError {
+    background-color: rgba(6,12,22,210);
+    color: #E83030;
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    font-family: "JetBrains Mono", "Cascadia Code", "Consolas", monospace;
+    font-size: 12px;
+}
+
+
+/* ── Context panel (session state rail) ───────────────────────── */
+
+QWidget#contextPanel {
+    background-color: #0E1A2E;
+    border-left: 1px solid rgba(255,255,255,0.10);
+}
+
+QLabel#contextTitle {
+    color: #E83030;
+    font-family: "Barlow Condensed", "Barlow", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: transparent;
+}
+
+QLabel#contextStat {
+    color: #B6C3D2;
+    font-size: 11px;
+    background: transparent;
+}
+
+
+/* ── Activity feed ────────────────────────────────────────────── */
+
+QWidget#activityHeader {
+    background-color: #0E1A2E;
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+
+QLabel#activityTitle {
+    color: #E83030;
+    font-family: "Barlow Condensed", "Barlow", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: transparent;
+}
+
+QListWidget#activityList {
+    background-color: #060D17;
+    border: none;
+    border-radius: 0;
+    font-family: "JetBrains Mono", "Cascadia Code", "Consolas", monospace;
+    font-size: 12px;
+}
+
+QListWidget#activityList::item {
+    padding: 4px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    border-left: none;
+}
+
+QListWidget#activityList::item:hover {
+    background-color: rgba(255,255,255,0.05);
+}
+
+QListWidget#activityList::item:selected {
+    background-color: rgba(232,48,48,0.18);
+    border-left: 2px solid #E83030;
+}
+
+
+/* ── Diff viewer ──────────────────────────────────────────────── */
+
+QLabel#diffTitle {
+    color: #E83030;
+    background-color: #0E1A2E;
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+    padding: 6px 10px;
+    font-family: "Barlow Condensed", "Barlow", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+QTextEdit#diffBody {
+    background-color: rgba(6,12,22,210);
+    color: #B6C3D2;
+    border: none;
+    border-radius: 0;
+    padding: 10px;
+    font-family: "JetBrains Mono", "Cascadia Code", "Consolas", monospace;
+    font-size: 11px;
+}
+
+
+/* ── Separators ───────────────────────────────────────────────── */
+
+QFrame#separator {
+    background-color: rgba(255,255,255,0.08);
+    max-height: 1px;
+    border: none;
+}
+
+QFrame#v_separator {
+    background-color: rgba(255,255,255,0.08);
+    max-width: 1px;
+    border: none;
+}

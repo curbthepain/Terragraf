@@ -1,0 +1,13 @@
+# Terragraf — exclude from graphify knowledge graph
+.scaffold/vendor/
+.scaffold/app/fonts/
+build/
+Debug/
+.venv/
+src/vendor/
+src/
+graphify-out/
+__pycache__/
+.claude/
+checkpoints/
+Releases/

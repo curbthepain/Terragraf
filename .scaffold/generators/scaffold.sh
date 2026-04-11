@@ -96,7 +96,7 @@ cmd_shader() {
 cmd_status() {
     local platform
     platform=$(detect_platform)
-    echo "=== Terraformer Status ==="
+    echo "=== Terragraf Status ==="
     echo "Platform:  $platform"
     echo "Node.js:   $(has_node && echo 'yes' || echo 'no')"
     echo "Python:    $(has_python && echo 'yes' || echo 'no')"
@@ -142,7 +142,7 @@ case "${1:-}" in
     status)   cmd_status ;;
     instance) cmd_instance "${@:2}" ;;
     *)
-        echo "Terraformer Generator"
+        echo "Terragraf Generator"
         echo ""
         echo "Usage: scaffold.sh <command> [args]"
         echo ""
